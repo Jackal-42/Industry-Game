@@ -1,0 +1,28 @@
+body {
+  background-color: #424242;
+}
+
+.loader {
+  border: 8px solid #202020;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  margin: auto;
+  margin-top: 20%;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); border-top: 8px solid #3498db;}
+  50% {border-top: 8px solid #d764ee;}
+  100% { transform: rotate(360deg); border-top: 8px solid #3498db;}
+}
+
+.loadText {
+  color: white;
+  font-size: 36px;
+  font-family: "Rubik";
+  font-weight: 400;
+  text-align: center;
+}
