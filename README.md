@@ -102,3 +102,8 @@ Checks all the opaque pixels on a given canvas layer, and if obj is intersecing 
 
   obj: The object that will collide
   layer: The layer to collide with
+
+TODO:
+
+* Documentation improvements
+  * How to build a framework
