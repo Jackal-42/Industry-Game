@@ -35,6 +35,10 @@ function Game(){
 
   function Layer(id){
     this.id = id
+    this.renderingProperties = "";
+    this.clearFrames = true;
+    this.hertz = 60;
+    this.renderDelay = 0;
     this.canvas = document.createElement("canvas")
     this.canvas.width = 1000
     this.canvas.height = 500
@@ -72,6 +76,7 @@ function Game(){
       this.type = type
       eval("this."+template[i][0]+" = template[i][1];")
     }
+    this.role = "#default"
 
     //modifiers can make specific objects vary from the template without devoting additional lines of code to setting each one up
 
@@ -118,20 +123,44 @@ function Game(){
       }
     }
   }
+  this.getLayer = function(id){
+    for(var i = 0, l = this.layers.length; i < l; i++){
+      if(this.layers[i].id == id){
+        return this.layers[i]
+      }
+    }
+  }
+  this.getRole = function(id){
+    for(var i = 0, l = this.templates.length; i < l; i++){
+      if(this.templates[i].id == id){
+        for(var k = 0, ll = this.templates[i].data.length; k < ll; k++){
+          if(this.templates[i].data[k][0] == "role"){
+            return this.templates[i].data[k][1]
+          }
+        }
+      }
+    }
+  }
 
   //Evaluates the role property of every item in the game.objects array, unless it does not have a role property
 
   this.tick = function(){
     for(var i = 0, l = this.objects.length; i < l; i++){
       if(!(this.objects[i].role === undefined)){
-        eval(this.objects[i].role)
+        if(this.objects[i].role == "#default"){
+          eval(this.getRole(this.objects[i].type))
+        }else{
+          eval(this.objects[i].role)
+        }
       }
     }
   }
 
   this.render = function(){
     for(var i = 0, l = this.layers.length; i < l; i++){  
-      this.layers[i].clear();
+      if(this.layers[i].clearFrames == true){  
+        this.layers[i].clear();
+      }
     }
     //Sorts the this.objects list by z-index order ascending to prepare for rendering. 
 
@@ -148,11 +177,14 @@ function Game(){
           for(var j = 0, m = this.layers.length; j < m; j++){
             if(this.layers[j].id == indexedObjects[i].layer){
               ctx = this.layers[j].context
+              ctx.save()
+              eval(this.layers[j].renderingProperties)
             }
           }
         }else{
           ctx = this.layers[0].context;
         }
+        
 
         var height = 0;
         var width = 0;
@@ -171,8 +203,6 @@ function Game(){
         }
 
         // Controls transparency
-
-        ctx.save();
 
         if(!(indexedObjects[i].alpha === undefined)){
           ctx.globalAlpha = indexedObjects[i].alpha
