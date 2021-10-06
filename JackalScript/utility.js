@@ -16,13 +16,29 @@ function key(id){
   return (keys && keys[id]) || (keys && keys[eval("keyIdTable."+id)]);
 }
 
-function Game(){
+function Game(id){
 
   //Creates a div element that will contain all the canvas elements that are the layers of the game
 
+  this.test = 'e'
   this.window = document.createElement("div")
+  this.window.id = id
+  this.mouseX = 0;
+  this.mouseY = 0;
+  this.mouseDown = false;
   document.body.appendChild(this.window)
-  this.window.style = "position: absolute; background-color: lightgray; width: 1000px; height: 500px; border: 2px solid black;"
+  this.window.addEventListener('mousemove', function(e){
+    eval(this.id).mouseX = e.clientX - this.offsetLeft
+    eval(this.id).mouseY = e.clientY - this.offsetTop
+    // console.log(eval(this.id).mouseX + " , " + eval(this.id).mouseY)
+  })
+  this.window.addEventListener('mousedown', function(e){
+    eval(this.id).mouseDown = true
+  })
+  this.window.addEventListener('mouseup', function(e){
+    eval(this.id).mouseDown = false
+  })
+  this.window.style = "position: absolute; background-color: lightgray; width: 1024px; height: 640px; border: 2px solid black;"
 
   //Allows the user to create layers which are stored in game.layers and each is a seperate canvas element
   
