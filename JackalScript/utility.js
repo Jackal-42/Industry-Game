@@ -1,3 +1,9 @@
+String.prototype.replaceAt = function(index, replacement) {
+  return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+}
+
+
+
 var keys;
 
 //Adds listeners to detect when keys are pressed and depressed :( and puts the results in an array indentified by keycode
@@ -13,7 +19,7 @@ window.addEventListener('keyup', function (e) {
 //Tests if a key is pressed on any given frame and can accept either a keycode or any ID contained in the keyIdTable
 
 function key(id){
-  return (keys && keys[id]) || (keys && keys[eval("keyIdTable."+id)]);
+  try{return (keys && keys[id]) || (keys && keys[eval("keyIdTable."+id)])}catch{return false}
 }
 
 function Game(id){
@@ -35,6 +41,7 @@ function Game(id){
   this.window.addEventListener('mousedown', function(e){
     eval(this.id).mouseDown = true
   })
+  this.window.addEventListener('mouseout', function(e){eval(this.id).mouseDown = false})
   this.window.addEventListener('mouseup', function(e){
     eval(this.id).mouseDown = false
   })
@@ -56,8 +63,8 @@ function Game(id){
     this.hertz = 60;
     this.renderDelay = 0;
     this.canvas = document.createElement("canvas")
-    this.canvas.width = 1000
-    this.canvas.height = 500
+    this.canvas.width = 1024
+    this.canvas.height = 640
     this.canvas.style = "position:absolute; left: 0%; right: 0%; top:0%; bottom: 0%;"
     this.context = this.canvas.getContext("2d");
     this.clear = function(){
@@ -139,6 +146,14 @@ function Game(id){
       }
     }
   }
+  this.getObject = function(id){
+    for(var i = 0, l = this.objects.length; i < l; i++){
+      if(this.objects[i].id == id){
+        return this.objects[i]
+        break;
+      }
+    }
+  }
   this.getLayer = function(id){
     for(var i = 0, l = this.layers.length; i < l; i++){
       if(this.layers[i].id == id){
@@ -162,6 +177,7 @@ function Game(id){
 
   this.tick = function(){
     for(var i = 0, l = this.objects.length; i < l; i++){
+      var self = this.objects[i]
       if(!(this.objects[i].role === undefined)){
         if(this.objects[i].role == "#default"){
           eval(this.getRole(this.objects[i].type))
@@ -173,11 +189,7 @@ function Game(id){
   }
 
   this.render = function(){
-    for(var i = 0, l = this.layers.length; i < l; i++){  
-      if(this.layers[i].clearFrames == true){  
-        this.layers[i].clear();
-      }
-    }
+    
     //Sorts the this.objects list by z-index order ascending to prepare for rendering. 
 
     var indexedObjects = this.objects.sort((a, b) => {
