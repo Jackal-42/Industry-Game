@@ -56,11 +56,14 @@ function getMapData(x, y){
 }
 
 function changeMapData(x, y, data){
+  if(data != "0"){
+    // console.log("Changed Data at " + x + ", " + y + " to " + data)
+  }
   // console.log(x + ", " + y + ", " + data)
   game.getObject("activeLayer").mapData[y] = game.getObject("activeLayer").mapData[y].replaceAt(x, data)
 }
 
-var pipeConnections = [["1", "lr"], ["2", "bt"], ["3", "bl"], ["4", "br"], ["5", "rt"], ["6", "lt"], ["T", "b"], ["B", "t"], ["L", "r"], ["R", "l"]]
+var pipeConnections = [["1", "lr"], ["2", "bt"], ["3", "bl"], ["4", "br"], ["5", "rt"], ["6", "lt"], ["T", "b"], ["B", "t"], ["L", "r"], ["R", "l"], ["X", "blrt"]]
 
 function getPipeConnections(x, y){
   var data = getMapData(x,y)
@@ -86,11 +89,16 @@ function getPipeId(connections){
 }
 
 function connectPipes(x1, y1, x2, y2){
+  if("3456".includes(getMapData(x2, y2))){return;}
   var pipe1Connections = getPipeConnections(x1, y1)
   var pipe2Connections = getPipeConnections(x2, y2)
+  if(pipe2Connections == "lr" || pipe2Connections == "tb"){
+    return;
+  }
   var pipesToReplace = [];
 
   if(x1 > x2 && y1 == y2){
+    // console.log("Connected " + x1 + ", " + y1 + " and " + x2 + ", " + y2)
     
     pipesToReplace = [];
     if(x1 > x2+1){
@@ -119,6 +127,7 @@ function connectPipes(x1, y1, x2, y2){
     }
   }
   if(x1 < x2 && y1 == y2){
+    // console.log("Connected " + x1 + ", " + y1 + " and " + x2 + ", " + y2)
 
     pipesToReplace = [];
     if(x1 < x2-1){
@@ -147,6 +156,7 @@ function connectPipes(x1, y1, x2, y2){
     }
   }
   if(y1 > y2 && x1 == x2){
+    // console.log("Connected " + x1 + ", " + y1 + " and " + x2 + ", " + y2)
     // pipe1Connections = pipe1Connections.concat("t")
     // pipe2Connections = pipe2Connections.concat("b")
     // if(y1 == y2+2){
@@ -179,6 +189,8 @@ function connectPipes(x1, y1, x2, y2){
     }
   }
   if(y1 < y2 && x1 == x2){
+    // console.log("Connected " + x1 + ", " + y1 + " and " + x2 + ", " + y2)
+    
     pipesToReplace = [];
     if(y1 < y2-1){
       var crossingMidsection = true;
@@ -215,54 +227,138 @@ function connectPipes(x1, y1, x2, y2){
   
 }
 
+function updatePipe(x, y){
+  if(getMapData(x, y) == "X"){
+    if(pipeSet.includes(getMapData(x, y-1)) && pipeSet.includes(getMapData(x, y+1))){
+      changeMapData(x, y, "2")
+    }
+    if(pipeSet.includes(getMapData(x-1, y)) && pipeSet.includes(getMapData(x+1, y))){
+      changeMapData(x, y, "1")
+    }
+    updatePipe(x, y-1)
+    updatePipe(x, y+1)
+    updatePipe(x-1, y)
+    updatePipe(x+1, y)
+  }else{
+    var connections = getPipeConnections(x, y)
+    var stableConnections = ""
+    if(connections.includes("b")){
+      if("23456BX".includes(getMapData(x, y+1))){
+        stableConnections += "b"
+      }
+    }
+    if(connections.includes("l")){
+      if("13456LX".includes(getMapData(x-1, y))){
+        stableConnections += "l"
+      }
+    }
+    if(connections.includes("r")){
+      if("13456RX".includes(getMapData(x+1, y))){
+        stableConnections += "r"
+      }
+    }
+    if(connections.includes("t")){
+      if("23456TX".includes(getMapData(x, y-1))){
+        stableConnections += "t"
+      }
+    }
+    if(stableConnections != ""){
+      changeMapData(x, y, getPipeId(stableConnections))
+    }else{
+      changeMapData(x, y, "-")
+    }
+  
+  }
+
+
+}
 
 
 var crossingPipe = false;
 function addPipe(x, y){
-  document.getElementById("display1").innerHTML = previousPipeX
-  document.getElementById("display2").innerHTML = neighbourX
-  document.getElementById("display3").innerHTML = previousPipeY
-  document.getElementById("display4").innerHTML = neighbourY
-  crossingPipe = false;
-  if((previousPipeX != x || previousPipeY != y) && "TLBR123456".includes(getMapData(x, y))){
-    beginMouseHold = true
-      
-    crossingPipe = true
-  }
-  if(getMapData(x, y) == "-"){
-    changeMapData(x, y, "O")
-    if(!beginMouseHold){
-      connectPipes(x, y, previousPipeX, previousPipeY)
+  if(key(16)){
+    changeMapData(x, y, "-")
+    updatePipe(x, y-1)
+    updatePipe(x, y+1)
+    updatePipe(x-1, y)
+    updatePipe(x+1, y)
+  }else{
+    document.getElementById("display1").innerHTML = previousPipeX
+    document.getElementById("display2").innerHTML = neighbourX
+    document.getElementById("display3").innerHTML = previousPipeY
+    document.getElementById("display4").innerHTML = neighbourY
+    crossingPipe = false;
+    if((previousPipeX != x || previousPipeY != y) && "TLBR123456".includes(getMapData(x, y))){
+      beginMouseHold = true
+        
+      crossingPipe = true
     }
     
-    if(getMapData(x, y) == "O"){
-      changeMapData(x, y, "-")
+    if(getMapData(x, y) == "-"){
+      changeMapData(x, y, "O")
+      if(!beginMouseHold){
+        connectPipes(x, y, previousPipeX, previousPipeY)
+      }else{
+        if(getMapData(x, y-1) == "B" || getMapData(x, y-1) == "p"){
+          connectPipes(x, y, x, y-1)
+        }else if(getMapData(x, y+1) == "T" || getMapData(x, y+1) == "p"){
+          connectPipes(x, y, x, y+1)
+        }else if(getMapData(x-1, y) == "R" || getMapData(x-1, y) == "p"){
+          connectPipes(x, y, x-1, y)
+        }else if(getMapData(x+1, y) == "L" || getMapData(x+1, y) == "p"){
+          connectPipes(x, y, x+1, y)
+        }
+      }
+      
+
+
+      if(getMapData(x, y) == "O"){
+        changeMapData(x, y, "-")
+      }
+      if(previousPipeX != x || previousPipeY != y){
+        neighbourX = previousPipeX;
+        neighbourY = previousPipeY;
+      }
+      previousPipeX = x;
+      previousPipeY = y;
     }
-    if(previousPipeX != x || previousPipeY != y){
-      neighbourX = previousPipeX;
-      neighbourY = previousPipeY;
+    if(endMouseHold && !"123456".includes(getMapData(x, y))){
+      if(getMapData(x, y-1) == "B" || getMapData(x, y-1) == "p"){
+        connectPipes(x, y, x, y-1)
+      }else if(getMapData(x, y+1) == "T" || getMapData(x, y+1) == "p"){
+        connectPipes(x, y, x, y+1)
+      }else if(getMapData(x-1, y) == "R" || getMapData(x-1, y) == "p"){
+        connectPipes(x, y, x-1, y)
+      }else if(getMapData(x+1, y) == "L" || getMapData(x+1, y) == "p"){
+        connectPipes(x, y, x+1, y)
+      }
     }
-    previousPipeX = x;
-    previousPipeY = y;
-  }
-  if(beginMouseHold || endMouseHold){}
-  if((beginMouseHold || endMouseHold) && "TLBRO".includes(getMapData(x, y))){
-    // if("TLBR".includes(getMapData(x+(x-neighbourX), y+(y-neighbourY)))){
-    //   // console.log(x + ", " + neighbourX + "\n" + y + ", " + neighbourY)
-    //   console.log("FORWARD")
-    //   connectPipes(x, y, x+(x-neighbourX), y+(y-neighbourY))
-    // }else if("TLBR".includes(getMapData(x+(y-neighbourY), y+(x-neighbourX)))){
-    //   console.log("LEFT")
-    //   connectPipes(x, y, x+(y-neighbourY), y+(x-neighbourX))
-    // }else if("TLBR".includes(getMapData(x+(neighbourY-y), y+(neighbourX-x)))){
-    //   console.log("RIGHT")
-    //   connectPipes(x, y, x+(neighbourY-y), y+(neighbourX-x))
-    // }else if(getMapData(x, y) == "O"){
-    //   changeMapData(x, y, "-")
+
+    if("TLBRp".includes(getMapData(x, y)) && "TLBRp".includes(getMapData(previousPipeX, previousPipeY)) && (Math.abs(x-previousPipeX) == 1 || Math.abs(y-previousPipeY) == 1)){
+      connectPipes(x, y, previousPipeX, previousPipeY)
+      previousPipeX = x;
+      previousPipeY = y;
+    }
+    
+    // if((beginMouseHold || endMouseHold) && "TLBRO".includes(getMapData(x, y))){
+      // if("TLBR".includes(getMapData(x+(x-neighbourX), y+(y-neighbourY)))){
+      //   // console.log(x + ", " + neighbourX + "\n" + y + ", " + neighbourY)
+      //   console.log("FORWARD")
+      //   connectPipes(x, y, x+(x-neighbourX), y+(y-neighbourY))
+      // }else if("TLBR".includes(getMapData(x+(y-neighbourY), y+(x-neighbourX)))){
+      //   console.log("LEFT")
+      //   connectPipes(x, y, x+(y-neighbourY), y+(x-neighbourX))
+      // }else if("TLBR".includes(getMapData(x+(neighbourY-y), y+(neighbourX-x)))){
+      //   console.log("RIGHT")
+      //   connectPipes(x, y, x+(neighbourY-y), y+(neighbourX-x))
+      // }else if(getMapData(x, y) == "O"){
+      //   changeMapData(x, y, "-")
+      // }
     // }
-  }
-  if(crossingPipe){
-    beginMouseHold = false;
+    
+    if(crossingPipe){
+      beginMouseHold = false;
+    }
   }
 }
 

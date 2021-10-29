@@ -31,6 +31,10 @@ game.loop = function(){
   mouseX = Math.floor(game.mouseX/32)
   mouseY = Math.floor(game.mouseY/32)
   
+  if("TLBR".includes(getMapData(mouseX, mouseY))){
+    previousPipeX = mouseX;
+    previousPipeY = mouseY;
+  }
 
   if(game.mouseDown){
     var distanceX = previousMouseX - mouseX
