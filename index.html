@@ -8,6 +8,47 @@
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
+    <div id="debug" style="position: absolute; height: 400px; width: 250px; border: 1px solid #424242; background-color: lightgray; top: 1%; right: 1%; z-index: 9; overflow: scroll; resize: vertical;">
+      <p id="debugHeader" style="background-color: gray; width: 100%; text-align: center; cursor: move; padding-bottom: 6px; padding-top: 6px;">Debug</p>
+      
+      <div style="height: 92%;" id="menus">
+        <p class="selector" onclick="toggleMenu('mouseInfo')"><span id="mouseInfoArrow">ᐳ </span>General</p>
+        <div id="mouseInfo" class="menu" style="display:none;">
+          <p>Cursor X: <span id="cursorX"></span></p>
+          <p>Cursor Y: <span id="cursorY"></span></p>
+          <p>Data At Cursor: <span id="dataAtCursor"></span></p>
+          <input type="text" autocomplete="off" id="evalInput" style="font-family: monospace; width: 225px;padding: 1px;" placeholder="use lg() to output result"><button style="margin-bottom: 6px;" onclick="document.getElementById('errorOutput').innerHTML = ''; document.getElementById('evalOutput').innerHTML = ''; try{eval(document.getElementById('evalInput').value)}catch(err){document.getElementById('errorOutput').innerHTML = err}">Evaluate</button><br>
+          <p style="color: black;" id="evalOutput"></p>
+          <p style="color: red" id="errorOutput"></p>
+          <button style="margin-bottom: 2px;" id="debugSwitch" onclick="if(logPipes){logPipes=false; document.getElementById('debugSwitch').innerHTML = 'Log Pipes OFF'}else{logPipes=true; document.getElementById('debugSwitch').innerHTML = 'Log Pipes ON'}">Log Pipes OFF</button>
+          <br>
+          <button style="margin-bottom: 2px;" onclick="game.getObject('activeLayer').mapData = ['--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------']">Clear Structures</button>
+        </div>
+
+
+        <p class="selector" onclick="toggleMenu('positioningInfo')"><span id="positioningInfoArrow">ᐳ </span>Pipe Network</p>
+        <div id="positioningInfo" class="menu" style="display:none;">
+          <div style="background-color: #eeeeee; border: 1px solid black; height: 150px; width: 96%; margin-top: 4px; margin-bottom: 4px; margin-left: -2px; overflow: scroll; font-size: 12px; display: inline-block; white-space: nowrap;">
+            <p id="pipeLog"><p>
+          </div>
+          <div style="background-color: #eeeeee; border: 1px solid black; height: 100px; width: 96%; margin-top: 4px; margin-bottom: 4px; margin-left: -2px; overflow: scroll; font-size: 12px; display: inline-block; white-space: nowrap;">
+            <p id="networkLog"><p>
+          </div>
+        </div>
+
+
+        <p class="selector" onclick="toggleMenu('editor')"><span id="editorArrow">ᐳ </span>Coming Soon</p>
+        <div id="editor" class="menu" style="display:none;">
+          <img src="assets/luigi-dance.gif">
+        </div>
+
+
+      </div>
+    </div>
+
+
+
+
     <div style="position:fixed; z-index: 200; display: none;">
       <p>Pipe X: <span id="display1"></span><p>
       <p>Neighbour X: <span id="display2"></span><p>

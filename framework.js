@@ -51,13 +51,81 @@ var previousPipeY = 0;
 var neighbourX = 0;
 var neighbourY = 0;
 
+var debugging = true;
+var logPipes = false;
+
+function toggleMenu(menu){
+  if(document.getElementById(menu).style.display == "none"){
+    document.getElementById(menu).style.display = "block"
+    document.getElementById(menu + "Arrow").innerHTML = "ᐯ "
+  }else{
+    document.getElementById(menu).style.display = "none"
+    document.getElementById(menu + "Arrow").innerHTML = "ᐳ "
+  }
+}
+
+// Make the DIV element draggable:
+dragElement(document.getElementById("debug"));
+
+function dragElement(elmnt) {
+  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  if (document.getElementById(elmnt.id + "Header")) {
+    // if present, the header is where you move the DIV from:
+    document.getElementById(elmnt.id + "Header").onmousedown = dragMouseDown;
+  } else {
+    // otherwise, move the DIV from anywhere inside the DIV:
+    elmnt.onmousedown = dragMouseDown;
+  }
+
+  function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // get the mouse cursor position at startup:
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    // call a function whenever the cursor moves:
+    document.onmousemove = elementDrag;
+  }
+
+  function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    // calculate the new cursor position:
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    // set the element's new position:
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+  }
+
+  function closeDragElement() {
+    // stop moving when mouse button is released:
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+function lg(expression){
+  if(expression == "robert sux"){
+    document.getElementById('evalOutput').innerHTML = "he really do tho";
+  }else{
+    document.getElementById('evalOutput').innerHTML = expression;
+  }
+  
+}
+
+
+
 function getMapData(x, y){
   try{return game.getObject("activeLayer").mapData[y].charAt(x)}catch{return 0}
 }
 
 function changeMapData(x, y, data){
-  if(data != "0"){
-    // console.log("Changed Data at " + x + ", " + y + " to " + data)
+  if(logPipes && debugging && data != "O" & data != "-"){
+    document.getElementById("pipeLog").innerHTML += "Changed data at (" + x + ", " + y + ") to " + data + "<br>" 
   }
   // console.log(x + ", " + y + ", " + data)
   game.getObject("activeLayer").mapData[y] = game.getObject("activeLayer").mapData[y].replaceAt(x, data)
@@ -89,11 +157,76 @@ function getPipeId(connections){
 }
 
 function connectPipes(x1, y1, x2, y2){
+  var joinEmptyNetwork = false;
   if("3456".includes(getMapData(x2, y2))){return;}
+  if("TLBR".includes(getMapData(x1, y1)) && "TLBR".includes(getMapData(x2, y2))){
+    joinEmptyNetwork = true;
+  }
   var pipe1Connections = getPipeConnections(x1, y1)
   var pipe2Connections = getPipeConnections(x2, y2)
   if(pipe2Connections == "lr" || pipe2Connections == "tb"){
     return;
+  }
+  var endPoints = [];
+  for(var j = 0; j < l; j++){
+    if(networks[j][0] == 'pipeSegment'){
+      endPoints.push(networks[j][1][0])
+      endPoints.push(networks[j][1][1])
+    }
+  }
+  for(var i = 0, l = networks.length; i < l; i++){
+    if(networks[i][0] == 'pipeSegment'){
+      
+      var stringArray2 = JSON.stringify([x2, y2])
+      if(JSON.stringify(networks[i][1]).includes(stringArray2)){
+        if(JSON.stringify(endPoints).includes(JSON.stringify([x1, y1]))){
+          // console.log(endPoints)
+          var stringArray1 = JSON.stringify([x1, y1])
+          for(var j = 0; j < l; j++){
+            // console.log(stringArray1)
+            // console.log(networks[j][1])
+            if(JSON.stringify(networks[j][1][0]) == stringArray1){
+              
+              if(JSON.stringify(networks[i][1][0]) == stringArray2){
+                networks[j][1][0] = networks[i][1][1]
+              }else{
+                networks[j][1][0] = networks[i][1][0]
+              }
+              networks.splice(i, 1)
+              i--
+              l--
+            }else if(JSON.stringify(networks[j][1][1]) == stringArray1){
+             
+              if(JSON.stringify(networks[i][1][0]) == stringArray2){
+                networks[j][1][1] = networks[i][1][1]
+              }else{
+                networks[j][1][1] = networks[i][1][0]
+              }
+              networks.splice(i, 1)
+              i--
+              l--
+            }
+          }
+        }else{
+          for(var j = 0; j < 2; j++){
+            if(JSON.stringify(networks[i][1][j]) == stringArray2){
+              networks[i][1][j] = [x1, y1]
+              break;
+            }
+          }
+          break;
+        }
+        
+        // for(var j = 0; j < l; j++){
+        //   if(networks[j][1].includes([x1, y1])){
+        //     networks[j][networks[j][1].indexOf([x1, y1])] = networks[i][Math.abs(networks[i][1].indexOf([x2, y2]) - 1)]
+        //   }
+        // }
+
+
+
+      }
+    }
   }
   var pipesToReplace = [];
 
@@ -217,53 +350,181 @@ function connectPipes(x1, y1, x2, y2){
       pipe2Connections = pipe2Connections.concat("t")
     }
   }
-  changeMapData(x1, y1, getPipeId(pipe1Connections))
+  if(getPipeId(pipe1Connections) != "O" && !"rW&p".includes(getMapData(x1, y1))){
+    changeMapData(x1, y1, getPipeId(pipe1Connections))
+  }
   var pipe2Id = getPipeId(pipe2Connections)
-  if(pipe2Id == "O"){
-    changeMapData(x2, y2, "-")
-  }else{
-    changeMapData(x2, y2, pipe2Id)
+  if(getMapData(x2, y2) != "p"){
+    if(pipe2Id == "O"){
+      changeMapData(x2, y2, "-")
+    }else{
+      changeMapData(x2, y2, pipe2Id)
+      if(logPipes && debugging){document.getElementById("pipeLog").innerHTML += "Joined (" + x1 + ", " + y1 + ") and (" + x2 + ", " + y2 + ")<br>"}
+    }
+  }
+  if(getMapData(x2, y2) == "p" || getMapData(x1, y1) == "p"){
+    if(getMapData(x1, y1) == "p"){
+      var endPoints = updateNetwork(x2, y2)
+    }else{
+      var endPoints = updateNetwork(x1, y1)
+    }
+    // console.log(x1 + ", " + y1)
+    // console.log(x2 + ", " + y2)
+    if(JSON.stringify(endPoints[0]) != JSON.stringify(endPoints[1])){
+      var pos = 0;
+      if(endPoints[0][0] == x1 && endPoints[0][1] == y1){
+        pos = 1;
+      }
+      // console.log(pos)
+      if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p"){
+
+        addPipeNetwork(endPoints)
+        
+        // networkTotal++
+        // networks.push(["pipeSegment", endPoints, [], networkTotal])
+        if(debugging){updateNetworkLog()}
+      }
+    }
+  }
+
+  if(joinEmptyNetwork){
+    var endPoints = updateNetwork(x1, y1)
+    var endX = endPoints[0][0]
+    var endY = endPoints[0][1]
+    var connections = getPipeConnections(endX, endY)
+    if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p")){
+      endX = endPoints[1][0]
+      endY = endPoints[1][1]
+      connections = getPipeConnections(endX, endY)
+      if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p")){
+        addPipeNetwork(endPoints)
+        // networkTotal++
+        // networks.push(["pipeSegment", endPoints, [], networkTotal])
+      }
+    }
   }
   
 }
 
+function addPipeNetwork(endPoints){
+  // console.log(endPoints)
+  var endX = endPoints[0][0]
+  var endY = endPoints[0][1]
+  var connections = getPipeConnections(endX, endY)
+  var facility1X = 0;
+  var facility1Y = 0;
+  var facility2X = 0;
+  var facility2Y = 0;
+  if((connections.includes("t") && getMapData(endX, endY-1) == "p")){
+    facility1X = endX
+    facility1Y = endY - 1
+  }else if((connections.includes("l") && getMapData(endX-1, endY) == "p")){
+    facility1X = endX - 1
+    facility1Y = endY
+  }else if((connections.includes("r") && getMapData(endX+1, endY) == "p")){
+    facility1X = endX + 1
+    facility1Y = endY
+  }
+
+  endX = endPoints[1][0]
+  endY = endPoints[1][1]
+  connections = getPipeConnections(endX, endY)
+  if((connections.includes("t") && getMapData(endX, endY-1) == "p")){
+    facility2X = endX
+    facility2Y = endY - 1
+  }else if((connections.includes("l") && getMapData(endX-1, endY) == "p")){
+    facility2X = endX - 1
+    facility2Y = endY
+  }else if((connections.includes("r") && getMapData(endX+1, endY) == "p")){
+    facility2X = endX + 1
+    facility2Y = endY
+  }
+
+  var facility1String = JSON.stringify([facility1X, facility1Y])
+  var facility2String = JSON.stringify([facility2X, facility2Y])
+  var facilityIDs = [];
+  for(var i = 0, l = networks.length; i < l; i++){
+    if(networks[i][0] != "pipeSegment"){
+      var areaString = JSON.stringify(networks[i][1])
+      if(areaString.includes(facility1String) || areaString.includes(facility2String)){
+        facilityIDs.push(networks[i][3])
+      }
+    }
+  }
+
+  //NOTE TO FUTURE SELF
+
+  //PLEASE FIX
+
+  //For some reason, the function is unable to identify the facilities located at the ends of the pipe. The problem could lie with this function, or possibly the updateNetwork() function, but most likely with both functions. Also, sometimes it seems to believe that a pipe end segment lies within a factory. Also, the pipe network function works fine for now. Also also, work on adding a function to switch between different areas of the map while still keeping the links for the current are open. Also also also, Good Luck!
+  
+  if(facilityIDs[1] != undefined){
+    networkTotal++
+
+    // console.log(facility1String)
+    // console.log(facility2String)
+    links.push([facilityIDs[0], facilityIDs[1], networkTotal])
+
+    networks.push(["pipeSegment", endPoints, [facilityIDs[0], facilityIDs[1]], networkTotal])
+  }
+
+}
+
+var updateDirection = "";
+
 function updatePipe(x, y){
-  if(getMapData(x, y) == "X"){
-    if(pipeSet.includes(getMapData(x, y-1)) && pipeSet.includes(getMapData(x, y+1))){
-      changeMapData(x, y, "2")
+  var mapData = getMapData(x, y)
+  if("prW&".includes(mapData)){
+    return;
+  }
+  
+  
+  if(mapData == "X"){
+    if(updateDirection == "x" || updateDirection == ""){
+      if("T234".includes(getMapData(x, y-1)) || "B256".includes(getMapData(x, y+1))){
+        changeMapData(x, y, "2")
+        updateDirection = "x"
+        updatePipe(x-1, y)
+        updatePipe(x+1, y)
+      }
     }
-    if(pipeSet.includes(getMapData(x-1, y)) && pipeSet.includes(getMapData(x+1, y))){
-      changeMapData(x, y, "1")
+
+    if(updateDirection == "y" || updateDirection == ""){
+      if("L135".includes(getMapData(x-1, y)) || "R146".includes(getMapData(x+1, y))){
+        changeMapData(x, y, "1")
+        updateDirection = "y"
+        updatePipe(x, y-1)
+        updatePipe(x, y+1)
+      }
     }
-    updatePipe(x, y-1)
-    updatePipe(x, y+1)
-    updatePipe(x-1, y)
-    updatePipe(x+1, y)
   }else{
     var connections = getPipeConnections(x, y)
     var stableConnections = ""
     if(connections.includes("b")){
-      if("23456BX".includes(getMapData(x, y+1))){
+      if("23456BXp".includes(getMapData(x, y+1))){
         stableConnections += "b"
       }
     }
     if(connections.includes("l")){
-      if("13456LX".includes(getMapData(x-1, y))){
+      if("13456LXp".includes(getMapData(x-1, y))){
         stableConnections += "l"
       }
     }
     if(connections.includes("r")){
-      if("13456RX".includes(getMapData(x+1, y))){
+      if("13456RXp".includes(getMapData(x+1, y))){
         stableConnections += "r"
       }
     }
     if(connections.includes("t")){
-      if("23456TX".includes(getMapData(x, y-1))){
+      if("23456TXp".includes(getMapData(x, y-1))){
         stableConnections += "t"
       }
     }
     if(stableConnections != ""){
-      changeMapData(x, y, getPipeId(stableConnections))
+      var newPipe = getPipeId(stableConnections)
+      if(getMapData(x, y) != newPipe){
+        changeMapData(x, y, newPipe)
+      }
     }else{
       changeMapData(x, y, "-")
     }
@@ -274,14 +535,164 @@ function updatePipe(x, y){
 }
 
 
+function killNetwork(x, y){
+  var stringified = JSON.stringify([x, y])
+  for(var i = 0, l = networks.length; i < l; i++){
+    if(networks[i][0] == "pipeSegment"){
+      if(JSON.stringify(networks[i][1][0]) == stringified || JSON.stringify(networks[i][1][1]) == stringified){
+        for(var k = 0, ll = links.length; k < ll; k++){
+          if(links[k][2] == networks[i][3]){
+            links.splice(k, 1)
+            k--
+            ll--
+          }
+        }
+
+        networks.splice(i, 1)
+        i--
+        l--
+        
+      }
+    }
+  }
+}
+
+
 var crossingPipe = false;
 function addPipe(x, y){
   if(key(16)){
-    changeMapData(x, y, "-")
-    updatePipe(x, y-1)
-    updatePipe(x, y+1)
-    updatePipe(x-1, y)
-    updatePipe(x+1, y)
+    var mapData = getMapData(x, y)
+    if("rWp&".includes(mapData)){
+      var coordString = JSON.stringify([x, y])
+      for(var i = 0, l = networks.length; i < l; i++){
+        if(JSON.stringify(networks[i][1]).includes(coordString)){
+          x = networks[i][1][0][0]
+          y = networks[i][1][0][1]
+          for(var k = 0, ll = networks.length; k < ll; k++){
+            if(networks[k][0] == "pipeSegment"){
+              if(networks[k][2][0] == networks[i][3] || networks[k][2][1] == networks[i][3]){
+                killNetwork(networks[k][1][0][0], networks[k][1][0][1])
+                k--
+                ll--
+              }
+            }
+          }
+          networks.splice(i, 1)
+          break;
+        }
+      }
+      changeMapData(x, y, "-")
+      changeMapData(x+1, y, "-")
+      changeMapData(x, y+1, "-")
+      changeMapData(x+1, y+1, "-")
+
+      updatePipe(x, y-1)
+      updatePipe(x+1, y-1)
+
+      updatePipe(x+2, y)
+      updatePipe(x+2, y+1)
+
+      updatePipe(x, y+2)
+      updatePipe(x+1, y+2)
+
+      updatePipe(x-1, y)
+      updatePipe(x-1, y+1)
+      
+    }else{
+      var directionals = ""
+      if(mapData == "1"){
+        directionals = "lr"
+      }
+      if(mapData == "2"){
+        directionals = "tb"
+      }
+      if(mapData == "3"){
+        directionals = "br"
+      }
+      if(mapData == "4"){
+        directionals = "bl"
+      }
+      if(mapData == "5"){
+        directionals = "tr"
+      }
+      if(mapData == "6"){
+        directionals = "tl"
+      }
+
+      updateDirection = "";
+
+      changeMapData(x, y, "-")
+      updatePipe(x, y-1)
+      updatePipe(x, y+1)
+      updatePipe(x-1, y)
+      updatePipe(x+1, y)
+
+      var armEndPoints = [];
+      var endPoints = [];
+      for(var j = 0, l = networks.length; j < l; j++){
+        if(networks[j][0] == 'pipeSegment'){
+          endPoints.push(networks[j][1][0])
+          endPoints.push(networks[j][1][1])
+        }
+      }
+      endPoints = JSON.stringify(endPoints)
+      if(directionals.includes("t")){
+        if("TLBR123456X".includes(getMapData(x, y-1))){
+          armEndPoints = updateNetwork(x, y-1)
+          if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
+            killNetwork(armEndPoints[0][0], armEndPoints[0][1])
+          }
+          if(endPoints.includes(JSON.stringify(armEndPoints[1]))){
+            // console.log(armEndPoints[1][0] + ", " + armEndPoints[1][1])
+            killNetwork(armEndPoints[1][0], armEndPoints[1][1])
+          }
+        }
+      }
+      if(directionals.includes("b")){
+        if("TLBR123456X".includes(getMapData(x, y+1))){
+          armEndPoints = updateNetwork(x, y+1)
+          if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
+            killNetwork(armEndPoints[0][0], armEndPoints[0][1])
+          }
+          if(endPoints.includes(JSON.stringify(armEndPoints[1]))){
+            // console.log(armEndPoints[1][0] + ", " + armEndPoints[1][1])
+            killNetwork(armEndPoints[1][0], armEndPoints[1][1])
+          }
+        }
+      }
+      if(directionals.includes("l")){
+        if("TLBR123456X".includes(getMapData(x-1, y))){
+          armEndPoints = updateNetwork(x-1, y)
+          if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
+            killNetwork(armEndPoints[0][0], armEndPoints[0][1])
+          }
+          if(endPoints.includes(JSON.stringify(armEndPoints[1]))){
+            // console.log(armEndPoints[1][0] + ", " + armEndPoints[1][1])
+            killNetwork(armEndPoints[1][0], armEndPoints[1][1])
+          }
+        }
+      }
+      if(directionals.includes("r")){
+        if("TLBR123456X".includes(getMapData(x+1, y))){
+          armEndPoints = updateNetwork(x+1, y)
+          if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
+            killNetwork(armEndPoints[0][0], armEndPoints[0][1])
+          }
+          if(endPoints.includes(JSON.stringify(armEndPoints[1]))){
+            // console.log(armEndPoints[1][0] + ", " + armEndPoints[1][1])
+            killNetwork(armEndPoints[1][0], armEndPoints[1][1])
+          }
+        }
+      }
+      if(debugging){updateNetworkLog()}
+
+      // changeMapData(x, y, "-")
+      // updatePipe(x, y-1)
+      // updatePipe(x, y+1)
+      // updatePipe(x-1, y)
+      // updatePipe(x+1, y)
+    }
+    
   }else{
     document.getElementById("display1").innerHTML = previousPipeX
     document.getElementById("display2").innerHTML = neighbourX
@@ -340,21 +751,6 @@ function addPipe(x, y){
       previousPipeY = y;
     }
     
-    // if((beginMouseHold || endMouseHold) && "TLBRO".includes(getMapData(x, y))){
-      // if("TLBR".includes(getMapData(x+(x-neighbourX), y+(y-neighbourY)))){
-      //   // console.log(x + ", " + neighbourX + "\n" + y + ", " + neighbourY)
-      //   console.log("FORWARD")
-      //   connectPipes(x, y, x+(x-neighbourX), y+(y-neighbourY))
-      // }else if("TLBR".includes(getMapData(x+(y-neighbourY), y+(x-neighbourX)))){
-      //   console.log("LEFT")
-      //   connectPipes(x, y, x+(y-neighbourY), y+(x-neighbourX))
-      // }else if("TLBR".includes(getMapData(x+(neighbourY-y), y+(neighbourX-x)))){
-      //   console.log("RIGHT")
-      //   connectPipes(x, y, x+(neighbourY-y), y+(neighbourX-x))
-      // }else if(getMapData(x, y) == "O"){
-      //   changeMapData(x, y, "-")
-      // }
-    // }
     
     if(crossingPipe){
       beginMouseHold = false;
@@ -378,40 +774,13 @@ function addFacility(x, y, type){
     changeMapData(x+1, y+1, "p")
     createNetwork(x, y)
   }
+  
 }
 
 var networks = [];
 var networkTotal = 0;
+var links = [];
 
-function getNetworkArea(x, y){
-  var area = [];
-  var queue = [[x, y]];
-
-  while(queue.length > 0){
-    if(area.length > 200){
-      console.log(area);
-      break;
-    }
-    if(pipeSet.includes(getMapData(queue[0][0], queue[0][1])) && (JSON.stringify(area).indexOf(JSON.stringify(queue[0]))) == -1){
-      area.push(queue[0])
-      var directionals = getPipeConnections(queue[0][0], queue[0][1])
-      if(directionals.includes("t")){
-        queue.push([queue[0][0], queue[0][1]-1])
-      }
-      if(directionals.includes("b")){
-        queue.push([queue[0][0], queue[0][1]+1])
-      }
-      if(directionals.includes("l")){
-        queue.push([queue[0][0]-1, queue[0][1]])
-      }
-      if(directionals.includes("r")){
-        queue.push([queue[0][0]+1, queue[0][1]])
-      }
-    }
-    queue.shift();
-  }
-  return area;
-}
 
 function getNetwork(id){
   for(var i = 0, l = networks.length; i < l; i++){
@@ -422,44 +791,149 @@ function getNetwork(id){
 }
 
 function createNetwork(x, y){
-  if(getMapData(x, y) == "r"){
-    networks.push(["refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [], networkTotal])
-  }
-  if(getMapData(x, y) == "W"){
-    networks.push(["warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [], networkTotal])
-  }
-  if(pipeSet.includes(getMapData(x, y))){
-    var networkArea = getNetworkArea(x, y)
-    var connections = [];
-    for(var i = 0, l = networks.length; i < l; i++){
-      if(networks[i][0] != "pipe"){
-        for(var j = 0, ll = networks[i][1].length; j < ll; j++){
-          if((JSON.stringify(networkArea).indexOf(JSON.stringify(networks[i][1][j]))) != -1){
-            connections.push(networks[i][3])
-          }
-        }
-      }
-    }
-    // console.log(connections)
-    var facilityTypes = [];
-    for(var i = 0, l = connections.length; i < l; i++){
-      if(facilityTypes.includes(getNetwork(connections[i])[0])){
-        alert("You may not connect two facilities of the same type")
-        game.mouseDown = false;
-        return true;
-      }else{
-        facilityTypes.push(getNetwork(connections[i])[0])
-      }
-      
-    }
-    networks.push(["pipe", getNetworkArea(x,y), [], networkTotal])
-  }
   networkTotal++
-  return false;
+  var mapData = getMapData(x, y)
+  if(mapData == "r"){
+    networks.push(["refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [100], networkTotal])
+  }
+  if(mapData == "W"){
+    networks.push(["warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [0], networkTotal])
+  }
+
+  if(debugging){updateNetworkLog()}
+  //SCRAP
+  if(pipeSet.includes(mapData)){
+    addPipeNetwork(updateNetwork(x, y))
+    networks.push(["pipeSegment", updateNetwork(x, y), [], networkTotal])
+  }
+}
+
+function updateNetworkLog(){
+  document.getElementById("networkLog").innerHTML = ""
+  for(var i = 0, l = networks.length; i < l; i++){
+    document.getElementById("networkLog").innerHTML += networks[i][0] + " " + JSON.stringify(networks[i][1]) + " " + JSON.stringify(networks[i][2]) + " : " + networks[i][3] + "<br>"
+  }
 }
 
 function updateNetwork(x, y){
+  var targetX = x;
+  var targetY = y;
+  var cachedX = -1;
+  var cachedY = -1;
+  var secondSide = false;
+  var cachedXMotion = 0;
+  var cachedYMotion = 0;
+  var connections = getPipeConnections(x, y)
+  if(connections.length > 1){
+    if(connections.includes("b")){
+      if(cachedX == -1){
+        cachedX = -2
+      }else{
+        cachedX = x
+        cachedY = y + 1
+        cachedYMotion = 1
+      }
+    }
+    if(connections.includes("l")){
+      if(cachedX == -1){
+        cachedX = -2
+      }else{
+        cachedX = x - 1
+        cachedY = y
+        cachedXMotion = -1      
+      }
+    }
+    if(connections.includes("r")){
+      if(cachedX == -1){
+        cachedX = -2
+      }else{
+        cachedX = x + 1
+        cachedY = y
+        cachedXMotion = 1
+      }
+    }
+    if(connections.includes("t")){
+      if(cachedX == -1){
+        cachedX = -2
+      }else{
+        cachedX = x
+        cachedY = y - 1
+        cachedYMotion = -1
+      }
+    }
+  }
+  var xMotion = 0;
+  var yMotion = 0;
+  var endPoints = [[x, y],[0, 0]]
+  var counter = 0;
+
+  while(counter < 10000){
+    counter++
+    // console.log(targetX + ", " + targetY)
+    var connections = getPipeConnections(targetX, targetY)
+    if(getMapData(targetX, targetY) == "X"){
+      targetX += xMotion;
+      targetY += yMotion;
+      continue;
+    }
+    
+    if(connections.includes("b") && "123456TLBRX".includes(getMapData(targetX, targetY+1)) && yMotion != -1){
+      // if(secondSide){console.log("b")}
+      targetY += 1;
+      xMotion = 0;
+      yMotion = 1;
+      continue;
+    }
+    if(connections.includes("l") && "123456TLBRX".includes(getMapData(targetX-1, targetY)) && xMotion != 1){
+      // if(secondSide){console.log("l")}
+      targetX -= 1;
+      xMotion = -1;
+      yMotion = 0;
+      continue;
+    }
+    if(connections.includes("r") && "123456TLBRX".includes(getMapData(targetX+1, targetY)) && xMotion != -1){
+      // if(secondSide){console.log("r")}
+      targetX += 1;
+      xMotion = 1;
+      yMotion = 0;
+      continue;
+    }
+    if(connections.includes("t") && "123456TLBRX".includes(getMapData(targetX, targetY-1)) && yMotion != 1){
+      // if(secondSide){console.log("t")}
+      targetY -= 1;
+      xMotion = 0;
+      yMotion = -1;
+      continue;
+    }
+    if(cachedX >= 0){
+      if(getMapData(cachedX, cachedY) != "p"){
+        endPoints[1][0] = targetX;
+        endPoints[1][1] = targetY;
+        targetX = cachedX;
+        targetY = cachedY;
+        // console.log(cachedX + ", " + cachedY + " : " + cachedYMotion)
+        cachedX = -1;
+        xMotion = cachedXMotion;
+        yMotion = cachedYMotion;
+        secondSide = true;
+        continue;
+      }
+      
+    }
+    break;
+  }
+  if(secondSide){
+    if(!(endPoints[1][0] == targetX && endPoints[1][1] == targetY)){
+      endPoints[0][0] = targetX;
+      endPoints[0][1] = targetY;
+    }
+  }else{
+    endPoints[1][0] = targetX;
+    endPoints[1][1] = targetY;
+  }
   
+
+  return endPoints;
 }
 
 var framesElapsed = 0;

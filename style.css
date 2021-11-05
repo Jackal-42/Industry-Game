@@ -26,3 +26,33 @@ body {
   font-weight: 400;
   text-align: center;
 }
+
+.selector{
+  background-color: darkgray;
+  width: 100%;
+  cursor: pointer;
+}
+
+.menu{
+  padding-left: 4%;
+  width: 96%;
+  background-color: lightgray;
+}
+
+.plaintext{
+  color: black;
+  text-decoration: none;
+}
+
+#debug{
+  box-shadow: 2px 2px 4px #333333;
+}
+
+#menus{
+  
+}
+
+p{
+  margin: 0;
+  font-family: monospace;
+}

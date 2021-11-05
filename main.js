@@ -1,7 +1,6 @@
 var previousMouseX = 0;
 var previousMouseY = 0;
 
-
 game.loop = function(){
   // framesElapsed++
   for(var i = 0, l = game.layers.length; i < l; i++){  
@@ -30,6 +29,11 @@ game.loop = function(){
   previousMouseY = Math.floor(previousMouseY/32)
   mouseX = Math.floor(game.mouseX/32)
   mouseY = Math.floor(game.mouseY/32)
+  if(debugging){
+    document.getElementById("cursorX").innerHTML = mouseX
+    document.getElementById("cursorY").innerHTML = mouseY
+    document.getElementById("dataAtCursor").innerHTML = getMapData(mouseX, mouseY)
+  }
   
   if("TLBR".includes(getMapData(mouseX, mouseY))){
     previousPipeX = mouseX;
@@ -73,6 +77,30 @@ game.loop = function(){
   }
   previousMouseX = game.mouseX;
   previousMouseY = game.mouseY;
+
+  if(framesElapsed % 15 == 1){
+    for(var i = 0, l = links.length; i < l; i++){
+      var facility1 = getNetwork(links[i][0])
+      var facility2 = getNetwork(links[i][1])
+      var types = [[facility1[0], 1], [facility2[0], 2]].sort();
+      if(types[0][0] == "refinery" && types[1][0] == "warehouse"){
+        var index1 = 0;
+        var index2 = 0;
+        for(var j = 0, ll = networks.length; j < ll; j++){
+          if(networks[j][3] == facility1[3]){
+            index1 = j
+          }else if(networks[j][3] == facility2[3]){
+            index2 = j
+          }
+        }
+        if(networks[index1][2][0] > 0){
+          networks[index1][2][0] -= 1
+          networks[index2][2][0] += 1
+          if(debugging){updateNetworkLog()}
+        }
+      }
+    }
+  }
 
   // previousMouseX = 0;
   // previousMouseY = 0;

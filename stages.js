@@ -1,4 +1,4 @@
-game.addObject("dynamicOil")
+// game.addObject("dynamicOil")
 game.addObject("terrain", "this.refresh = false; this.layerId = \"terrain\"")
 game.addObject("terrain", `
   this.mapData = [
@@ -26,6 +26,8 @@ game.addObject("terrain", `
   ]; this.id = "activeLayer"
   
 `)
+
 addFacility(10, 3, "r")
 addFacility(14, 14, "W")
+
 game.addObject("selector")
