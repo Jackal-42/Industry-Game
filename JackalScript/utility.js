@@ -45,7 +45,7 @@ function Game(id){
   this.window.addEventListener('mouseup', function(e){
     eval(this.id).mouseDown = false
   })
-  this.window.style = "position: absolute; background-color: lightgray; width: 1024px; height: 640px; border: 2px solid black;"
+  this.window.style = "--scale: 1; position: absolute; background-color: lightgray; width: calc(var(--scale) * 512 * 1px); height: calc(var(--scale) * 320 * 1px); border: 2px solid black; margin: auto; left: 0; right: 0; top: 0; bottom: 0; image-rendering: pixelated;"
 
   //Allows the user to create layers which are stored in game.layers and each is a seperate canvas element
   
@@ -63,9 +63,9 @@ function Game(id){
     this.hertz = 60;
     this.renderDelay = 0;
     this.canvas = document.createElement("canvas")
-    this.canvas.width = 1024
-    this.canvas.height = 640
-    this.canvas.style = "position:absolute; left: 0%; right: 0%; top:0%; bottom: 0%;"
+    this.canvas.width = 512
+    this.canvas.height = 320
+    this.canvas.style = "position:absolute; left: 0%; right: 0%; top:0%; bottom: 0%; width: 100%; height: 100%;"
     this.context = this.canvas.getContext("2d");
     this.clear = function(){
       this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
