@@ -17,7 +17,6 @@ game.addLayer("main")
 
 game.addTexture("grass", "docs/assets/grass.png")
 game.addTexture("water", "docs/assets/water.png")
-game.addTexture("luigi", "docs/assets/luigi-dance.gif")
 
 
 game.addTexture("pipe_h", "docs/assets/pipe_h.png")//1
