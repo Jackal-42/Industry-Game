@@ -15,32 +15,32 @@ game.getLayer("terrain").clearFrames = false;
 game.addLayer("main")
 
 
-game.addTexture("grass", "../docs/assets/grass.png")
-game.addTexture("water", "../docs/assets/water.png")
+game.addTexture("grass", "./docs/assets/grass.png")
+game.addTexture("water", "./docs/assets/water.png")
 
 
-game.addTexture("pipe_h", "../docs/assets/pipe_h.png")//1
-game.addTexture("pipe_v", "../docs/assets/pipe_v.png")//2
-game.addTexture("pipe_tl", "../docs/assets/pipe_tl.png")//3
-game.addTexture("pipe_tr", "../docs/assets/pipe_tr.png")//4
-game.addTexture("pipe_bl", "../docs/assets/pipe_bl.png")//5
-game.addTexture("pipe_br", "../docs/assets/pipe_br.png")//6
-game.addTexture("pipe_xt", "../docs/assets/pipe_xt.png")//7
-game.addTexture("pipe_xr", "../docs/assets/pipe_xr.png")//8
-game.addTexture("pipe_xb", "../docs/assets/pipe_xb.png")//9
-game.addTexture("pipe_xl", "../docs/assets/pipe_xl.png")//0
-game.addTexture("pipe_x", "../docs/assets/pipe_x.png")//X
-game.addTexture("pipe_et", "../docs/assets/pipe_et.png")//T
-game.addTexture("pipe_er", "../docs/assets/pipe_er.png")//R
-game.addTexture("pipe_eb", "../docs/assets/pipe_eb.png")//B
-game.addTexture("pipe_el", "../docs/assets/pipe_el.png")//L
-game.addTexture("pipe_dot", "../docs/assets/pipe_dot.png")//O
+game.addTexture("pipe_h", "./docs/assets/pipe_h.png")//1
+game.addTexture("pipe_v", "./docs/assets/pipe_v.png")//2
+game.addTexture("pipe_tl", "./docs/assets/pipe_tl.png")//3
+game.addTexture("pipe_tr", "./docs/assets/pipe_tr.png")//4
+game.addTexture("pipe_bl", "./docs/assets/pipe_bl.png")//5
+game.addTexture("pipe_br", "./docs/assets/pipe_br.png")//6
+game.addTexture("pipe_xt", "./docs/assets/pipe_xt.png")//7
+game.addTexture("pipe_xr", "./docs/assets/pipe_xr.png")//8
+game.addTexture("pipe_xb", "./docs/assets/pipe_xb.png")//9
+game.addTexture("pipe_xl", "./docs/assets/pipe_xl.png")//0
+game.addTexture("pipe_x", "./docs/assets/pipe_x.png")//X
+game.addTexture("pipe_et", "./docs/assets/pipe_et.png")//T
+game.addTexture("pipe_er", "./docs/assets/pipe_er.png")//R
+game.addTexture("pipe_eb", "./docs/assets/pipe_eb.png")//B
+game.addTexture("pipe_el", "./docs/assets/pipe_el.png")//L
+game.addTexture("pipe_dot", "./docs/assets/pipe_dot.png")//O
 
-game.addTexture("ship", "../docs/assets/ship.png")//R
-game.addTexture("warehouse", "../docs/assets/warehouse.png")//B
-game.addTexture("refinery", "../docs/assets/refinery.png")
+game.addTexture("ship", "./docs/assets/ship.png")//R
+game.addTexture("warehouse", "./docs/assets/warehouse.png")//B
+game.addTexture("refinery", "./docs/assets/refinery.png")
 
-game.addTexture("selector", "../docs/assets/selector.png")
+game.addTexture("selector", "./docs/assets/selector.png")
 
 var pipeSet = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "X", "T", "R", "B", "L", "O", "p"]
 var mouseDownPreviously = false;
