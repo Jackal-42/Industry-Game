@@ -50,10 +50,41 @@ var previousPipeX = 0;
 var previousPipeY = 0;
 var neighbourX = 0;
 var neighbourY = 0;
+var scrollX = 0;
+var scrollY = 0;
+
+var areas = [];
+var areaLoaded = "shore";
+var areaIndex = 0;
+var fadeOpacity = 0;
+var fading = false;
+var evalOnFade = "";
 
 var debugging = true;
 var logPipes = false;
 var windowScale = 1;
+
+function loadArea(id){
+  for(var i = 0, l = areas.length; i < l; i++){
+    if(areas[i][0] == areaLoaded){
+      areas[i][2] = game.getObject("baseLayer").mapData
+      areas[i][3] = game.getObject("activeLayer").mapData
+    }
+  }
+  for(var i = 0, l = areas.length; i < l; i++){
+    if(areas[i][0] == id){
+      areaLoaded = id
+      areaIndex = i
+      game.getObject("baseLayer").mapData = areas[i][2]
+      game.getObject("activeLayer").mapData = areas[i][3]
+      game.getObject("baseLayer").refresh = true;
+      console.log(areas[i][3])
+      if(id == "island"){
+        changeMapData(35, 17, "s")
+      }
+    }
+  }
+}
 
 function toggleMenu(menu){
   if(document.getElementById(menu).style.display == "none"){
@@ -135,7 +166,7 @@ function getMapData(x, y){
 
 //Changes a tile and nothing else. Logs it if enabled.
 function changeMapData(x, y, data){
-  if(logPipes && debugging && data != "O" & data != "-"){
+  if(logPipes && debugging && data != "O" && data != "-"){
     document.getElementById("pipeLog").innerHTML += "Changed data at (" + x + ", " + y + ") to " + data + "<br>" 
   }
   game.getObject("activeLayer").mapData[y] = game.getObject("activeLayer").mapData[y].replaceAt(x, data)
@@ -176,6 +207,11 @@ function connectPipes(x1, y1, x2, y2){
   }
   var pipe1Connections = getPipeConnections(x1, y1)
   var pipe2Connections = getPipeConnections(x2, y2)
+  if((pipe1Connections == "l" && x1-1 == x2) || (pipe1Connections == "r" && x1+1 == x2) || (pipe1Connections == "t" && y1-1 == y2) || (pipe1Connections == "b" && y1+1 == y2)){
+    return;
+  }
+
+  
   if(pipe2Connections == "lr" || pipe2Connections == "tb"){
     return;
   }
@@ -349,6 +385,7 @@ function connectPipes(x1, y1, x2, y2){
       changeMapData(x2, y2, "-")
     }else{
       changeMapData(x2, y2, pipe2Id)
+      
       if(logPipes && debugging){document.getElementById("pipeLog").innerHTML += "Joined (" + x1 + ", " + y1 + ") and (" + x2 + ", " + y2 + ")<br>"}
     }
   }
@@ -919,26 +956,46 @@ game.addTemplate("terrain", [
   ["render", true],
   ["layerId", "main"],
   ["mapData", [
-    "gggggggggggggggggggggggggggggwww",
-    "ggggggggggggggggggggggggggggwwww",
-    "gggggggggggggggggggggggggggwwwww",
-    "gggggggggggggggggggggggggggwwwww",
-    "ggggggggggggggggggggggggggwwwwww",
-    "gggggggggggggggggggggggggwwwwwww",
-    "wwwwggggggwwwwggggggggggwwwwwwww",
-    "wwwwwwwwwwwwwwwwwgggwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggwwwggggggwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggwwwgggwwwwwwwwww",
-    "gggggggggggggggggggggggwwwwwwwww",
-    "gggggggggggggggggggggggwwwwwwwww",
-    "ggggggggggggggggggggggwwwwwwwwww",
-    "gggggggggggggggggggggwwwwwwwwwww",
-    "gggggggggggggggggggggwwwwwwwwwww",
-    "ggggggggggggggggggggwwwwwwwwwwww",
-    "ggggggggggggggggggwwwwwwwwwwwwww",
-    "ggggggggggggggwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwggggggwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggwwwggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggggwwwgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "gggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "ggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
     
     ]],
   ["role", `
@@ -948,74 +1005,81 @@ game.addTemplate("terrain", [
     
     ctx.imageSmoothingEnabled = false;
     if(self.refresh || self.render){
-      for(var j = 0, ll = this.objects[i].mapData.length; j < ll; j++){
+      ctx.clearRect(0, 0, 512, 320)
+      for(var j = Math.floor(scrollY/16)-1, ll = Math.floor(scrollY/16)+22; j < ll; j++){
+        if(j < 0 || j > 39){
+          continue;
+        }
         var row = this.objects[i].mapData[j].split("");
-        for(var k = 0, lll = row.length; k < lll; k++){
-          if(row[k] == "g"){ 
-            ctx.drawImage(this.getTexture("grass"), k*16, j*16, 16, 16)
+        for(var k = Math.floor(scrollX/16)-1, lll = Math.floor(scrollX/16)+34; k < lll; k++){
+          if(k < 0 || k > row.length){
+            continue;
           }
-          if(row[k] == "w"){ 
+          if(row[k] == "g"){ 
+            ctx.drawImage(this.getTexture("grass"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
+          }
+          if(row[k] == "w"){
             ctx.globalAlpha = 0.4;
-            ctx.drawImage(this.getTexture("water"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("water"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
             ctx.globalAlpha = 1;
           }
           if(row[k] == "1"){ 
-            ctx.drawImage(this.getTexture("pipe_h"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_h"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "2"){ 
-            ctx.drawImage(this.getTexture("pipe_v"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_v"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "3"){ 
-            ctx.drawImage(this.getTexture("pipe_tl"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_tl"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "4"){ 
-            ctx.drawImage(this.getTexture("pipe_tr"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_tr"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "5"){ 
-            ctx.drawImage(this.getTexture("pipe_bl"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_bl"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "6"){ 
-            ctx.drawImage(this.getTexture("pipe_br"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_br"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "7"){ 
-            ctx.drawImage(this.getTexture("pipe_xt"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_xt"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "8"){ 
-            ctx.drawImage(this.getTexture("pipe_xr"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_xr"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "9"){ 
-            ctx.drawImage(this.getTexture("pipe_xb"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_xb"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "0"){ 
-            ctx.drawImage(this.getTexture("pipe_xl"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_xl"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "X"){ 
-            ctx.drawImage(this.getTexture("pipe_x"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_x"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "T"){ 
-            ctx.drawImage(this.getTexture("pipe_et"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_et"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "L"){ 
-            ctx.drawImage(this.getTexture("pipe_el"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_el"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "B"){ 
-            ctx.drawImage(this.getTexture("pipe_eb"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_eb"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "R"){ 
-            ctx.drawImage(this.getTexture("pipe_er"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_er"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "O"){ 
-            ctx.drawImage(this.getTexture("pipe_dot"), k*16, j*16, 16, 16)
+            ctx.drawImage(this.getTexture("pipe_dot"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
           }
           if(row[k] == "r"){ 
-            ctx.drawImage(this.getTexture("refinery"), k*16, j*16, 32, 32)
+            ctx.drawImage(this.getTexture("refinery"), (k*16)-scrollX, (j*16)-scrollY, 32, 32)
           }
           if(row[k] == "W"){
-            ctx.drawImage(this.getTexture("warehouse"), k*16, j*16, 32, 32)
+            ctx.drawImage(this.getTexture("warehouse"), (k*16)-scrollX, (j*16)-scrollY, 32, 32)
             
           }
           if(row[k] == "s"){ 
-            ctx.drawImage(this.getTexture("ship"), k*16, j*16, 32, 32)
+            ctx.drawImage(this.getTexture("ship"), (k*16)-scrollX, (j*16)-scrollY, 32, 32)
           }
         }
       }
@@ -1116,8 +1180,8 @@ game.addTemplate("selector", [
         }
       }
     }else if(self.controls == "mouse"){
-      self.x = Math.floor((this.mouseX/windowScale) / 16) * 16
-      self.y = Math.floor((this.mouseY/windowScale) / 16) * 16
+      // self.x = (Math.floor(((this.mouseX/windowScale))/(16))*16) - (scrollX % 16)
+      // self.y = (Math.floor(((this.mouseY/windowScale))/(16))*16) - (scrollY % 16)
     }
     if(this.objects[i].x < 0){
       this.objects[i].x = 0

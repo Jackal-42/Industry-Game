@@ -1,7 +1,34 @@
 var previousMouseX = 0;
 var previousMouseY = 0;
 
+
 game.loop = function(){
+
+  if(key("left")){
+    if(scrollX > 0){
+      scrollX += -3
+      game.getObject("baseLayer").render = true;
+    }
+  }
+  if(key("right")){
+    if(scrollX < 510){
+      scrollX += 3
+      game.getObject("baseLayer").render = true;
+    }
+  }
+  if(key("up")){
+    if(scrollY > 0){
+      scrollY += -3
+      game.getObject("baseLayer").render = true;
+    }
+  }
+  if(key("down")){
+    if(scrollY < 318){
+      scrollY += 3
+      game.getObject("baseLayer").render = true;
+    }
+  }
+
 
   for(var i = 0, l = game.layers.length; i < l; i++){  
     if(game.layers[i].clearFrames == true){  
@@ -25,10 +52,13 @@ game.loop = function(){
   }
   
   
-  previousMouseX = Math.floor((previousMouseX)/(16*windowScale))
-  previousMouseY = Math.floor((previousMouseY)/(16*windowScale))
-  mouseX = Math.floor((game.mouseX)/(16*windowScale))
-  mouseY = Math.floor((game.mouseY)/(16*windowScale))
+  previousMouseX = Math.floor((previousMouseX)/(16))
+  previousMouseY = Math.floor((previousMouseY)/(16))
+  mouseX = Math.floor((game.mouseX/windowScale + scrollX)/(16))
+  mouseY = Math.floor((game.mouseY/windowScale + scrollY)/(16))
+  var selector = game.getObject("selector")
+  selector.x = (mouseX*16)-scrollX
+  selector.y = (mouseY*16)-scrollY
   if(debugging){
     document.getElementById("cursorX").innerHTML = mouseX
     document.getElementById("cursorY").innerHTML = mouseY
@@ -69,8 +99,8 @@ game.loop = function(){
     }
     addPipe(mouseX, mouseY)
   }
-  previousMouseX = game.mouseX;
-  previousMouseY = game.mouseY;
+  previousMouseX = game.mouseX/windowScale + scrollX;
+  previousMouseY = game.mouseY/windowScale + scrollY;
 
   //Transfers items along working links. Evaluates 4 times per second.
   if(framesElapsed % 15 == 1){
@@ -99,6 +129,25 @@ game.loop = function(){
 
 
   game.render()
+  if(fadeOpacity > 0 || fading){
+    if(fading){
+      fadeOpacity += 0.1
+    }else{
+      fadeOpacity -= 0.1
+    }
+    if(fadeOpacity >= 1){
+      fading = false;
+      eval(evalOnFade)
+      evalOnFade = ""
+    }
+    ctx = game.getLayer("main").context
+    if(fadeOpacity > 0){
+      ctx.globalAlpha = fadeOpacity
+    }else{ctx.globalAlpha = 0}
+    ctx.fillStyle = "black"
+    ctx.fillRect(0, 0, 512, 320)
+    ctx.globalAlpha = 1;
+  }
   mouseDownPreviously = false;
   if(game.mouseDown){mouseDownPreviously = true;}
   requestAnimationFrame(game.loop)
