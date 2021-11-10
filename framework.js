@@ -78,12 +78,12 @@ function loadArea(id){
       game.getObject("baseLayer").mapData = areas[i][2]
       game.getObject("activeLayer").mapData = areas[i][3]
       game.getObject("baseLayer").refresh = true;
-      console.log(areas[i][3])
       if(id == "island"){
         changeMapData(35, 17, "s")
       }
     }
   }
+  updateNetworkLog()
 }
 
 function toggleMenu(menu){
@@ -217,45 +217,45 @@ function connectPipes(x1, y1, x2, y2){
   }
   var endPoints = [];
   for(var j = 0; j < l; j++){
-    if(networks[j][0] == 'pipeSegment'){
-      endPoints.push(networks[j][1][0])
-      endPoints.push(networks[j][1][1])
+    if(areas[areaIndex][4][j][0] == 'pipeSegment'){
+      endPoints.push(areas[areaIndex][4][j][1][0])
+      endPoints.push(areas[areaIndex][4][j][1][1])
     }
   }
-  for(var i = 0, l = networks.length; i < l; i++){
-    if(networks[i][0] == 'pipeSegment'){
+  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
+    if(areas[areaIndex][4][i][0] == 'pipeSegment'){
       
       var stringArray2 = JSON.stringify([x2, y2])
-      if(JSON.stringify(networks[i][1]).includes(stringArray2)){
+      if(JSON.stringify(areas[areaIndex][4][i][1]).includes(stringArray2)){
         if(JSON.stringify(endPoints).includes(JSON.stringify([x1, y1]))){
           var stringArray1 = JSON.stringify([x1, y1])
           for(var j = 0; j < l; j++){
-            if(JSON.stringify(networks[j][1][0]) == stringArray1){
+            if(JSON.stringify(areas[areaIndex][4][j][1][0]) == stringArray1){
               
-              if(JSON.stringify(networks[i][1][0]) == stringArray2){
-                networks[j][1][0] = networks[i][1][1]
+              if(JSON.stringify(areas[areaIndex][4][i][1][0]) == stringArray2){
+                areas[areaIndex][4][j][1][0] = areas[areaIndex][4][i][1][1]
               }else{
-                networks[j][1][0] = networks[i][1][0]
+                areas[areaIndex][4][j][1][0] = areas[areaIndex][4][i][1][0]
               }
-              networks.splice(i, 1)
+              areas[areaIndex][4].splice(i, 1)
               i--
               l--
-            }else if(JSON.stringify(networks[j][1][1]) == stringArray1){
+            }else if(JSON.stringify(areas[areaIndex][4][j][1][1]) == stringArray1){
              
-              if(JSON.stringify(networks[i][1][0]) == stringArray2){
-                networks[j][1][1] = networks[i][1][1]
+              if(JSON.stringify(areas[areaIndex][4][i][1][0]) == stringArray2){
+                areas[areaIndex][4][j][1][1] = areas[areaIndex][4][i][1][1]
               }else{
-                networks[j][1][1] = networks[i][1][0]
+                areas[areaIndex][4][j][1][1] = areas[areaIndex][4][i][1][0]
               }
-              networks.splice(i, 1)
+              areas[areaIndex][4].splice(i, 1)
               i--
               l--
             }
           }
         }else{
           for(var j = 0; j < 2; j++){
-            if(JSON.stringify(networks[i][1][j]) == stringArray2){
-              networks[i][1][j] = [x1, y1]
+            if(JSON.stringify(areas[areaIndex][4][i][1][j]) == stringArray2){
+              areas[areaIndex][4][i][1][j] = [x1, y1]
               break;
             }
           }
@@ -464,11 +464,11 @@ function addPipeNetwork(endPoints){
   var facility1String = JSON.stringify([facility1X, facility1Y])
   var facility2String = JSON.stringify([facility2X, facility2Y])
   var facilityIDs = [];
-  for(var i = 0, l = networks.length; i < l; i++){
-    if(networks[i][0] != "pipeSegment"){
-      var areaString = JSON.stringify(networks[i][1])
+  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
+    if(areas[areaIndex][4][i][0] != "pipeSegment"){
+      var areaString = JSON.stringify(areas[areaIndex][4][i][1])
       if(areaString.includes(facility1String) || areaString.includes(facility2String)){
-        facilityIDs.push(networks[i][3])
+        facilityIDs.push(areas[areaIndex][4][i][3])
       }
     }
   }
@@ -478,9 +478,9 @@ function addPipeNetwork(endPoints){
   if(facilityIDs[1] != undefined){
     networkTotal++
 
-    links.push([facilityIDs[0], facilityIDs[1], networkTotal])
+    areas[areaIndex][5].push([facilityIDs[0], facilityIDs[1], networkTotal])
 
-    networks.push(["pipeSegment", endPoints, [facilityIDs[0], facilityIDs[1]], networkTotal])
+    areas[areaIndex][4].push(["pipeSegment", endPoints, [facilityIDs[0], facilityIDs[1]], networkTotal])
   }
 
 }
@@ -553,18 +553,18 @@ function updatePipe(x, y){
 //Removes a network from the network array based on coordinates, and any links which rely on it
 function killNetwork(x, y){
   var stringified = JSON.stringify([x, y])
-  for(var i = 0, l = networks.length; i < l; i++){
-    if(networks[i][0] == "pipeSegment"){
-      if(JSON.stringify(networks[i][1][0]) == stringified || JSON.stringify(networks[i][1][1]) == stringified){
-        for(var k = 0, ll = links.length; k < ll; k++){
-          if(links[k][2] == networks[i][3]){
-            links.splice(k, 1)
+  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
+    if(areas[areaIndex][4][i][0] == "pipeSegment"){
+      if(JSON.stringify(areas[areaIndex][4][i][1][0]) == stringified || JSON.stringify(areas[areaIndex][4][i][1][1]) == stringified){
+        for(var k = 0, ll = areas[areaIndex][5].length; k < ll; k++){
+          if(areas[areaIndex][5][k][2] == areas[areaIndex][4][i][3]){
+            areas[areaIndex][5].splice(k, 1)
             k--
             ll--
           }
         }
 
-        networks.splice(i, 1)
+        areas[areaIndex][4].splice(i, 1)
         i--
         l--
         
@@ -582,20 +582,20 @@ function addPipe(x, y){
     var mapData = getMapData(x, y)
     if("rWp&".includes(mapData)){
       var coordString = JSON.stringify([x, y])
-      for(var i = 0, l = networks.length; i < l; i++){
-        if(JSON.stringify(networks[i][1]).includes(coordString)){
-          x = networks[i][1][0][0]
-          y = networks[i][1][0][1]
-          for(var k = 0, ll = networks.length; k < ll; k++){
-            if(networks[k][0] == "pipeSegment"){
-              if(networks[k][2][0] == networks[i][3] || networks[k][2][1] == networks[i][3]){
-                killNetwork(networks[k][1][0][0], networks[k][1][0][1])
+      for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
+        if(JSON.stringify(areas[areaIndex][4][i][1]).includes(coordString)){
+          x = areas[areaIndex][4][i][1][0][0]
+          y = areas[areaIndex][4][i][1][0][1]
+          for(var k = 0, ll = areas[areaIndex][4].length; k < ll; k++){
+            if(areas[areaIndex][4][k][0] == "pipeSegment"){
+              if(areas[areaIndex][4][k][2][0] == areas[areaIndex][4][i][3] || areas[areaIndex][4][k][2][1] == areas[areaIndex][4][i][3]){
+                killNetwork(areas[areaIndex][4][k][1][0][0], areas[areaIndex][4][k][1][0][1])
                 k--
                 ll--
               }
             }
           }
-          networks.splice(i, 1)
+          areas[areaIndex][4].splice(i, 1)
           break;
         }
       }
@@ -647,10 +647,10 @@ function addPipe(x, y){
 
       var armEndPoints = [];
       var endPoints = [];
-      for(var j = 0, l = networks.length; j < l; j++){
-        if(networks[j][0] == 'pipeSegment'){
-          endPoints.push(networks[j][1][0])
-          endPoints.push(networks[j][1][1])
+      for(var j = 0, l = areas[areaIndex][4].length; j < l; j++){
+        if(areas[areaIndex][4][j][0] == 'pipeSegment'){
+          endPoints.push(areas[areaIndex][4][j][1][0])
+          endPoints.push(areas[areaIndex][4][j][1][1])
         }
       }
       endPoints = JSON.stringify(endPoints)
@@ -788,15 +788,13 @@ function addFacility(x, y, type){
   
 }
 
-var networks = [];
+
 var networkTotal = 0;
-var links = [];
 
-
-function getNetwork(id){
-  for(var i = 0, l = networks.length; i < l; i++){
-    if(networks[i][3] == id){
-      return networks[i]
+function getNetwork(area, id){
+  for(var i = 0, l = areas[area][4].length; i < l; i++){
+    if(areas[area][4][i][3] == id){
+      return areas[area][4][i]
     }
   }
 }
@@ -805,10 +803,10 @@ function createNetwork(x, y){
   networkTotal++
   var mapData = getMapData(x, y)
   if(mapData == "r"){
-    networks.push(["refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [100], networkTotal])
+    areas[areaIndex][4].push(["refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [100], networkTotal])
   }
   if(mapData == "W"){
-    networks.push(["warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [0], networkTotal])
+    areas[areaIndex][4].push(["warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [0], networkTotal])
   }
 
   if(debugging){updateNetworkLog()}
@@ -816,8 +814,12 @@ function createNetwork(x, y){
 
 function updateNetworkLog(){
   document.getElementById("networkLog").innerHTML = ""
-  for(var i = 0, l = networks.length; i < l; i++){
-    document.getElementById("networkLog").innerHTML += networks[i][0] + " " + JSON.stringify(networks[i][1]) + " " + JSON.stringify(networks[i][2]) + " : " + networks[i][3] + "<br>"
+  for(var j = 0, ll = areas.length; j < ll; j++){
+    document.getElementById("networkLog").innerHTML += areas[j][0] + " {<br>"
+    for(var i = 0, l = areas[j][4].length; i < l; i++){
+      document.getElementById("networkLog").innerHTML += "&nbsp&nbsp" + areas[j][4][i][0] + " " + JSON.stringify(areas[j][4][i][1]) + " " + JSON.stringify(areas[j][4][i][2]) + " : " + areas[j][4][i][3] + "<br>"
+    }
+    document.getElementById("networkLog").innerHTML += "}<br><br>"
   }
 }
 

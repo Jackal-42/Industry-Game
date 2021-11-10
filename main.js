@@ -104,24 +104,26 @@ game.loop = function(){
 
   //Transfers items along working links. Evaluates 4 times per second.
   if(framesElapsed % 15 == 1){
-    for(var i = 0, l = links.length; i < l; i++){
-      var facility1 = getNetwork(links[i][0])
-      var facility2 = getNetwork(links[i][1])
-      var types = [[facility1[0], 1], [facility2[0], 2]].sort();
-      if(types[0][0] == "refinery" && types[1][0] == "warehouse"){
-        var index1 = 0;
-        var index2 = 0;
-        for(var j = 0, ll = networks.length; j < ll; j++){
-          if(networks[j][3] == facility1[3]){
-            index1 = j
-          }else if(networks[j][3] == facility2[3]){
-            index2 = j
+    for(var k = 0, lll = areas.length; k < lll; k++){
+      for(var i = 0, l = areas[k][5].length; i < l; i++){
+        var facility1 = getNetwork(k, areas[k][5][i][0])
+        var facility2 = getNetwork(k, areas[k][5][i][1])
+        var types = [[facility1[0], 1], [facility2[0], 2]].sort();
+        if(types[0][0] == "refinery" && types[1][0] == "warehouse"){
+          var index1 = 0;
+          var index2 = 0;
+          for(var j = 0, ll = areas[k][4].length; j < ll; j++){
+            if(areas[k][4][j][3] == facility1[3]){
+              index1 = j
+            }else if(areas[k][4][j][3] == facility2[3]){
+              index2 = j
+            }
           }
-        }
-        if(networks[index1][2][0] > 0){
-          networks[index1][2][0] -= 1
-          networks[index2][2][0] += 1
-          if(debugging){updateNetworkLog()}
+          if(areas[k][4][index1][2][0] > 0){
+            areas[k][4][index1][2][0] -= 1
+            areas[k][4][index2][2][0] += 1
+            if(debugging){updateNetworkLog()}
+          }
         }
       }
     }
