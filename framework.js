@@ -167,7 +167,7 @@ function getMapData(x, y){
 //Changes a tile and nothing else. Logs it if enabled.
 function changeMapData(x, y, data){
   if(logPipes && debugging && data != "O" && data != "-"){
-    document.getElementById("pipeLog").innerHTML += "Changed data at (" + x + ", " + y + ") to " + data + "<br>" 
+    document.getElementById("pipeLog").innerHTML += "Changed data at (" + x + ", " + y + ") to " + data + "<br>"
   }
   game.getObject("activeLayer").mapData[y] = game.getObject("activeLayer").mapData[y].replaceAt(x, data)
 }
@@ -718,7 +718,9 @@ function addPipe(x, y){
     if(getMapData(x, y) == "-"){
       changeMapData(x, y, "O")
       if(!beginMouseHold){
-        connectPipes(x, y, previousPipeX, previousPipeY)
+        if("TLBRpO-".includes(getMapData(previousPipeX, previousPipeY))){
+          connectPipes(x, y, previousPipeX, previousPipeY)
+        }
       }else{
         if(getMapData(x, y-1) == "B" || getMapData(x, y-1) == "p"){
           connectPipes(x, y, x, y-1)
