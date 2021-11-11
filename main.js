@@ -46,8 +46,8 @@ game.loop = function(){
     endMouseHold = true
   }
   if(endMouseHold){
-    mouseX = Math.floor((game.mouseX)/16)
-    mouseY = Math.floor((game.mouseY)/16)
+    mouseX = Math.floor((game.mouseX/windowScale + scrollX)/(16))
+    mouseY = Math.floor((game.mouseY/windowScale + scrollY)/(16))
     addPipe(mouseX, mouseY)
   }
   
