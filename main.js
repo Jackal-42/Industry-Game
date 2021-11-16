@@ -3,6 +3,7 @@ var previousMouseY = 0;
 
 
 game.loop = function(){
+  var conduitIndex = getConduitIndex(conduitSelected)
 
   if(key("left")){
     if(scrollX > 0){
@@ -65,7 +66,7 @@ game.loop = function(){
     document.getElementById("dataAtCursor").innerHTML = getMapData(mouseX, mouseY)
   }
   
-  if("TLBR".includes(getMapData(mouseX, mouseY))){
+  if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
     previousPipeX = mouseX;
     previousPipeY = mouseY;
   }

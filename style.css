@@ -31,6 +31,10 @@ body {
   background-color: darkgray;
   width: 100%;
   cursor: pointer;
+  transition: background-color 200ms;
+}
+.selector:hover{
+  background-color: rgb(145, 145, 145);
 }
 
 .menu{

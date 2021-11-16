@@ -41,8 +41,110 @@ game.addTexture("warehouse", "docs/assets/warehouse.png")//B
 game.addTexture("refinery", "docs/assets/refinery.png")
 
 game.addTexture("selector", "docs/assets/selector.png")
+game.addTexture("null", "docs/assets/null.png")
 
-var pipeSet = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "X", "T", "R", "B", "L", "O", "p"]
+var tileIds = "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?".split("")
+
+//RESERVED: [ X ] [ - ] [ p ] [ & ]
+
+function getTile(layer, id){
+  if(layer == "terrain"){
+    var requestedTile = terrain[tileIds.indexOf(id)]
+    if(requestedTile === undefined){
+      return ["null", "docs/assets/null.png"]
+    }else{
+      return requestedTile
+    }
+  }else{
+    var requestedTile = tiles[tileIds.indexOf(id)]
+    if(requestedTile === undefined){
+
+      return ["null", "docs/assets/null.png"]
+    }else{
+      return requestedTile
+    }
+  }
+}
+
+function getTileId(layer, type, connections){
+  for(var i = 0, l = eval(layer + ".length"); i < l; i++){
+    if(eval(layer)[i][0] == type + connections){
+      return tileIds[i]
+    }
+  }
+  return conduits[getConduitIndex(conduitSelected)].stub
+}
+
+var terrain = [
+  ["grass", "docs/assets/grass.png"],
+  ["water", "docs/assets/water.png"],
+]
+
+var tiles = [
+  ["ship", "docs/assets/ship.png"],
+  ["warehouse", "docs/assets/warehouse.png"],
+  ["refinery", "docs/assets/refinery.png"],
+];
+
+var conduits = [];
+var conduitSelected = "pipe"
+
+function addConduit(id){
+  conduits.push(new Conduit(id, tiles.length))
+  // tiles.push([id, "docs/assets/" + id + ".png"])
+  tiles.push([id + "_hh", "docs/assets/" + id + "_hh.png"])
+  tiles.push([id + "_vv", "docs/assets/" + id + "_vv.png"])
+  tiles.push([id + "_tl", "docs/assets/" + id + "_tl.png"])
+  tiles.push([id + "_tr", "docs/assets/" + id + "_tr.png"])
+  tiles.push([id + "_bl", "docs/assets/" + id + "_bl.png"])
+  tiles.push([id + "_br", "docs/assets/" + id + "_br.png"])
+  tiles.push([id + "_el", "docs/assets/" + id + "_el.png"])
+  tiles.push([id + "_er", "docs/assets/" + id + "_er.png"])
+  tiles.push([id + "_eb", "docs/assets/" + id + "_eb.png"])
+  tiles.push([id + "_et", "docs/assets/" + id + "_et.png"])
+  tiles.push([id + "_stub", "docs/assets/" + id + "_stub.png"])
+}
+
+addConduit("pipe")
+addConduit("rail")
+
+var intersectors = ["pipe"]
+
+function Conduit(id, index){
+  this.id = id;
+  this.endPoints = tileIds[index + 6] + tileIds[index + 7] + tileIds[index + 8] + tileIds[index + 9]
+  this.stub = tileIds[index + 10]
+  this.corners = tileIds[index + 2] + tileIds[index + 3] + tileIds[index + 4] + tileIds[index + 5]
+  this.segments = this.endPoints + tileIds[index] + tileIds[index + 1] + this.corners
+  
+  this.left = tileIds[index + 6]
+  this.right = tileIds[index + 7]
+  this.bottom = tileIds[index + 8]
+  this.top = tileIds[index + 9]
+  this.tl = tileIds[index + 2]
+  this.tr = tileIds[index + 3]
+  this.bl = tileIds[index + 4]
+  this.br = tileIds[index + 5]
+  this.h = tileIds[index]
+  this.v = tileIds[index + 1]
+  this.hv = tileIds[index] + tileIds[index + 1]
+}
+
+function getConduitIndex(id){
+  for(var i = 0, l = conduits.length; i < l; i++){
+    if(conduits[i].id == id){
+      return i
+    }
+  }
+}
+
+for(var i = 0, l = tiles.length; i < l; i++){
+  game.addTexture(tiles[i][0], tiles[i][1])
+}
+for(var i = 0, l = terrain.length; i < l; i++){
+  game.addTexture(terrain[i][0], terrain[i][1])
+}
+
 var mouseDownPreviously = false;
 var beginMouseHold = false;
 var endMouseHold = false;
@@ -78,9 +180,6 @@ function loadArea(id){
       game.getObject("baseLayer").mapData = areas[i][2]
       game.getObject("activeLayer").mapData = areas[i][3]
       game.getObject("baseLayer").refresh = true;
-      if(id == "island"){
-        changeMapData(35, 17, "s")
-      }
     }
   }
   updateNetworkLog()
@@ -166,17 +265,17 @@ function getMapData(x, y){
 
 //Changes a tile and nothing else. Logs it if enabled.
 function changeMapData(x, y, data){
-  if(logPipes && debugging && data != "O" && data != "-"){
+  if(logPipes && debugging && data != conduits[getConduitIndex(conduitSelected)].stub && data != "-"){
     document.getElementById("pipeLog").innerHTML += "Changed data at (" + x + ", " + y + ") to " + data + "<br>"
   }
   game.getObject("activeLayer").mapData[y] = game.getObject("activeLayer").mapData[y].replaceAt(x, data)
 }
 
-var pipeConnections = [["1", "lr"], ["2", "bt"], ["3", "bl"], ["4", "br"], ["5", "rt"], ["6", "lt"], ["T", "b"], ["B", "t"], ["L", "r"], ["R", "l"], ["X", "blrt"]]
+var pipeConnections = [["_hh", "lr"], ["_vv", "bt"], ["_tr", "bl"], ["_tl", "br"], ["_bl", "rt"], ["_br", "lt"], ["_et", "b"], ["_eb", "t"], ["_el", "r"], ["_er", "l"]]
 
 //Returns all the places a pipe SHOULD be connected
 function getPipeConnections(x, y){
-  var data = getMapData(x,y)
+  var data = getTile("tiles", getMapData(x,y))[0].slice(-3)
 
   for(var i = 0, l = pipeConnections.length; i < l; i++){
     if(pipeConnections[i][0] == data){
@@ -184,25 +283,31 @@ function getPipeConnections(x, y){
     }
   }
 
+  if(getMapData(x,y) == "X"){
+    return "blrt"
+  }
+
   return "";
 }
 
 //Get pipe tile ID based on connections
-function getPipeId(connections){
+function getPipeId(connections, index){
+  if(index === undefined){index = getConduitIndex(conduitSelected)}
   connections = connections.split('').sort().join('').trim();
   for(var i = 0, l = pipeConnections.length; i < l; i++){
     if(pipeConnections[i][1] == connections){
-      return pipeConnections[i][0];
+      return getTileId("tiles", conduits[index].id, pipeConnections[i][0]);
     }
   }
-  return "O"
+  return conduits[index].stub
 }
 
 //Creates a connection between two adjacent pipes
 function connectPipes(x1, y1, x2, y2){
+  var conduitIndex = getConduitIndex(conduitSelected)
   var joinEmptyNetwork = false;
-  if("3456".includes(getMapData(x2, y2))){return;}
-  if("TLBR".includes(getMapData(x1, y1)) && "TLBR".includes(getMapData(x2, y2))){
+  if(conduits[conduitIndex].corners.includes(getMapData(x2, y2))){return;}
+  if(conduits[conduitIndex].endPoints.includes(getMapData(x1, y1)) && conduits[conduitIndex].endPoints.includes(getMapData(x2, y2))){
     joinEmptyNetwork = true;
   }
   var pipe1Connections = getPipeConnections(x1, y1)
@@ -275,16 +380,18 @@ function connectPipes(x1, y1, x2, y2){
     if(x1 > x2+1){
       var crossingMidsection = true;
       for(var i = x1-1; i > x2; i--){
-        if("12".includes(getMapData(i, y1))){
-          pipesToReplace.push([i, y1])
-          if(x1-x2 == pipesToReplace.length +1){
-            for(var i = 0, l = pipesToReplace.length; i<l; i++){
-              changeMapData(pipesToReplace[i][0], pipesToReplace[i][1], "X")
+        for(var j = 0, ll = intersectors.length; j < ll; j++){
+          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(i, y1)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_vv")))){
+            pipesToReplace.push([i, y1])
+            if(x1-x2 == pipesToReplace.length +1){
+              for(var i = 0, l = pipesToReplace.length; i<l; i++){
+                changeMapData(pipesToReplace[i][0], pipesToReplace[i][1], "X")
+              }
             }
+          }else{
+            crossingMidsection = false
+            break;
           }
-        }else{
-          crossingMidsection = false
-          break;
         }
       }
       if(crossingMidsection){
@@ -302,11 +409,13 @@ function connectPipes(x1, y1, x2, y2){
     if(x1 < x2-1){
       var crossingMidsection = true;
       for(var i = x1+1; i < x2; i++){
-        if("12".includes(getMapData(i, y1))){
-          pipesToReplace.push([i, y1])
-        }else{
-          crossingMidsection = false
-          break;
+        for(var j = 0, ll = intersectors.length; j < ll; j++){
+          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(i, y1)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_vv")))){
+            pipesToReplace.push([i, y1])
+          }else{
+            crossingMidsection = false
+            break;
+          }
         }
       }
       if(x2-x1 == pipesToReplace.length +1){
@@ -328,11 +437,13 @@ function connectPipes(x1, y1, x2, y2){
     if(y1 > y2+1){
       var crossingMidsection = true;
       for(var i = y1-1; i > y2; i--){
-        if("12".includes(getMapData(x1, i))){
-          pipesToReplace.push([x1, i])
-        }else{
-          crossingMidsection = false
-          break;
+        for(var j = 0, ll = intersectors.length; j < ll; j++){
+          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(x1, i)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_vv")))){
+            pipesToReplace.push([x1, i])
+          }else{
+            crossingMidsection = false
+            break;
+          }
         }
       }
       if(y1-y2 == pipesToReplace.length +1){
@@ -355,11 +466,13 @@ function connectPipes(x1, y1, x2, y2){
     if(y1 < y2-1){
       var crossingMidsection = true;
       for(var i = y1+1; i < y2; i++){
-        if("12".includes(getMapData(x1, i))){
-          pipesToReplace.push([x1, i])
-        }else{
-          crossingMidsection = false
-          break;
+        for(var j = 0, ll = intersectors.length; j < ll; j++){
+          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(x1, i)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_vv")))){
+            pipesToReplace.push([x1, i])
+          }else{
+            crossingMidsection = false
+            break;
+          }
         }
       }
       if(y2-y1 == pipesToReplace.length +1){
@@ -376,12 +489,33 @@ function connectPipes(x1, y1, x2, y2){
       pipe2Connections = pipe2Connections.concat("t")
     }
   }
-  if(getPipeId(pipe1Connections) != "O" && !"rW&p".includes(getMapData(x1, y1))){
+
+
+
+
+
+
+
+
+  //FIX FACILITY IDENTIFIERS
+
+
+
+
+
+
+
+
+
+  //POSSIBLE SOURCE OF ERROR
+  //Changed "rW&p" to "&p". r and W are no longer valid facility IDs
+
+  if(getPipeId(pipe1Connections) != conduits[conduitIndex].stub && !"&p".includes(getMapData(x1, y1))){
     changeMapData(x1, y1, getPipeId(pipe1Connections))
   }
   var pipe2Id = getPipeId(pipe2Connections)
   if(getMapData(x2, y2) != "p"){
-    if(pipe2Id == "O"){
+    if(pipe2Id == conduits[conduitIndex].stub){
       changeMapData(x2, y2, "-")
     }else{
       changeMapData(x2, y2, pipe2Id)
@@ -489,16 +623,31 @@ var updateDirection = "";
 
 //Used in the pipe removal function to determine what state a pipe should revert to when losing a connection
 function updatePipe(x, y){
-  var mapData = getMapData(x, y)
-  if("prW&".includes(mapData)){
+  if(x < 0 || x > 63 || y < 0 || y > 39){
     return;
   }
   
+  var mapData = getMapData(x, y)
+
+  //POSSIBLE SOURCE OF ERROR
+  //See above source of error
+  if("p&-".includes(mapData)){
+    return;
+  }
+
+  var conduitIndex = (getConduitIndex(getTile("tiles", mapData)[0].split("_")[0]))
   
+  if(conduitIndex === undefined){
+    conduitIndex = getConduitIndex(conduitSelected)
+  }
+
+
+  
+
   if(mapData == "X"){
     if(updateDirection == "x" || updateDirection == ""){
-      if("T234".includes(getMapData(x, y-1)) || "B256".includes(getMapData(x, y+1))){
-        changeMapData(x, y, "2")
+      if((conduits[conduitIndex].top + conduits[conduitIndex].v + conduits[conduitIndex].tl + conduits[conduitIndex].tr).includes(getMapData(x, y-1)) || (conduits[conduitIndex].bottom + conduits[conduitIndex].v + conduits[conduitIndex].bl + conduits[conduitIndex].br).includes(getMapData(x, y+1))){
+        changeMapData(x, y, conduits[conduitIndex].v)
         updateDirection = "x"
         updatePipe(x-1, y)
         updatePipe(x+1, y)
@@ -506,8 +655,8 @@ function updatePipe(x, y){
     }
 
     if(updateDirection == "y" || updateDirection == ""){
-      if("L135".includes(getMapData(x-1, y)) || "R146".includes(getMapData(x+1, y))){
-        changeMapData(x, y, "1")
+      if((conduits[conduitIndex].left + conduits[conduitIndex].h + conduits[conduitIndex].tl + conduits[conduitIndex].bl).includes(getMapData(x-1, y)) || (conduits[conduitIndex].right + conduits[conduitIndex].h + conduits[conduitIndex].tr + conduits[conduitIndex].br).includes(getMapData(x+1, y))){
+        changeMapData(x, y, conduits[conduitIndex].h)
         updateDirection = "y"
         updatePipe(x, y-1)
         updatePipe(x, y+1)
@@ -516,28 +665,29 @@ function updatePipe(x, y){
   }else{
     var connections = getPipeConnections(x, y)
     var stableConnections = ""
+    conduits[conduitIndex]
     if(connections.includes("b")){
-      if("23456BXp".includes(getMapData(x, y+1))){
+      if((conduits[conduitIndex].v + conduits[conduitIndex].corners + conduits[conduitIndex].bottom + "Xp").includes(getMapData(x, y+1))){
         stableConnections += "b"
       }
     }
     if(connections.includes("l")){
-      if("13456LXp".includes(getMapData(x-1, y))){
+      if((conduits[conduitIndex].h + conduits[conduitIndex].corners + conduits[conduitIndex].left + "Xp").includes(getMapData(x-1, y))){
         stableConnections += "l"
       }
     }
     if(connections.includes("r")){
-      if("13456RXp".includes(getMapData(x+1, y))){
+      if((conduits[conduitIndex].h + conduits[conduitIndex].corners + conduits[conduitIndex].right + "Xp").includes(getMapData(x+1, y))){
         stableConnections += "r"
       }
     }
     if(connections.includes("t")){
-      if("23456TXp".includes(getMapData(x, y-1))){
+      if((conduits[conduitIndex].v + conduits[conduitIndex].corners + conduits[conduitIndex].top + "Xp").includes(getMapData(x, y-1))){
         stableConnections += "t"
       }
     }
     if(stableConnections != ""){
-      var newPipe = getPipeId(stableConnections)
+      var newPipe = getPipeId(stableConnections, conduitIndex)
       if(getMapData(x, y) != newPipe){
         changeMapData(x, y, newPipe)
       }
@@ -578,9 +728,12 @@ var crossingPipe = false;
 
 //Adds a pipe at the specified coords and connects it to the surrounding ones
 function addPipe(x, y){
+  var conduitIndex = getConduitIndex(conduitSelected)
   if(key(16)){
     var mapData = getMapData(x, y)
-    if("rWp&".includes(mapData)){
+    //POTENTIAL SOURCE OF ERROR
+    //See above
+    if("p&".includes(mapData)){
       var coordString = JSON.stringify([x, y])
       for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
         if(JSON.stringify(areas[areaIndex][4][i][1]).includes(coordString)){
@@ -618,24 +771,25 @@ function addPipe(x, y){
       
     }else{
       var directionals = ""
-      if(mapData == "1"){
-        directionals = "lr"
-      }
-      if(mapData == "2"){
-        directionals = "tb"
-      }
-      if(mapData == "3"){
-        directionals = "br"
-      }
-      if(mapData == "4"){
-        directionals = "bl"
-      }
-      if(mapData == "5"){
-        directionals = "tr"
-      }
-      if(mapData == "6"){
-        directionals = "tl"
-      }
+      directionals = getPipeConnections(x, y)
+      // if(mapData == "1"){
+      //   directionals = "lr"
+      // }
+      // if(mapData == "2"){
+      //   directionals = "tb"
+      // }
+      // if(mapData == "3"){
+      //   directionals = "br"
+      // }
+      // if(mapData == "4"){
+      //   directionals = "bl"
+      // }
+      // if(mapData == "5"){
+      //   directionals = "tr"
+      // }
+      // if(mapData == "6"){
+      //   directionals = "tl"
+      // }
 
       updateDirection = "";
 
@@ -655,7 +809,7 @@ function addPipe(x, y){
       }
       endPoints = JSON.stringify(endPoints)
       if(directionals.includes("t")){
-        if("TLBR123456X".includes(getMapData(x, y-1))){
+        if((conduits[conduitIndex].segments + "X").includes(getMapData(x, y-1))){
           armEndPoints = updateNetwork(x, y-1)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -667,7 +821,7 @@ function addPipe(x, y){
         }
       }
       if(directionals.includes("b")){
-        if("TLBR123456X".includes(getMapData(x, y+1))){
+        if((conduits[conduitIndex].segments + "X").includes(getMapData(x, y+1))){
           armEndPoints = updateNetwork(x, y+1)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -678,7 +832,7 @@ function addPipe(x, y){
         }
       }
       if(directionals.includes("l")){
-        if("TLBR123456X".includes(getMapData(x-1, y))){
+        if((conduits[conduitIndex].segments + "X").includes(getMapData(x-1, y))){
           armEndPoints = updateNetwork(x-1, y)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -689,7 +843,7 @@ function addPipe(x, y){
         }
       }
       if(directionals.includes("r")){
-        if("TLBR123456X".includes(getMapData(x+1, y))){
+        if((conduits[conduitIndex].segments + "X").includes(getMapData(x+1, y))){
           armEndPoints = updateNetwork(x+1, y)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -709,33 +863,43 @@ function addPipe(x, y){
     document.getElementById("display3").innerHTML = previousPipeY
     document.getElementById("display4").innerHTML = neighbourY
     crossingPipe = false;
-    if((previousPipeX != x || previousPipeY != y) && "TLBR123456".includes(getMapData(x, y))){
+    if((previousPipeX != x || previousPipeY != y) && conduits[conduitIndex].segments.includes(getMapData(x, y))){
       beginMouseHold = true
         
       crossingPipe = true
     }
     
     if(getMapData(x, y) == "-"){
-      changeMapData(x, y, "O")
+      changeMapData(x, y, conduits[conduitIndex].stub)
       if(!beginMouseHold){
-        if("TLBRpO-".includes(getMapData(previousPipeX, previousPipeY))){
+        if((conduits[conduitIndex].endPoints + conduits[conduitIndex].stub + "p-").includes(getMapData(previousPipeX, previousPipeY))){
           connectPipes(x, y, previousPipeX, previousPipeY)
         }
       }else{
-        if(getMapData(x, y-1) == "B" || getMapData(x, y-1) == "p"){
+        if(getMapData(x, y-1) == conduits[conduitIndex].bottom || getMapData(x, y-1) == "p"){
           connectPipes(x, y, x, y-1)
-        }else if(getMapData(x, y+1) == "T" || getMapData(x, y+1) == "p"){
+        }else if(getMapData(x, y+1) == conduits[conduitIndex].top || getMapData(x, y+1) == "p"){
           connectPipes(x, y, x, y+1)
-        }else if(getMapData(x-1, y) == "R" || getMapData(x-1, y) == "p"){
+        }else if(getMapData(x-1, y) == conduits[conduitIndex].right || getMapData(x-1, y) == "p"){
           connectPipes(x, y, x-1, y)
-        }else if(getMapData(x+1, y) == "L" || getMapData(x+1, y) == "p"){
+        }else if(getMapData(x+1, y) == conduits[conduitIndex].left || getMapData(x+1, y) == "p"){
           connectPipes(x, y, x+1, y)
         }
       }
       
+      if(beginMouseHold){
+        if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
+        connectPipes(x, y, x, y-1)
+        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
+          connectPipes(x, y, x, y+1)
+        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
+          connectPipes(x, y, x-1, y)
+        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
+          connectPipes(x, y, x+1, y)
+        }
+      }
 
-
-      if(getMapData(x, y) == "O"){
+      if(getMapData(x, y) == conduits[conduitIndex].stub){
         changeMapData(x, y, "-")
       }
       if(previousPipeX != x || previousPipeY != y){
@@ -745,19 +909,19 @@ function addPipe(x, y){
       previousPipeX = x;
       previousPipeY = y;
     }
-    if(endMouseHold && !"123456".includes(getMapData(x, y))){
-      if(getMapData(x, y-1) == "B" || getMapData(x, y-1) == "p"){
+    if(endMouseHold && conduits[conduitIndex].endPoints.includes(getMapData(x, y))){
+      if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
         connectPipes(x, y, x, y-1)
-      }else if(getMapData(x, y+1) == "T" || getMapData(x, y+1) == "p"){
+      }else if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
         connectPipes(x, y, x, y+1)
-      }else if(getMapData(x-1, y) == "R" || getMapData(x-1, y) == "p"){
+      }else if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
         connectPipes(x, y, x-1, y)
-      }else if(getMapData(x+1, y) == "L" || getMapData(x+1, y) == "p"){
+      }else if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
         connectPipes(x, y, x+1, y)
       }
     }
 
-    if("TLBRp".includes(getMapData(x, y)) && "TLBRp".includes(getMapData(previousPipeX, previousPipeY)) && (Math.abs(x-previousPipeX) == 1 || Math.abs(y-previousPipeY) == 1)){
+    if((conduits[conduitIndex].endPoints + "p").includes(getMapData(x, y)) && (conduits[conduitIndex].endPoints + "p").includes(getMapData(previousPipeX, previousPipeY)) && (Math.abs(x-previousPipeX) == 1 || Math.abs(y-previousPipeY) == 1)){
       connectPipes(x, y, previousPipeX, previousPipeY)
       previousPipeX = x;
       previousPipeY = y;
@@ -772,20 +936,15 @@ function addPipe(x, y){
 
 
 function addFacility(x, y, type){
-  if(type == "r"){
-    changeMapData(x, y, "r")
-    changeMapData(x+1, y, "&")
-    changeMapData(x, y+1, "p")
-    changeMapData(x+1, y+1, "p")
-    createNetwork(x, y)
-    
-  }
-  if(type == "W"){
-    changeMapData(x, y, "W")
-    changeMapData(x+1, y, "&")
-    changeMapData(x, y+1, "p")
-    changeMapData(x+1, y+1, "p")
-    createNetwork(x, y)
+  
+  for(var i = 0, l = tiles.length; i < l; i++){
+    if(tiles[i][0] == type){
+      changeMapData(x, y, tileIds[i])
+      changeMapData(x+1, y, "&")
+      changeMapData(x, y+1, "p")
+      changeMapData(x+1, y+1, "p")
+      createNetwork(x, y)
+    }
   }
   
 }
@@ -803,11 +962,12 @@ function getNetwork(area, id){
 
 function createNetwork(x, y){
   networkTotal++
-  var mapData = getMapData(x, y)
-  if(mapData == "r"){
+  var mapData = tiles[tileIds.indexOf(getMapData(x, y))][0]
+
+  if(mapData == "refinery"){
     areas[areaIndex][4].push(["refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [100], networkTotal])
   }
-  if(mapData == "W"){
+  if(mapData == "warehouse"){
     areas[areaIndex][4].push(["warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [0], networkTotal])
   }
 
@@ -878,6 +1038,8 @@ function updateNetwork(x, y){
   var endPoints = [[x, y],[0, 0]]
   var counter = 0;
 
+  var validConduitSegments = (conduits[getConduitIndex(conduitSelected)].segments + "X")
+
   while(counter < 10000){
     counter++
     var connections = getPipeConnections(targetX, targetY)
@@ -887,25 +1049,25 @@ function updateNetwork(x, y){
       continue;
     }
     
-    if(connections.includes("b") && "123456TLBRX".includes(getMapData(targetX, targetY+1)) && yMotion != -1){
+    if(connections.includes("b") && validConduitSegments.includes(getMapData(targetX, targetY+1)) && yMotion != -1){
       targetY += 1;
       xMotion = 0;
       yMotion = 1;
       continue;
     }
-    if(connections.includes("l") && "123456TLBRX".includes(getMapData(targetX-1, targetY)) && xMotion != 1){
+    if(connections.includes("l") && validConduitSegments.includes(getMapData(targetX-1, targetY)) && xMotion != 1){
       targetX -= 1;
       xMotion = -1;
       yMotion = 0;
       continue;
     }
-    if(connections.includes("r") && "123456TLBRX".includes(getMapData(targetX+1, targetY)) && xMotion != -1){
+    if(connections.includes("r") && validConduitSegments.includes(getMapData(targetX+1, targetY)) && xMotion != -1){
       targetX += 1;
       xMotion = 1;
       yMotion = 0;
       continue;
     }
-    if(connections.includes("t") && "123456TLBRX".includes(getMapData(targetX, targetY-1)) && yMotion != 1){
+    if(connections.includes("t") && validConduitSegments.includes(getMapData(targetX, targetY-1)) && yMotion != 1){
       targetY -= 1;
       xMotion = 0;
       yMotion = -1;
@@ -960,46 +1122,46 @@ game.addTemplate("terrain", [
   ["render", true],
   ["layerId", "main"],
   ["mapData", [
-    "gggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwggggggwwwwggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggwwwggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggwwwgggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "gggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "ggggggggggggggwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
-    "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~~~111111111111111111111111111111111111111",
+    "1111~~~~~~1111~~~~~~~~~~1111111111111111111111111111111111111111",
+    "11111111111111111~~~11111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "~~~111~~~~~~1111111111111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~111~~~111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~~111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111111111111",
+    "~~~~~~~~~~~~~~11111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
+    "1111111111111111111111111111111111111111111111111111111111111111",
     
     ]],
   ["role", `
@@ -1019,72 +1181,29 @@ game.addTemplate("terrain", [
           if(k < 0 || k > row.length){
             continue;
           }
-          if(row[k] == "g"){ 
-            ctx.drawImage(this.getTexture("grass"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
+          if("-p&".includes(row[k])){
+            continue;
           }
-          if(row[k] == "w"){
-            ctx.globalAlpha = 0.4;
-            ctx.drawImage(this.getTexture("water"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-            ctx.globalAlpha = 1;
+          if(row[k] == "X"){
+            if(intersectors.includes(getTile("tiles", getMapData(k - 1, j))[0].split("_")[0])){
+
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+            }else{
+
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+            }
+            continue;
           }
-          if(row[k] == "1"){ 
-            ctx.drawImage(this.getTexture("pipe_h"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
+          if(self.id == "baseLayer"){
+            var image = this.getTexture(getTile("terrain", row[k])[0])
+          }else{
+            var image = this.getTexture(getTile("tile", row[k])[0])
           }
-          if(row[k] == "2"){ 
-            ctx.drawImage(this.getTexture("pipe_v"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "3"){ 
-            ctx.drawImage(this.getTexture("pipe_tl"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "4"){ 
-            ctx.drawImage(this.getTexture("pipe_tr"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "5"){ 
-            ctx.drawImage(this.getTexture("pipe_bl"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "6"){ 
-            ctx.drawImage(this.getTexture("pipe_br"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "7"){ 
-            ctx.drawImage(this.getTexture("pipe_xt"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "8"){ 
-            ctx.drawImage(this.getTexture("pipe_xr"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "9"){ 
-            ctx.drawImage(this.getTexture("pipe_xb"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "0"){ 
-            ctx.drawImage(this.getTexture("pipe_xl"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "X"){ 
-            ctx.drawImage(this.getTexture("pipe_x"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "T"){ 
-            ctx.drawImage(this.getTexture("pipe_et"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "L"){ 
-            ctx.drawImage(this.getTexture("pipe_el"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "B"){ 
-            ctx.drawImage(this.getTexture("pipe_eb"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "R"){ 
-            ctx.drawImage(this.getTexture("pipe_er"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "O"){ 
-            ctx.drawImage(this.getTexture("pipe_dot"), (k*16)-scrollX, (j*16)-scrollY, 16, 16)
-          }
-          if(row[k] == "r"){ 
-            ctx.drawImage(this.getTexture("refinery"), (k*16)-scrollX, (j*16)-scrollY, 32, 32)
-          }
-          if(row[k] == "W"){
-            ctx.drawImage(this.getTexture("warehouse"), (k*16)-scrollX, (j*16)-scrollY, 32, 32)
-            
-          }
-          if(row[k] == "s"){ 
-            ctx.drawImage(this.getTexture("ship"), (k*16)-scrollX, (j*16)-scrollY, 32, 32)
-          }
+          ctx.drawImage(image, (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
         }
       }
     }

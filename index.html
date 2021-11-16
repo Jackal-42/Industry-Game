@@ -9,9 +9,9 @@
   </head>
   <body>
     <p></p>
-    <div id="debug" style="position: absolute; height: 400px; width: 250px; border: 1px solid #424242; background-color: lightgray; top: 1%; right: 1%; z-index: 9; overflow: scroll; resize: vertical;">
+    <div id="debug" style="position: absolute; height: 400px; width: 250px; border: 1px solid #424242; background-color: lightgray; top: 1%; right: 1%; z-index: 9; overflow: scroll; resize: vertical; user-select: none; cursor: default;">
       <p id="debugHeader" style="background-color: gray; width: 100%; text-align: center; cursor: move; padding-bottom: 6px; padding-top: 6px;">Debug</p>
-      
+      <p>Please note: The facilities appear to be smaller in this version because I have reworked the rendering engine in order to allow cross-pipe segments and faster rendering. The rework also mandates that all textures be rendered in their native resolution, and the facilities are 16x16 when the sprites should be 32x32. They still function as normal if you connect to where the connection points would be.<br>Please note that there may be slight lag in this version due the the new rendering engine. The next push will most likely be a bit of a code rewrite and cleanup, possibly lag will be reduced. Thanks, and go find those bugs!</p>
       <div style="height: 92%;" id="menus">
         <p class="selector" onclick="toggleMenu('mouseInfo')"><span id="mouseInfoArrow">ᐳ </span>General</p>
         <div id="mouseInfo" class="menu" style="display:none;">
@@ -25,7 +25,9 @@
           <br>
           <button style="margin-bottom: 2px;" onclick="game.getObject('activeLayer').mapData = ['--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------']">Clear Structures [BROKEN]</button>
           <button onclick="evalOnFade = 'loadArea(\'island\')'; fading = true">Go to Island</button>
-          <button onclick="evalOnFade = 'loadArea(\'shore\')'; fading = true">Go to Shore</button>
+          <button onclick="evalOnFade = 'loadArea(\'shore\')'; fading = true">Go to Shore</button><br>
+          <button onclick="conduitSelected='pipe'">Draw Pipes</button>
+          <button onclick="conduitSelected='rail'">Draw Rails</button>
         </div>
 
 
@@ -34,6 +36,7 @@
           <div style="background-color: #eeeeee; border: 1px solid black; height: 150px; width: 96%; margin-top: 4px; margin-bottom: 4px; margin-left: -2px; overflow: scroll; font-size: 12px; display: inline-block; white-space: nowrap; resize: vertical;">
             <p id="pipeLog"><p>
           </div>
+          <p>Rails will transport oil at the moment. It's not a bug, it's a feature.</p>
           <div style="background-color: #eeeeee; border: 1px solid black; height: 100px; width: 96%; margin-top: 4px; margin-bottom: 4px; margin-left: -2px; overflow: scroll; font-size: 12px; display: inline-block; white-space: nowrap; resize: vertical;">
             <p id="networkLog"><p>
           </div>
@@ -43,6 +46,7 @@
         <p class="selector" onclick="toggleMenu('editor')"><span id="editorArrow">ᐳ </span>Coming Soon</p>
         <div id="editor" class="menu" style="display:none;">
           <img src="docs/assets/luigi-dance.gif">
+          <p>i'm-a still here</p>
         </div>
 
 
