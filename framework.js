@@ -43,7 +43,7 @@ game.addTexture("refinery", "docs/assets/refinery.png")
 game.addTexture("selector", "docs/assets/selector.png")
 game.addTexture("null", "docs/assets/null.png")
 
-var tileIds = "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?".split("")
+var tileIds = ("X-p&" + "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?").split("")
 
 //RESERVED: [ X ] [ - ] [ p ] [ & ]
 
@@ -75,12 +75,24 @@ function getTileId(layer, type, connections){
   return conduits[getConduitIndex(conduitSelected)].stub
 }
 
+//Look, I know that the placeholders are bad game design because I didn't want to make a way to account for the utility tiles when rendering terrain. But it works, so deal with it
+
 var terrain = [
+  ["placeholder", "docs/assets/null.png"],
+  ["placeholder", "docs/assets/null.png"],
+  ["placeholder", "docs/assets/null.png"],
+  ["placeholder", "docs/assets/null.png"],
   ["grass", "docs/assets/grass.png"],
   ["water", "docs/assets/water.png"],
 ]
 
 var tiles = [
+  ["overlap", "docs/assets/null.png"],
+  ["air", "docs/assets/null.png"],
+  ["connector", "docs/assets/null.png"],
+  ["filler", "docs/assets/null.png"],
+
+
   ["ship", "docs/assets/ship.png"],
   ["warehouse", "docs/assets/warehouse.png"],
   ["refinery", "docs/assets/refinery.png"],

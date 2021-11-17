@@ -63,7 +63,7 @@ game.loop = function(){
   if(debugging){
     document.getElementById("cursorX").innerHTML = mouseX
     document.getElementById("cursorY").innerHTML = mouseY
-    document.getElementById("dataAtCursor").innerHTML = getMapData(mouseX, mouseY)
+    document.getElementById("dataAtCursor").innerHTML = tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0]
   }
   
   if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
