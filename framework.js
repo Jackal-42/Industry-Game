@@ -310,7 +310,7 @@ var centerDisplay = document.createElement('div')
 centerDisplay.id = "centerDisplay"
 
 centerDisplay.innerHTML = `
-<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; document.getElementById(\'centerDisplay\').style.left = \'105%\';" style='width: 10%; padding-top: 10%; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
+<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; document.getElementById(\'centerDisplay\').style.left = \'30%\';" style='width: 10%; padding-top: 10%; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
 
 <img id="facilityShownImage" src='docs/assets/refinery.png' style="position: absolute; left: 1%; top: 1%; width: 20%; border: 2px solid rgb(88, 36, 6); background-color: tan;">
 
