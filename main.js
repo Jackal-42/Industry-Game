@@ -46,16 +46,26 @@ game.window.addEventListener('click', function (e) {
   document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
 
 
-
-  document.getElementById('centerDisplay').style.top = "30%"
-  document.getElementById('centerDisplay').style.left = "30%"
-  document.getElementById('centerDisplay').style.opacity = "1"
+  document.getElementById('centerDisplay').style.display = "block"
+  
+  cacheCode("document.getElementById(\'centerDisplay\').style.top = \"30%\"; document.getElementById(\'centerDisplay\').style.opacity = \"1\";", 1)
+  
 
 })
 
 
 game.loop = function(){
   var conduitIndex = getConduitIndex(conduitSelected)
+
+  for(var i = 0, l = cachedCode.length; i < l; i++){
+    cachedCode[i].delay--
+    if(cachedCode[i].delay <= 0){
+      eval(cachedCode[i].data)
+      cachedCode.splice(i, 1)
+      i--
+      l--
+    }
+  }
 
   if(key("left")){
     if(scrollX > 0){
@@ -82,9 +92,17 @@ game.loop = function(){
     }
   }
 
+
+  // if(document.getElementById('centerDisplay').style.opacity == "0"){
+  //   document.getElementById('centerDisplay').style.display = "none"
+  // }else{
+  //   document.getElementById('centerDisplay').style.display = "block"
+  // }
+
   try{
     document.getElementById('facilityShownResources').innerHTML = "Oil: " + areas[areaIndex][4][facilityDisplayed][2]
   }catch{}
+
 
   for(var i = 0, l = game.layers.length; i < l; i++){  
     if(game.layers[i].clearFrames == true){  
