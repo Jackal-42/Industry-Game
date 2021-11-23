@@ -113,6 +113,8 @@ game.loop = function(){
   previousMouseY = Math.floor((previousMouseY)/(16))
   mouseX = Math.floor((game.mouseX/windowScale + scrollX)/(16))
   mouseY = Math.floor((game.mouseY/windowScale + scrollY)/(16))
+  if(mouseX < 0){mouseX = 0}
+  if(mouseY < 0){mouseY = 0}
   var selector = game.getObject("selector")
   selector.x = (mouseX*16)-scrollX
   selector.y = (mouseY*16)-scrollY
@@ -160,6 +162,9 @@ game.loop = function(){
   }
   previousMouseX = game.mouseX/windowScale + scrollX;
   previousMouseY = game.mouseY/windowScale + scrollY;
+
+  if(previousMouseX < 0){previousMouseX = 0}
+  if(previousMouseY < 0){previousMouseY = 0}
 
   //Transfers items along working links. Evaluates 4 times per second.
   if(framesElapsed % 15 == 1){
