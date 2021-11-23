@@ -1271,16 +1271,21 @@ game.addTemplate("terrain", [
             continue;
           }
           if(row[k] == "X"){
-            if(intersectors.includes(getTile("tiles", getMapData(k - 1, j))[0].split("_")[0])){
+            xModifier = 0;
+            while(getMapData(k - 1 + xModifier, j) == "X"){xModifier--}
+            yModifier = 0;
+            while(getMapData(k, j - 1 + yModifier) == "X"){yModifier--}
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+            if(intersectors.includes(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0])){
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
             }else{
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
             }
             continue;
           }
