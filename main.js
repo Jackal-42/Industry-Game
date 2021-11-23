@@ -3,6 +3,7 @@ var previousMouseY = 0;
 var facilityDisplayed = 0;
 
 game.window.addEventListener('keydown', function (e) {
+  if(e.keyCode != 9){return;}
   var hotbarButtons = document.getElementsByClassName("hotbarButton")
   for(var i = 0, l = hotbarButtons.length; i < l; i++){
     if(hotbarButtons[i].id.split("_")[0] == conduitSelected){
