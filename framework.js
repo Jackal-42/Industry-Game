@@ -40,8 +40,14 @@ game.addTexture("ship", "docs/assets/ship.png")//R
 game.addTexture("warehouse", "docs/assets/warehouse.png")//B
 game.addTexture("refinery", "docs/assets/refinery.png")
 
+
+//KEEP
 game.addTexture("selector", "docs/assets/selector.png")
 game.addTexture("null", "docs/assets/null.png")
+
+game.addTexture("pipe_icon", "docs/assets/pipe_icon.png")//R
+game.addTexture("rail_icon", "docs/assets/rail_icon.png")//B
+game.addTexture("erase_icon", "docs/assets/erase_icon.png")
 
 var tileIds = ("X-p&" + "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?").split("")
 
@@ -268,6 +274,68 @@ function lg(expression){
   
 }
 
+game.window.style.overflow = "hidden"
+
+var leftMenu = document.createElement('div')
+leftMenu.id = "slideMenuLeft"
+
+leftMenu.innerHTML = `<button style=\"position: absolute; right: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuLeft\').style.right == \'98%\'){document.getElementById(\'slideMenuLeft\').style.right = \'86%\'}else{document.getElementById(\'slideMenuLeft\').style.right = \'98%\'}\"> </button>
+
+<button id="pipe_hotbar" onclick="pressHotbarButton('pipe')" class="hotbarButton" style="margin-top: 14px;"><img src="docs/assets/pipe_icon.png"></button>
+
+<button id="rail_hotbar" onclick="pressHotbarButton('rail')" class="hotbarButton"><img src="docs/assets/rail_icon.png"></button>
+
+<button id="erase_hotbar" onclick="pressHotbarButton('erase')" class="hotbarButton"><img src="docs/assets/erase_icon.png"></button>
+
+`
+
+game.window.appendChild(leftMenu)
+
+var rightMenu = document.createElement('div')
+rightMenu.id = "slideMenuRight"
+
+rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 10%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'98%\'){document.getElementById(\'slideMenuRight\').style.left = \'80%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'98%\'}\"> </button>
+
+<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; right: 100%; width: 2000px; padding-right: 8px; text-align: right; margin-top: 16px; user-select: none;\">Funds: $0 </p>
+
+<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 11%;\">CUSTOM FONT<br><br>Political stuff, research stuff, and assorted options will go here, kinda like the main menu.</p>
+
+
+`
+
+game.window.appendChild(rightMenu)
+
+
+var centerDisplay = document.createElement('div')
+centerDisplay.id = "centerDisplay"
+
+centerDisplay.innerHTML = `
+<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; document.getElementById(\'centerDisplay\').style.left = \'105%\';" style='width: 10%; padding-top: 10%; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
+
+<img id="facilityShownImage" src='docs/assets/refinery.png' style="position: absolute; left: 1%; top: 1%; width: 20%; border: 2px solid rgb(88, 36, 6); background-color: tan;">
+
+<p id="facilityShown" style="font-family: \'Pixellari\'; font-size: 32px; margin-left: 24%; margin-top: 2%;">Refinery</p>
+
+<p id="facilityShownResources" style="font-family: \'Pixellari\'; font-size: 24px; margin-left: 24%; margin-top: -1%;">Oil: 100</p>
+
+
+`
+
+game.window.appendChild(centerDisplay)
+
+function pressHotbarButton(type){
+  conduitSelected = type
+  var hotbarButtons = document.getElementsByClassName("hotbarButton")
+  for(var i = 0, l = hotbarButtons.length; i < l; i++){
+    if(hotbarButtons[i].id.split("_")[0] == type){
+      hotbarButtons[i].style.border = "4px solid red"
+    }else{
+      hotbarButtons[i].style.border = "2px solid rgb(88, 36, 6)"
+    }
+  }
+}
+
+pressHotbarButton("pipe")
 
 
 //Returns the tile at the specified coords
@@ -740,8 +808,12 @@ var crossingPipe = false;
 
 //Adds a pipe at the specified coords and connects it to the surrounding ones
 function addPipe(x, y){
+  if(document.getElementById('centerDisplay').style.opacity == "1"){
+    return;
+  }
   var conduitIndex = getConduitIndex(conduitSelected)
-  if(key(16)){
+  if(key(16) || conduitSelected == "erase"){
+    conduitIndex = 0;
     var mapData = getMapData(x, y)
     //POTENTIAL SOURCE OF ERROR
     //See above
@@ -999,6 +1071,8 @@ function updateNetworkLog(){
 
 //Returns endpoints for a pipe segment network, given coordinates
 function updateNetwork(x, y){
+  conduitIndex = getConduitIndex(conduitSelected)
+  if(conduitSelected == "erase"){conduitIndex = 0}
   var targetX = x;
   var targetY = y;
   var cachedX = -1;
@@ -1050,7 +1124,7 @@ function updateNetwork(x, y){
   var endPoints = [[x, y],[0, 0]]
   var counter = 0;
 
-  var validConduitSegments = (conduits[getConduitIndex(conduitSelected)].segments + "X")
+  var validConduitSegments = (conduits[conduitIndex].segments + "X")
 
   while(counter < 10000){
     counter++

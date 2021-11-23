@@ -9,6 +9,7 @@ var keys;
 //Adds listeners to detect when keys are pressed and depressed :( and puts the results in an array indentified by keycode
 
 window.addEventListener('keydown', function (e) {
+  if(e.keyCode == 9){e.preventDefault()}
   keys = (keys || []);
   keys[e.keyCode] = true;
 })
@@ -41,7 +42,7 @@ function Game(id){
   this.window.addEventListener('mousedown', function(e){
     eval(this.id).mouseDown = true
   })
-  this.window.addEventListener('mouseout', function(e){eval(this.id).mouseDown = false})
+  // this.window.addEventListener('mouseout', function(e){eval(this.id).mouseDown = false})
   this.window.addEventListener('mouseup', function(e){
     eval(this.id).mouseDown = false
   })

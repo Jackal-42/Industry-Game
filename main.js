@@ -1,5 +1,56 @@
 var previousMouseX = 0;
 var previousMouseY = 0;
+var facilityDisplayed = 0;
+
+game.window.addEventListener('keydown', function (e) {
+  var hotbarButtons = document.getElementsByClassName("hotbarButton")
+  for(var i = 0, l = hotbarButtons.length; i < l; i++){
+    if(hotbarButtons[i].id.split("_")[0] == conduitSelected){
+      if(i == l - 1){
+        hotbarButtons[0].click();
+        return;
+      }else{
+        hotbarButtons[i + 1].click();
+        return;
+      }
+    }
+  }
+})
+
+game.window.addEventListener('click', function (e) {
+  if(conduitSelected == "erase"){return}
+
+  var facilityString = JSON.stringify([Math.floor((game.mouseX/windowScale + scrollX)/(16)), Math.floor((game.mouseY/windowScale + scrollY)/(16))])
+
+  var facilityID = undefined
+
+  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
+    if(areas[areaIndex][4][i][0] != "pipeSegment"){
+      var areaString = JSON.stringify(areas[areaIndex][4][i][1])
+      if(areaString.includes(facilityString)){
+        facilityID = i
+        facilityDisplayed = i;
+        break;
+      }
+    }
+  }
+
+  if(facilityID === undefined){
+    return;
+  }
+
+  var str = areas[areaIndex][4][facilityID][0]
+
+  document.getElementById('facilityShownImage').src="docs/assets/" + str + ".png"
+  document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
+
+
+
+  document.getElementById('centerDisplay').style.top = "30%"
+  document.getElementById('centerDisplay').style.left = "30%"
+  document.getElementById('centerDisplay').style.opacity = "1"
+
+})
 
 
 game.loop = function(){
@@ -30,12 +81,16 @@ game.loop = function(){
     }
   }
 
+  try{
+    document.getElementById('facilityShownResources').innerHTML = "Oil: " + areas[areaIndex][4][facilityDisplayed][2]
+  }catch{}
 
   for(var i = 0, l = game.layers.length; i < l; i++){  
     if(game.layers[i].clearFrames == true){  
       game.layers[i].clear();
     }
   }
+
   game.tick()
   beginMouseHold = false;
   endMouseHold = false;
@@ -66,9 +121,11 @@ game.loop = function(){
     document.getElementById("dataAtCursor").innerHTML = tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0]
   }
   
-  if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
-    previousPipeX = mouseX;
-    previousPipeY = mouseY;
+  if(conduitSelected != "erase"){
+    if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
+      previousPipeX = mouseX;
+      previousPipeY = mouseY;
+    }
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
@@ -132,6 +189,8 @@ game.loop = function(){
 
 
   game.render()
+  ctx = game.getLayer("main").context
+  ctx.drawImage(game.getTexture(conduitSelected + "_icon"), (game.mouseX + 16)/windowScale, (game.mouseY + 16)/windowScale, 16, 16)
   if(fadeOpacity > 0 || fading){
     if(fading){
       fadeOpacity += 0.1
@@ -143,7 +202,7 @@ game.loop = function(){
       eval(evalOnFade)
       evalOnFade = ""
     }
-    ctx = game.getLayer("main").context
+    
     if(fadeOpacity > 0){
       ctx.globalAlpha = fadeOpacity
     }else{ctx.globalAlpha = 0}
