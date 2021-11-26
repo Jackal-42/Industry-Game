@@ -1,6 +1,7 @@
 # TODO / IDEAS
 
 * Finish implentation of systems
+* Hotkeys for certain tiles
 * Oil Refining processes and shipping
   * Process changes with time / level progression (?)
   * Ships / Boats / Tankers
@@ -21,5 +22,7 @@
   * Spend certain money towards lobbying
 * Refinery upgrades
   * Upgrade path (?)
-* Multi tile refinery construct (?)
-* Start out dumping other gasses that have no use (?)
+* Multiple tile refinery construct (?)
+* Start out dumping other gasses / side products that have no use (?)
+* News feed marquee (?)
+* Transport material from one area to another (?)
