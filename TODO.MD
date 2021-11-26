@@ -1,4 +1,4 @@
-# TODO
+# TODO / IDEAS
 
 * Finish implentation of systems
 * Oil Refining processes and shipping
@@ -8,3 +8,18 @@
   * Train
 * Regulate coal production
   * Coal amount -> temperature -> what you get
+* Cities
+  * Refinery nearby causes urban sprawl (?)
+  * Different prices with cities
+* Subtle climate change effects (?)
+* Outsource production of coal
+* Worker wages
+  * Minimum wage
+  * Unions
+  * Stop increase of minimum wages by the government
+* Lobbying
+  * Spend certain money towards lobbying
+* Refinery upgrades
+  * Upgrade path (?)
+* Multi tile refinery construct (?)
+* Start out dumping other gasses that have no use (?)
