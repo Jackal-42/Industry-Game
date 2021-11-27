@@ -97,12 +97,9 @@ var tiles = [
   ["air", "docs/assets/null.png"],
   ["connector", "docs/assets/null.png"],
   ["filler", "docs/assets/null.png"],
-
-
-  ["ship", "docs/assets/ship.png"],
-  ["warehouse", "docs/assets/warehouse.png"],
-  ["refinery", "docs/assets/refinery.png"],
 ];
+
+var facility
 
 var conduits = [];
 var conduitSelected = "pipe"
@@ -197,17 +194,17 @@ function cacheCode(data, delay){
 
 function loadArea(id){
   for(var i = 0, l = areas.length; i < l; i++){
-    if(areas[i][0] == areaLoaded){
-      areas[i][2] = game.getObject("baseLayer").mapData
-      areas[i][3] = game.getObject("activeLayer").mapData
+    if(areas[i].name == areaLoaded){
+      areas[i].baseLayer = game.getObject("baseLayer").mapData
+      areas[i].activeLayer = game.getObject("activeLayer").mapData
     }
   }
   for(var i = 0, l = areas.length; i < l; i++){
-    if(areas[i][0] == id){
+    if(areas[i].name == id){
       areaLoaded = id
       areaIndex = i
-      game.getObject("baseLayer").mapData = areas[i][2]
-      game.getObject("activeLayer").mapData = areas[i][3]
+      game.getObject("baseLayer").mapData = areas[i].baseLayer
+      game.getObject("activeLayer").mapData = areas[i].acitveLayer
       game.getObject("baseLayer").refresh = true;
     }
   }
@@ -224,11 +221,19 @@ function toggleMenu(menu){
   }
 }
 
+var offsetHeight = 0;
+var offsetWidth = 0;
+
 window.addEventListener('resize', setWindowScale)
 
 function setWindowScale(){
-  game.window.style.setProperty("--scale", Math.floor((window.innerWidth * 0.8)/512) || 1)
-  windowScale = Math.floor((window.innerWidth * 0.8)/512) || 1
+  offsetWidth = game.window.offsetWidth
+  offsetHeight = game.window.offsetHeight
+
+  for(var i = 0, l = game.layers.length; i < l; i++){
+    game.layers[i].canvas.width = offsetWidth
+    game.layers[i].canvas.height = offsetHeight
+  }
 }
 setWindowScale()
 
@@ -283,6 +288,21 @@ function lg(expression){
     document.getElementById('evalOutput').innerHTML = expression;
   }
   
+}
+
+function Area(name, baseLayer, activeLayer, networks, links){
+  this.name = name;
+  this.baseLayer = baseLayer;
+  this.activeLayer = activeLayer;
+  this.networks = networks;
+  this.links = links;
+}
+
+function Network(name, points, data, index){
+  this.name = name;
+  this.points = points;
+  this.data = data;
+  this.index = index;
 }
 
 game.window.style.overflow = "hidden"
@@ -413,45 +433,45 @@ function connectPipes(x1, y1, x2, y2){
   }
   var endPoints = [];
   for(var j = 0; j < l; j++){
-    if(areas[areaIndex][4][j][0] == 'pipeSegment'){
-      endPoints.push(areas[areaIndex][4][j][1][0])
-      endPoints.push(areas[areaIndex][4][j][1][1])
+    if(areas[areaIndex].networks[j].name == 'pipeSegment'){
+      endPoints.push(areas[areaIndex].networks[j].points[0])
+      endPoints.push(areas[areaIndex].networks[j].points[1])
     }
   }
-  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
-    if(areas[areaIndex][4][i][0] == 'pipeSegment'){
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name == 'pipeSegment'){
       
       var stringArray2 = JSON.stringify([x2, y2])
-      if(JSON.stringify(areas[areaIndex][4][i][1]).includes(stringArray2)){
+      if(JSON.stringify(areas[areaIndex].networks[i].points).includes(stringArray2)){
         if(JSON.stringify(endPoints).includes(JSON.stringify([x1, y1]))){
           var stringArray1 = JSON.stringify([x1, y1])
           for(var j = 0; j < l; j++){
-            if(JSON.stringify(areas[areaIndex][4][j][1][0]) == stringArray1){
+            if(JSON.stringify(areas[areaIndex].networks[j].points[0]) == stringArray1){
               
-              if(JSON.stringify(areas[areaIndex][4][i][1][0]) == stringArray2){
-                areas[areaIndex][4][j][1][0] = areas[areaIndex][4][i][1][1]
+              if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
+                areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[1]
               }else{
-                areas[areaIndex][4][j][1][0] = areas[areaIndex][4][i][1][0]
+                areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[0]
               }
-              areas[areaIndex][4].splice(i, 1)
+              areas[areaIndex].networks.splice(i, 1)
               i--
               l--
-            }else if(JSON.stringify(areas[areaIndex][4][j][1][1]) == stringArray1){
+            }else if(JSON.stringify(areas[areaIndex].networks[j].points[1]) == stringArray1){
              
-              if(JSON.stringify(areas[areaIndex][4][i][1][0]) == stringArray2){
-                areas[areaIndex][4][j][1][1] = areas[areaIndex][4][i][1][1]
+              if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
+                areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[1]
               }else{
-                areas[areaIndex][4][j][1][1] = areas[areaIndex][4][i][1][0]
+                areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[0]
               }
-              areas[areaIndex][4].splice(i, 1)
+              areas[areaIndex].networks.splice(i, 1)
               i--
               l--
             }
           }
         }else{
           for(var j = 0; j < 2; j++){
-            if(JSON.stringify(areas[areaIndex][4][i][1][j]) == stringArray2){
-              areas[areaIndex][4][i][1][j] = [x1, y1]
+            if(JSON.stringify(areas[areaIndex].networks[i].points[j]) == stringArray2){
+              areas[areaIndex].networks[i].points[j] = [x1, y1]
               break;
             }
           }
@@ -689,11 +709,11 @@ function addPipeNetwork(endPoints){
   var facility1String = JSON.stringify([facility1X, facility1Y])
   var facility2String = JSON.stringify([facility2X, facility2Y])
   var facilityIDs = [];
-  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
-    if(areas[areaIndex][4][i][0] != "pipeSegment"){
-      var areaString = JSON.stringify(areas[areaIndex][4][i][1])
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name != "pipeSegment"){
+      var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
       if(areaString.includes(facility1String) || areaString.includes(facility2String)){
-        facilityIDs.push(areas[areaIndex][4][i][3])
+        facilityIDs.push(areas[areaIndex].networks[i].index)
       }
     }
   }
@@ -703,9 +723,9 @@ function addPipeNetwork(endPoints){
   if(facilityIDs[1] != undefined){
     networkTotal++
 
-    areas[areaIndex][5].push([facilityIDs[0], facilityIDs[1], networkTotal])
+    areas[areaIndex].links.push([facilityIDs[0], facilityIDs[1], networkTotal])
 
-    areas[areaIndex][4].push(["pipeSegment", endPoints, [facilityIDs[0], facilityIDs[1]], networkTotal])
+    areas[areaIndex].networks.push(new Network("pipeSegment", endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, networkTotal))
   }
 
 }
@@ -794,18 +814,18 @@ function updatePipe(x, y){
 //Removes a network from the network array based on coordinates, and any links which rely on it
 function killNetwork(x, y){
   var stringified = JSON.stringify([x, y])
-  for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
-    if(areas[areaIndex][4][i][0] == "pipeSegment"){
-      if(JSON.stringify(areas[areaIndex][4][i][1][0]) == stringified || JSON.stringify(areas[areaIndex][4][i][1][1]) == stringified){
-        for(var k = 0, ll = areas[areaIndex][5].length; k < ll; k++){
-          if(areas[areaIndex][5][k][2] == areas[areaIndex][4][i][3]){
-            areas[areaIndex][5].splice(k, 1)
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name == "pipeSegment"){
+      if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringified || JSON.stringify(areas[areaIndex].networks[i].points[1]) == stringified){
+        for(var k = 0, ll = areas[areaIndex].links.length; k < ll; k++){
+          if(areas[areaIndex].links[k].data.connectedFacilities == areas[areaIndex].networks[i].index){
+            areas[areaIndex].links.splice(k, 1)
             k--
             ll--
           }
         }
 
-        areas[areaIndex][4].splice(i, 1)
+        areas[areaIndex].networks.splice(i, 1)
         i--
         l--
         
@@ -830,20 +850,20 @@ function addPipe(x, y){
     //See above
     if("p&".includes(mapData)){
       var coordString = JSON.stringify([x, y])
-      for(var i = 0, l = areas[areaIndex][4].length; i < l; i++){
-        if(JSON.stringify(areas[areaIndex][4][i][1]).includes(coordString)){
-          x = areas[areaIndex][4][i][1][0][0]
-          y = areas[areaIndex][4][i][1][0][1]
-          for(var k = 0, ll = areas[areaIndex][4].length; k < ll; k++){
-            if(areas[areaIndex][4][k][0] == "pipeSegment"){
-              if(areas[areaIndex][4][k][2][0] == areas[areaIndex][4][i][3] || areas[areaIndex][4][k][2][1] == areas[areaIndex][4][i][3]){
-                killNetwork(areas[areaIndex][4][k][1][0][0], areas[areaIndex][4][k][1][0][1])
+      for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+        if(JSON.stringify(areas[areaIndex].networks[i].points).includes(coordString)){
+          x = areas[areaIndex].networks[i].points[0][0]
+          y = areas[areaIndex].networks[i].points[0][1]
+          for(var k = 0, ll = areas[areaIndex].networks.length; k < ll; k++){
+            if(areas[areaIndex].networks[k].name == "pipeSegment"){
+              if(areas[areaIndex].networks[k].data.connectedFacilities[0] == areas[areaIndex].networks[i].index || areas[areaIndex].networks[k].data.connectedFacilities[1] == areas[areaIndex].networks[i].index){
+                killNetwork(areas[areaIndex].networks[k].points[0][0], areas[areaIndex].networks[k].points[0][1])
                 k--
                 ll--
               }
             }
           }
-          areas[areaIndex][4].splice(i, 1)
+          areas[areaIndex].networks.splice(i, 1)
           break;
         }
       }
@@ -896,10 +916,10 @@ function addPipe(x, y){
 
       var armEndPoints = [];
       var endPoints = [];
-      for(var j = 0, l = areas[areaIndex][4].length; j < l; j++){
-        if(areas[areaIndex][4][j][0] == 'pipeSegment'){
-          endPoints.push(areas[areaIndex][4][j][1][0])
-          endPoints.push(areas[areaIndex][4][j][1][1])
+      for(var j = 0, l = areas[areaIndex].networks.length; j < l; j++){
+        if(areas[areaIndex].networks[j].name == 'pipeSegment'){
+          endPoints.push(areas[areaIndex].networks[j].points[0])
+          endPoints.push(areas[areaIndex].networks[j].points[1])
         }
       }
       endPoints = JSON.stringify(endPoints)
@@ -1004,6 +1024,7 @@ function addPipe(x, y){
       previousPipeX = x;
       previousPipeY = y;
     }
+
     if(endMouseHold && conduits[conduitIndex].endPoints.includes(getMapData(x, y))){
       if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
         connectPipes(x, y, x, y-1)
@@ -1032,15 +1053,12 @@ function addPipe(x, y){
 
 function addFacility(x, y, type){
   
-  for(var i = 0, l = tiles.length; i < l; i++){
-    if(tiles[i][0] == type){
-      changeMapData(x, y, tileIds[i])
-      changeMapData(x+1, y, "&")
-      changeMapData(x, y+1, "p")
-      changeMapData(x+1, y+1, "p")
-      createNetwork(x, y)
-    }
-  }
+
+  changeMapData(x, y, "&")
+  changeMapData(x+1, y, "&")
+  changeMapData(x, y+1, "p")
+  changeMapData(x+1, y+1, "p")
+  createNetwork(type, x, y)
   
 }
 
@@ -1048,22 +1066,21 @@ function addFacility(x, y, type){
 var networkTotal = 0;
 
 function getNetwork(area, id){
-  for(var i = 0, l = areas[area][4].length; i < l; i++){
-    if(areas[area][4][i][3] == id){
-      return areas[area][4][i]
+  for(var i = 0, l = areas[area].networks.length; i < l; i++){
+    if(areas[area].networks[i].index == id){
+      return areas[area].networks[i]
     }
   }
 }
 
-function createNetwork(x, y){
+function createNetwork(type, x, y){
   networkTotal++
-  var mapData = tiles[tileIds.indexOf(getMapData(x, y))][0]
 
-  if(mapData == "refinery"){
-    areas[areaIndex][4].push(["refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [100], networkTotal])
+  if(type == "refinery"){
+    areas[areaIndex].networks.push(new Network("refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], {oil: 100,}, networkTotal))
   }
-  if(mapData == "warehouse"){
-    areas[areaIndex][4].push(["warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], [0], networkTotal])
+  if(type == "warehouse"){
+    areas[areaIndex].networks.push(new Network("warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], {oil: 0,}, networkTotal))
   }
 
   if(debugging){updateNetworkLog()}
@@ -1072,9 +1089,9 @@ function createNetwork(x, y){
 function updateNetworkLog(){
   document.getElementById("networkLog").innerHTML = ""
   for(var j = 0, ll = areas.length; j < ll; j++){
-    document.getElementById("networkLog").innerHTML += areas[j][0] + " {<br>"
-    for(var i = 0, l = areas[j][4].length; i < l; i++){
-      document.getElementById("networkLog").innerHTML += "&nbsp&nbsp" + areas[j][4][i][0] + " " + JSON.stringify(areas[j][4][i][1]) + " " + JSON.stringify(areas[j][4][i][2]) + " : " + areas[j][4][i][3] + "<br>"
+    document.getElementById("networkLog").innerHTML += areas[j].name + " {<br>"
+    for(var i = 0, l = areas[j].networks.length; i < l; i++){
+      document.getElementById("networkLog").innerHTML += "&nbsp&nbsp" + areas[j].networks[i].name + " " + JSON.stringify(areas[j].networks[i].points) + " " + JSON.stringify(areas[j].networks[i].data) + " : " + areas[j].networks[i].index + "<br>"
     }
     document.getElementById("networkLog").innerHTML += "}<br><br>"
   }
@@ -1268,13 +1285,13 @@ game.addTemplate("terrain", [
     
     ctx.imageSmoothingEnabled = false;
     if(self.refresh || self.render){
-      ctx.clearRect(0, 0, 512, 320)
-      for(var j = Math.floor(scrollY/16)-1, ll = Math.floor(scrollY/16)+22; j < ll; j++){
+      ctx.clearRect(0, 0, offsetWidth, offsetHeight)
+      for(var j = Math.floor(scrollY/128)-1, ll = Math.floor(scrollY/128)+Math.floor(offsetHeight/32) + 2; j < ll; j++){
         if(j < 0 || j > 39){
           continue;
         }
         var row = this.objects[i].mapData[j].split("");
-        for(var k = Math.floor(scrollX/16)-1, lll = Math.floor(scrollX/16)+34; k < lll; k++){
+        for(var k = Math.floor(scrollX/128)-1, lll = Math.floor(scrollX/128)+Math.floor(offsetWidth/32) + 2; k < lll; k++){
           if(k < 0 || k > row.length){
             continue;
           }
@@ -1289,14 +1306,14 @@ game.addTemplate("terrain", [
 
             if(intersectors.includes(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0])){
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
             }else{
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
             }
             continue;
           }
@@ -1305,7 +1322,7 @@ game.addTemplate("terrain", [
           }else{
             var image = this.getTexture(getTile("tile", row[k])[0])
           }
-          ctx.drawImage(image, (k*16)-scrollX, (j*16)-scrollY, image.width, image.height)
+          ctx.drawImage(image, ((k*16)-scrollX/8) * 2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
         }
       }
     }
@@ -1326,10 +1343,10 @@ game.addTemplate("selector", [
   ["id", "selector"],
   ["momentumX", 0],
   ["momentumY", 0],
-  ["width", 16],
-  ["height", 16],
-  ["spriteWidth", 16],
-  ["spriteHeight", 16],
+  ["width", 32],
+  ["height", 32],
+  ["spriteWidth", 32],
+  ["spriteHeight", 32],
   ["spriteOffsetX", 0],
   ["spriteOffsetY", 0],
   ["rotation", 0],

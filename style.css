@@ -142,6 +142,7 @@ p{
 }
 
 #centerDisplay{
+  display: none;
   left: 30%;
   top: 35%;
   width: 40%;
@@ -158,3 +159,33 @@ p{
   content: "";
   position: fixed;
 } */
+
+#searchResults button{
+  width: 80%;
+  border: none;
+  background-color: darkgray;
+  transition: background-color 200ms;
+}
+
+#searchResults button:hover{
+  background-color: gray;
+}
+
+#monitoring button{
+  width: 100%;
+  border: none;
+  background-color: lightblue;
+  transition: background-color 200ms;
+}
+
+#monitoring button:hover{
+  background-color: lightskyblue;
+}
+
+.leftSpan{
+  float: left;
+}
+
+.rightSpan{
+  float: right;
+}
