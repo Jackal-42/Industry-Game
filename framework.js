@@ -574,8 +574,8 @@ function dragElement(elmnt) {
 }
 
 function lg(expression){
-  if(expression == "robert sux"){
-    document.getElementById('evalOutput').innerHTML = "he really do tho";
+  if(expression == "robert chad"){
+    document.getElementById('evalOutput').innerHTML = "he really is tho";
   }else{
     document.getElementById('evalOutput').innerHTML = expression;
   }
