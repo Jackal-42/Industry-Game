@@ -25,6 +25,7 @@
           <!-- <button style="margin-bottom: 2px;" onclick="game.getObject('activeLayer').mapData = ['--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------','--------------------------------']">Clear Structures [BROKEN]</button> -->
           <button onclick="evalOnFade = 'loadArea(\'island\')'; fading = true">Go to Island</button>
           <button onclick="evalOnFade = 'loadArea(\'shore\')'; fading = true">Go to Shore</button><br>
+          <button onclick="try{game.loop()}catch(err){lg(err)}">Diagnose</button>
           <p>Monitor Variables</p>
           <input id="monitorVariableInput" type="text" placeholder="Search" autocomplete="off">
           <div id="searchResults"></div>

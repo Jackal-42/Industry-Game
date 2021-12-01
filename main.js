@@ -149,8 +149,14 @@ game.loop = function(){
   // }
 
   try{
-    document.getElementById('facilityShownResources').innerHTML = "Oil: " + areas[areaIndex].networks[facilityDisplayed].data.oil
+    document.getElementById('facilityShownResources').innerHTML = ""
+    for(var i = 0, l = Object.keys(areas[areaIndex].networks[facilityDisplayed].data).length; i < l; i++){
+      document.getElementById('facilityShownResources').innerHTML += Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i].capitalize() + ": " + eval("areas[areaIndex].networks[facilityDisplayed].data." + Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i]) + "<br>"
+    }
+    
   }catch{}
+
+  document.getElementById("funds").innerHTML = funds
 
 
   for(var i = 0, l = game.layers.length; i < l; i++){  
@@ -236,32 +242,80 @@ game.loop = function(){
   //Transfers items along working links. Evaluates 4 times per second.
   if(framesElapsed % 15 == 1){
     for(var k = 0, lll = areas.length; k < lll; k++){
-      for(var i = 0, l = areas[k].links.length; i < l; i++){
-        var facility1 = getNetwork(k, areas[k].links[i][0])
-        var facility2 = getNetwork(k, areas[k].links[i][1])
-        var types = [[facility1.name, 1], [facility2.name, 2]].sort();
-        if(types[0][0] == "refinery" && types[1][0] == "warehouse"){
-          var index1 = 0;
-          var index2 = 0;
-          for(var j = 0, ll = areas[k].networks.length; j < ll; j++){
-            if(areas[k].networks[j].index == facility1.index){
-              index1 = j
-            }else if(areas[k].networks[j].index == facility2.index){
-              index2 = j
-            }
-          }
-          if(areas[k].networks[index1].data.oil > 0){
-            areas[k].networks[index1].data.oil -= 1
-            areas[k].networks[index2].data.oil += 1
-            if(debugging){updateNetworkLog()}
+      for(var i = 0, l = areas[k].networks.length; i < l; i++){
+        if(areas[k].networks[i].name == "pipeSegment"){continue}
+        for(var j = 0, jl = facilities.length; j < jl; j++){
+          if(facilities[j].name == areas[k].networks[i].name){
+            facilities[j].process(areas[k].networks[i])
           }
         }
       }
     }
+
+    for(var k = 0, lll = areas.length; k < lll; k++){
+      for(var i = 0, l = areas[k].links.length; i < l; i++){
+        var facility1 = getNetwork(k, areas[k].links[i].facility1[0])
+        var facility2 = getNetwork(k, areas[k].links[i].facility2[0])
+        var facility1DataIndex = 0;
+        var facility2DataIndex = 0;
+        for(var j = 0, ll = facilities.length; j < ll; j++){
+          if(facilities[j].name == facility1.name){
+            facility1DataIndex = j;
+          }
+          if(facilities[j].name == facility2.name){
+            facility2DataIndex = j;
+          }
+        }
+
+
+        if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output"){
+          if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
+            break;
+          }
+          try{
+            for(var j = 0, jl = eval(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1]).length; j < jl; j++){
+              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j]))){continue}
+              if(eval("facility1.data." + facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j]) >= 1){
+                eval("facility1.data." + facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j] + " -= 1")
+                eval("facility2.data." + facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j] + " += 1")
+              }
+            }
+          }catch(err){console.log(err)}
+        }else{
+          if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
+            break;
+          }
+          try{
+            for(var j = 0, jl = eval(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1]).length; j < jl; j++){
+              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j]))){continue}
+              if(eval("facility2.data." + facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j]) >= 1){
+                eval("facility2.data." + facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j] + " -= 1")
+                eval("facility1.data." + facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j] + " += 1")
+              }
+            }
+          }catch(err){console.log(err)}
+        }
+
+        // if(types[0][0] == "refinery" && types[1][0] == "warehouse"){
+        //   var index1 = 0;
+        //   var index2 = 0;
+        //   for(var j = 0, ll = areas[k].networks.length; j < ll; j++){
+        //     if(areas[k].networks[j].index == facility1.index){
+        //       index1 = j
+        //     }else if(areas[k].networks[j].index == facility2.index){
+        //       index2 = j
+        //     }
+        //   }
+        //   if(areas[k].networks[index1].data.crude_oil > 0){
+        //     areas[k].networks[index1].data.crude_oil -= 1
+        //     areas[k].networks[index2].data.crude_oil += 1
+        //     if(debugging){updateNetworkLog()}
+        //   }
+        // }
+      }
+    }
   }
 
-
-  game.render()
   ctx = game.getLayer("main").context
 
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
@@ -271,7 +325,12 @@ game.loop = function(){
   }
 
 
+  game.render()
+  ctx = game.getLayer("main").context
+
+  
   ctx.drawImage(game.getTexture(conduitSelected + "_icon"), (game.mouseX + 16), (game.mouseY + 16), 16, 16)
+  
   if(fadeOpacity > 0 || fading){
     if(fading){
       fadeOpacity += 0.1
@@ -288,7 +347,7 @@ game.loop = function(){
       ctx.globalAlpha = fadeOpacity
     }else{ctx.globalAlpha = 0}
     ctx.fillStyle = "black"
-    ctx.fillRect(0, 0, 512, 320)
+    ctx.fillRect(0, 0, offsetWidth, offsetHeight)
     ctx.globalAlpha = 1;
   }
   mouseDownPreviously = false;

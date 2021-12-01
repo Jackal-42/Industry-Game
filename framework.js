@@ -19,26 +19,24 @@ game.addTexture("grass", "docs/assets/grass.png")
 game.addTexture("water", "docs/assets/water.png")
 
 
-game.addTexture("pipe_h", "docs/assets/pipe_h.png")//1
-game.addTexture("pipe_v", "docs/assets/pipe_v.png")//2
-game.addTexture("pipe_tl", "docs/assets/pipe_tl.png")//3
-game.addTexture("pipe_tr", "docs/assets/pipe_tr.png")//4
-game.addTexture("pipe_bl", "docs/assets/pipe_bl.png")//5
-game.addTexture("pipe_br", "docs/assets/pipe_br.png")//6
-game.addTexture("pipe_xt", "docs/assets/pipe_xt.png")//7
-game.addTexture("pipe_xr", "docs/assets/pipe_xr.png")//8
-game.addTexture("pipe_xb", "docs/assets/pipe_xb.png")//9
-game.addTexture("pipe_xl", "docs/assets/pipe_xl.png")//0
-game.addTexture("pipe_x", "docs/assets/pipe_x.png")//X
-game.addTexture("pipe_et", "docs/assets/pipe_et.png")//T
-game.addTexture("pipe_er", "docs/assets/pipe_er.png")//R
-game.addTexture("pipe_eb", "docs/assets/pipe_eb.png")//B
-game.addTexture("pipe_el", "docs/assets/pipe_el.png")//L
-game.addTexture("pipe_dot", "docs/assets/pipe_dot.png")//O
+// game.addTexture("pipe_h", "docs/assets/pipe_h.png")//1
+// game.addTexture("pipe_v", "docs/assets/pipe_v.png")//2
+// game.addTexture("pipe_tl", "docs/assets/pipe_tl.png")//3
+// game.addTexture("pipe_tr", "docs/assets/pipe_tr.png")//4
+// game.addTexture("pipe_bl", "docs/assets/pipe_bl.png")//5
+// game.addTexture("pipe_br", "docs/assets/pipe_br.png")//6
+// game.addTexture("pipe_xt", "docs/assets/pipe_xt.png")//7
+// game.addTexture("pipe_xr", "docs/assets/pipe_xr.png")//8
+// game.addTexture("pipe_xb", "docs/assets/pipe_xb.png")//9
+// game.addTexture("pipe_xl", "docs/assets/pipe_xl.png")//0
+// game.addTexture("pipe_x", "docs/assets/pipe_x.png")//X
+// game.addTexture("pipe_et", "docs/assets/pipe_et.png")//T
+// game.addTexture("pipe_er", "docs/assets/pipe_er.png")//R
+// game.addTexture("pipe_eb", "docs/assets/pipe_eb.png")//B
+// game.addTexture("pipe_el", "docs/assets/pipe_el.png")//L
+// game.addTexture("pipe_dot", "docs/assets/pipe_dot.png")//O
 
-game.addTexture("ship", "docs/assets/ship.png")//R
-game.addTexture("warehouse", "docs/assets/warehouse.png")//B
-game.addTexture("refinery", "docs/assets/refinery.png")
+
 
 
 //KEEP
@@ -160,6 +158,296 @@ for(var i = 0, l = terrain.length; i < l; i++){
   game.addTexture(terrain[i][0], terrain[i][1])
 }
 
+game.addTexture("ship", "docs/assets/ship.png")
+game.addTexture("warehouse", "docs/assets/warehouse.png")
+game.addTexture("refinery", "docs/assets/refinery.png")
+game.addTexture("distiller", "docs/assets/distiller.png")
+game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
+game.addTexture("crude_source", "docs/assets/crude_source.png")
+game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
+
+var facilities = [
+  {
+    name: "distiller",
+    width: 1,
+    height: 2,
+    storage: ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue"],
+    layout: [[0, 0], [0, 1]],
+    process: function(me){
+      me.data.crude_vapor += me.data.crude_oil/4
+      me.data.crude_naphtha += me.data.crude_oil/4
+      me.data.crude_kerosene += me.data.crude_oil/4
+      me.data.residue += me.data.crude_oil/4
+      me.data.crude_oil = 0;
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["output", ["crude_vapor"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["crude_naphtha"]],
+      },
+
+      {
+        x: 1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["output", ["crude_kerosene"]],
+      },
+
+      {
+        x: 0,
+        y: 2,
+        conduit: "pipe",
+        gender: ["output", ["residue"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["crude_oil"]],
+      },
+
+      {
+        x: -1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["crude_oil"]],
+      },
+    ],
+  },
+
+  {
+    name: "hydrotreater",
+    width: 2,
+    height: 1,
+    storage: ["hydrogen", "crude_vapor", "crude_kerosene", "crude_naphtha", "vapor", "kerosene", "naphtha"],
+    layout: [[0, 0], [1, 0]],
+    process: function(me){
+      while(true){
+        if(me.data.hydrogen >= 1){
+          if(me.data.crude_kerosene >= 1){
+            me.data.hydrogen -= 1;
+            me.data.crude_kerosene -= 1;
+            me.data.kerosene += 1;
+            continue;
+          }
+          if(me.data.crude_vapor >= 1){
+            me.data.hydrogen -= 1;
+            me.data.crude_vapor -= 1;
+            me.data.vapor += 1;
+            continue;
+          }
+          if(me.data.crude_naphtha >= 1){
+            me.data.hydrogen -= 1;
+            me.data.crude_naphtha -= 1;
+            me.data.naphtha += 1;
+            continue;
+          }
+          break;
+        }
+        break;
+      }
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["hydrogen"]],
+      },
+
+      {
+        x: 1,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["hydrogen"]],
+      },
+
+      {
+        x: 2,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["kerosene", "naphtha", "vapor"]]
+      },
+
+      {
+        x: 1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["hydrogen"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["hydrogen"]],
+      },
+
+      {
+        id: "main_input",
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["crude_kerosene", "crude_naphtha", "crude_vapor"]],
+      },
+    ],
+  },
+
+  {
+    name: "ship",
+    width: 2,
+    height: 4,
+    storage: ["vapor", "kerosene", "naphtha"],
+    layout: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
+    process: function(me){
+      funds += me.data.vapor * 20
+      funds += me.data.kerosene * 10
+      funds += me.data.naphtha * 15
+      me.data.vapor = 0;
+      me.data.kerosene = 0;
+      me.data.naphtha = 0;
+    },
+    ports: [
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },
+
+      {
+        x: -1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },
+
+      {
+        x: -1,
+        y: 2,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },
+
+      {
+        x: 2,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },
+
+      {
+        x: 2,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },
+
+      {
+        x: 2,
+        y: 2,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },      
+    ],
+  },
+
+  {
+    name: "crude_source",
+    width: 1,
+    height: 1,
+    storage: ["crude_oil"],
+    layout: [[0, 0]],
+    process: function(me){me.data.crude_oil = 4},
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["output", ["crude_oil"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["crude_oil"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["output", ["crude_oil"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["crude_oil"]],
+      },
+    ],
+  },
+
+  {
+    name: "hydrogen_source",
+    width: 1,
+    height: 1,
+    storage: ["hydrogen"],
+    layout: [[0, 0]],
+    process: function(me){me.data.hydrogen = 4},
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["output", ["hydrogen"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["hydrogen"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["output", ["hydrogen"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["hydrogen"]],
+      },
+    ],
+  },
+]
+
+//stackoverflow go brrrrrrrrr
+
+Object.defineProperty(String.prototype, 'capitalize', {
+  value: function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  },
+  enumerable: false
+});
+
 var mouseDownPreviously = false;
 var beginMouseHold = false;
 var endMouseHold = false;
@@ -181,6 +469,8 @@ var debugging = true;
 var logPipes = false;
 var windowScale = 1;
 
+var funds = 0;
+
 var cachedCode = [];
 
 function CodeBlock(data, delay){
@@ -193,6 +483,7 @@ function cacheCode(data, delay){
 }
 
 function loadArea(id){
+
   for(var i = 0, l = areas.length; i < l; i++){
     if(areas[i].name == areaLoaded){
       areas[i].baseLayer = game.getObject("baseLayer").mapData
@@ -204,7 +495,7 @@ function loadArea(id){
       areaLoaded = id
       areaIndex = i
       game.getObject("baseLayer").mapData = areas[i].baseLayer
-      game.getObject("activeLayer").mapData = areas[i].acitveLayer
+      game.getObject("activeLayer").mapData = areas[i].activeLayer
       game.getObject("baseLayer").refresh = true;
     }
   }
@@ -234,6 +525,7 @@ function setWindowScale(){
     game.layers[i].canvas.width = offsetWidth
     game.layers[i].canvas.height = offsetHeight
   }
+  try{game.getObject("baseLayer").render = true}catch{}
 }
 setWindowScale()
 
@@ -327,7 +619,7 @@ rightMenu.id = "slideMenuRight"
 
 rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 10%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'98%\'){document.getElementById(\'slideMenuRight\').style.left = \'80%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'98%\'}\"> </button>
 
-<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; right: 100%; width: 2000px; padding-right: 8px; text-align: right; margin-top: 16px; user-select: none;\">Funds: $0 </p>
+<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; right: 100%; width: 2000px; padding-right: 8px; text-align: right; margin-top: 16px; user-select: none;\">Funds: $<span id=\"funds\">0</span> </p>
 
 <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 11%;\">CUSTOM FONT<br><br>Political stuff, research stuff, and assorted options will go here, kinda like the main menu.</p>
 
@@ -634,23 +926,23 @@ function connectPipes(x1, y1, x2, y2){
       if(logPipes && debugging){document.getElementById("pipeLog").innerHTML += "Joined (" + x1 + ", " + y1 + ") and (" + x2 + ", " + y2 + ")<br>"}
     }
   }
+
   if(getMapData(x2, y2) == "p" || getMapData(x1, y1) == "p"){
     if(getMapData(x1, y1) == "p"){
       var endPoints = updateNetwork(x2, y2)
     }else{
       var endPoints = updateNetwork(x1, y1)
     }
-    if(JSON.stringify(endPoints[0]) != JSON.stringify(endPoints[1])){
-      var pos = 0;
-      if(endPoints[0][0] == x1 && endPoints[0][1] == y1){
-        pos = 1;
-      }
-      if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p"){
+    
+    var pos = 0;
+    if(endPoints[0][0] == x1 && endPoints[0][1] == y1){
+      pos = 1;
+    }
+    if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0], endPoints[pos][1] + 1) == "p"){
 
-        addPipeNetwork(endPoints)
-        
-        if(debugging){updateNetworkLog()}
-      }
+      addPipeNetwork(endPoints)
+      
+      if(debugging){updateNetworkLog()}
     }
   }
 
@@ -691,19 +983,26 @@ function addPipeNetwork(endPoints){
     facility1X = endX + 1
     facility1Y = endY
   }
+  else if((connections.includes("b") && getMapData(endX, endY+1) == "p")){
+    facility1X = endX
+    facility1Y = endY + 1
+  }
 
   endX = endPoints[1][0]
   endY = endPoints[1][1]
   connections = getPipeConnections(endX, endY)
-  if((connections.includes("t") && getMapData(endX, endY-1) == "p")){
+  if((connections.includes("t") && getMapData(endX, endY-1) == "p") && !((endY - 1 == facility1Y) && (endX == facility1X))){
     facility2X = endX
     facility2Y = endY - 1
-  }else if((connections.includes("l") && getMapData(endX-1, endY) == "p")){
+  }else if((connections.includes("l") && getMapData(endX-1, endY) == "p") && !((endY == facility1Y) && (endX - 1 == facility1X))){
     facility2X = endX - 1
     facility2Y = endY
-  }else if((connections.includes("r") && getMapData(endX+1, endY) == "p")){
+  }else if((connections.includes("r") && getMapData(endX+1, endY) == "p") && !((endY == facility1Y) && (endX + 1 == facility1X))){
     facility2X = endX + 1
     facility2Y = endY
+  }else if((connections.includes("b") && getMapData(endX, endY+1) == "p") && !((endY + 1 == facility1Y) && (endX == facility1X))){
+    facility2X = endX
+    facility2Y = endY + 1
   }
 
   var facility1String = JSON.stringify([facility1X, facility1Y])
@@ -712,21 +1011,60 @@ function addPipeNetwork(endPoints){
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
       var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
-      if(areaString.includes(facility1String) || areaString.includes(facility2String)){
+      if(areaString.includes(facility1String)){
         facilityIDs.push(areas[areaIndex].networks[i].index)
       }
     }
   }
 
 
-  
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name != "pipeSegment"){
+      var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
+      if(areaString.includes(facility2String)){
+        facilityIDs.push(areas[areaIndex].networks[i].index)
+      }
+    }
+  }
+
+
   if(facilityIDs[1] != undefined){
     networkTotal++
 
-    areas[areaIndex].links.push([facilityIDs[0], facilityIDs[1], networkTotal])
+    var facility1PortIndex = 0;
+    var facility2PortIndex = 0;
+    var facility1TemplateID = 0;
+    var facility2TemplateID = 0;
+    
+    for(var i = 0, l = facilities.length; i < l; i++){
+      if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
+        facility1TemplateID = i
+      }
+
+      if(facilities[i].name == getNetwork(areaIndex, facilityIDs[1]).name){
+        facility2TemplateID = i
+      }
+    }
+    
+
+    for(var c = 0, cl = facilities[facility1TemplateID].ports.length; c < cl; c++){
+      if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + facilities[facility1TemplateID].ports[c].x == endPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + facilities[facility1TemplateID].ports[c].y == endPoints[0][1]){
+        facility1PortIndex = c
+      }
+    }
+
+    for(var c = 0, cl = facilities[facility2TemplateID].ports.length; c < cl; c++){
+      if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + facilities[facility2TemplateID].ports[c].x == endPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + facilities[facility2TemplateID].ports[c].y == endPoints[1][1]){
+        facility2PortIndex = c
+      }
+    }
+
+    areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
     areas[areaIndex].networks.push(new Network("pipeSegment", endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, networkTotal))
   }
+
+  updateNetworkLog()
 
 }
 
@@ -818,7 +1156,7 @@ function killNetwork(x, y){
     if(areas[areaIndex].networks[i].name == "pipeSegment"){
       if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringified || JSON.stringify(areas[areaIndex].networks[i].points[1]) == stringified){
         for(var k = 0, ll = areas[areaIndex].links.length; k < ll; k++){
-          if(areas[areaIndex].links[k].data.connectedFacilities == areas[areaIndex].networks[i].index){
+          if(areas[areaIndex].links[k].supportingConduit == areas[areaIndex].networks[i].index){
             areas[areaIndex].links.splice(k, 1)
             k--
             ll--
@@ -848,10 +1186,14 @@ function addPipe(x, y){
     var mapData = getMapData(x, y)
     //POTENTIAL SOURCE OF ERROR
     //See above
+
+    //Its not really a source of error anymore I think but I will leave these comments it just in case
     if("p&".includes(mapData)){
       var coordString = JSON.stringify([x, y])
+      var facilityIndex = -1;
       for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
         if(JSON.stringify(areas[areaIndex].networks[i].points).includes(coordString)){
+          facilityIndex = i;
           x = areas[areaIndex].networks[i].points[0][0]
           y = areas[areaIndex].networks[i].points[0][1]
           for(var k = 0, ll = areas[areaIndex].networks.length; k < ll; k++){
@@ -863,26 +1205,36 @@ function addPipe(x, y){
               }
             }
           }
+
+          for(var k = 0, ll = areas[areaIndex].networks[facilityIndex].points.length; k < ll; k++){
+            changeMapData(areas[areaIndex].networks[facilityIndex].points[k][0], areas[areaIndex].networks[facilityIndex].points[k][1], "-")
+            updatePipe(areas[areaIndex].networks[facilityIndex].points[k][0] + 1, areas[areaIndex].networks[facilityIndex].points[k][1])
+            updatePipe(areas[areaIndex].networks[facilityIndex].points[k][0] - 1, areas[areaIndex].networks[facilityIndex].points[k][1])
+            updatePipe(areas[areaIndex].networks[facilityIndex].points[k][0], areas[areaIndex].networks[facilityIndex].points[k][1] + 1)
+            updatePipe(areas[areaIndex].networks[facilityIndex].points[k][0], areas[areaIndex].networks[facilityIndex].points[k][1] - 1)
+          }
+
           areas[areaIndex].networks.splice(i, 1)
           break;
         }
       }
-      changeMapData(x, y, "-")
-      changeMapData(x+1, y, "-")
-      changeMapData(x, y+1, "-")
-      changeMapData(x+1, y+1, "-")
 
-      updatePipe(x, y-1)
-      updatePipe(x+1, y-1)
+      // changeMapData(x, y, "-")
+      // changeMapData(x+1, y, "-")
+      // changeMapData(x, y+1, "-")
+      // changeMapData(x+1, y+1, "-")
 
-      updatePipe(x+2, y)
-      updatePipe(x+2, y+1)
+      // updatePipe(x, y-1)
+      // updatePipe(x+1, y-1)
 
-      updatePipe(x, y+2)
-      updatePipe(x+1, y+2)
+      // updatePipe(x+2, y)
+      // updatePipe(x+2, y+1)
 
-      updatePipe(x-1, y)
-      updatePipe(x-1, y+1)
+      // updatePipe(x, y+2)
+      // updatePipe(x+1, y+2)
+
+      // updatePipe(x-1, y)
+      // updatePipe(x-1, y+1)
       
     }else{
       var directionals = ""
@@ -1028,11 +1380,14 @@ function addPipe(x, y){
     if(endMouseHold && conduits[conduitIndex].endPoints.includes(getMapData(x, y))){
       if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
         connectPipes(x, y, x, y-1)
-      }else if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
+      }
+      if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
         connectPipes(x, y, x, y+1)
-      }else if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
+      }
+      if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
         connectPipes(x, y, x-1, y)
-      }else if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
+      }
+      if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
         connectPipes(x, y, x+1, y)
       }
     }
@@ -1051,16 +1406,7 @@ function addPipe(x, y){
 }
 
 
-function addFacility(x, y, type){
-  
 
-  changeMapData(x, y, "&")
-  changeMapData(x+1, y, "&")
-  changeMapData(x, y+1, "p")
-  changeMapData(x+1, y+1, "p")
-  createNetwork(type, x, y)
-  
-}
 
 
 var networkTotal = 0;
@@ -1073,15 +1419,45 @@ function getNetwork(area, id){
   }
 }
 
-function createNetwork(type, x, y){
+function createNetwork(x, y, type, modifiers){
   networkTotal++
+  for(var i = 0, l = facilities.length; i < l; i++){
+    if(facilities[i].name == type){
+      var facilityCoordinates = [];
+      var facilityData = {};
+      for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
+        changeMapData(x + facilities[i].layout[k][0], y + facilities[i].layout[k][1], "p")
+        facilityCoordinates.push([x + facilities[i].layout[k][0], y + facilities[i].layout[k][1]])
+      }
+      for(var k = 0, kl = facilities[i].storage.length; k < kl; k++){
+        eval("facilityData." + facilities[i].storage[k] + " = 0")
+      }
 
-  if(type == "refinery"){
-    areas[areaIndex].networks.push(new Network("refinery", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], {oil: 100,}, networkTotal))
+      areas[areaIndex].networks.push(new Network(type, facilityCoordinates, facilityData, networkTotal))
+
+      break;
+    }
   }
-  if(type == "warehouse"){
-    areas[areaIndex].networks.push(new Network("warehouse", [[x, y], [x+1, y], [x, y+1], [x+1, y+1]], {oil: 0,}, networkTotal))
-  }
+
+
+  // if(type == "distiller"){
+  //   areas[areaIndex].networks.push(new Network("distiller", [[x, y], [x, y+1]], {crude_oil: 0, crude_naphtha: 100,}, networkTotal))
+  //   changeMapData(x, y, "p")
+  //   changeMapData(x, y+1, "p")
+  // }
+  // if(type == "hydrotreater"){
+  //   areas[areaIndex].networks.push(new Network("hydrotreater", [[x, y], [x+1, y]], {crude_oil: 0, hydrogen: 0, crude_naphtha: 0,}, networkTotal))
+  //   changeMapData(x, y, "p")
+  //   changeMapData(x+1, y, "p")
+  // }
+  // if(type == "hydrogen_source"){
+  //   areas[areaIndex].networks.push(new Network("hydrogen_source", [[x, y]], {hydrogen: Infinity,}, networkTotal))
+  //   changeMapData(x, y, "p")
+  // }
+  // if(type == "crude_source"){
+  //   areas[areaIndex].networks.push(new Network("crude_source", [[x, y]], {crude_oil: Infinity,}, networkTotal))
+  //   changeMapData(x, y, "p")
+  // }
 
   if(debugging){updateNetworkLog()}
 }
@@ -1304,16 +1680,68 @@ game.addTemplate("terrain", [
             yModifier = 0;
             while(getMapData(k, j - 1 + yModifier) == "X"){yModifier--}
 
-            if(intersectors.includes(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0])){
+            var conduitTextureX = "null"
+            var conduitTextureY = "null"
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+            if(getMapData(k - 1, j) == "p"){
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              var coordString = JSON.stringify([k - 1, j])
+
+              for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
+                if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
+                  for(var b = 0, lllll = facilities.length; b < lllll; b++){
+                    if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
+                      for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
+                        if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
+                          conduitTextureX = facilities[b].ports[c].conduit
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+
+            if(getMapData(k, j - 1) == "p"){
+              var coordString = JSON.stringify([k, j - 1])
+
+              for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
+                if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
+                  for(var b = 0, lllll = facilities.length; b < lllll; b++){
+                    if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
+                      for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
+                        if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
+                          conduitTextureY = facilities[b].ports[c].conduit
+                          break;
+                        }
+                      }
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+
+            if(conduitTextureX == "null"){
+              conduitTextureX = getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0]
+            }
+
+            if(conduitTextureY == "null"){
+              conduitTextureY = getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0]
+            }
+
+            if(intersectors.includes(conduitTextureX)){
+
+              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+
+              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
             }else{
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0] + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0] + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
             }
             continue;
           }

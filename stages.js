@@ -119,7 +119,12 @@ areas.push(new Area("island", [
 emptyLayer.slice(), [], []));
 
 
-addFacility(10, 3, "refinery")
-addFacility(14, 14, "warehouse")
+createNetwork(7, 3, "crude_source")
+createNetwork(10, 3, "distiller")
+createNetwork(14, 1, "hydrogen_source")
+createNetwork(14, 3, "hydrotreater")
+
+createNetwork(14, 5, "hydrotreater")
+createNetwork(27, 2, "ship")
 
 game.addObject("selector")
