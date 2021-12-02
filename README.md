@@ -1,6 +1,8 @@
 # JackalScript
 <i>A FANTASTIC game engine with THOROUGH documentation</i>
 
+[Go to GH Pages](https://jackal-42.github.io/Industry-Game/)
+
 Areas<br><br>
 name: The area's ID<br>
 activeLayer: The layer with pipes & facilities<br>
