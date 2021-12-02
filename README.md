@@ -1,5 +1,5 @@
 # JackalScript
-<i>A FANTASTIC game engine with THOROUGH documentation</i>
+<i>An ASTOUNDING resource-management game running on A FANTASTIC game engine with THOROUGH documentation</i>
 
 [Go to GH Pages](https://jackal-42.github.io/Industry-Game/)
 
