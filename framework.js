@@ -514,6 +514,7 @@ var facilities = [
   },
 ]
 
+
 function overrideTexture(name, src){
   var img = document.createElement("img")
   img.style.display = "none"
@@ -527,6 +528,7 @@ function overrideTexture(name, src){
   }
   game.getObject("baseLayer").refresh = true;
 }
+
 
 //stackoverflow go brrrrrrrrr
 
