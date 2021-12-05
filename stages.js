@@ -127,4 +127,6 @@ createNetwork(14, 3, "hydrotreater")
 createNetwork(14, 5, "hydrotreater")
 createNetwork(27, 2, "ship")
 
+createNetwork(11, 12, "tank")
+
 game.addObject("selector")

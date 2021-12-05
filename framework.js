@@ -15,8 +15,8 @@ game.getLayer("terrain").clearFrames = false;
 game.addLayer("main")
 
 
-game.addTexture("grass", "docs/assets/grass.png")
-game.addTexture("water", "docs/assets/water.png")
+// game.addTexture("grass", "docs/assets/grass.png")
+// game.addTexture("water", "docs/assets/water.png")
 
 
 // game.addTexture("pipe_h", "docs/assets/pipe_h.png")//1
@@ -159,6 +159,7 @@ for(var i = 0, l = terrain.length; i < l; i++){
 }
 
 game.addTexture("ship", "docs/assets/ship.png")
+game.addTexture("tank", "docs/assets/tank.png")
 game.addTexture("warehouse", "docs/assets/warehouse.png")
 game.addTexture("refinery", "docs/assets/refinery.png")
 game.addTexture("distiller", "docs/assets/distiller.png")
@@ -171,6 +172,7 @@ var facilities = [
     name: "distiller",
     width: 1,
     height: 2,
+    maxItems: 2,
     storage: ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue"],
     layout: [[0, 0], [0, 1]],
     process: function(me){
@@ -229,6 +231,7 @@ var facilities = [
     name: "hydrotreater",
     width: 2,
     height: 1,
+    maxItems: 1,
     storage: ["hydrogen", "crude_vapor", "crude_kerosene", "crude_naphtha", "vapor", "kerosene", "naphtha"],
     layout: [[0, 0], [1, 0]],
     process: function(me){
@@ -307,6 +310,7 @@ var facilities = [
     name: "ship",
     width: 2,
     height: 4,
+    maxItems: 256,
     storage: ["vapor", "kerosene", "naphtha"],
     layout: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
     process: function(me){
@@ -363,9 +367,79 @@ var facilities = [
   },
 
   {
+    name: "tank",
+    width: 2,
+    height: 2,
+    maxItems: 20,
+    storage: ["vapor", "kerosene", "naphtha"],
+    layout: [[0, 0], [0, 1], [1, 0], [1, 1]],
+    process: function(me){
+      
+    },
+    ports: [
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: -1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 0,
+        y: 2,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 1,
+        y: 2,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 2,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 2,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 1,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+    ],
+  },
+
+  {
     name: "crude_source",
     width: 1,
     height: 1,
+    maxItems: 4,
     storage: ["crude_oil"],
     layout: [[0, 0]],
     process: function(me){me.data.crude_oil = 4},
@@ -404,6 +478,7 @@ var facilities = [
     name: "hydrogen_source",
     width: 1,
     height: 1,
+    maxItems: 4,
     storage: ["hydrogen"],
     layout: [[0, 0]],
     process: function(me){me.data.hydrogen = 4},
@@ -438,6 +513,20 @@ var facilities = [
     ],
   },
 ]
+
+function overrideTexture(name, src){
+  var img = document.createElement("img")
+  img.style.display = "none"
+  img.src = src
+  img.alt = ""
+  for(var i = 0, l = game.textures.length; i < l; i++){
+    if(game.textures[i][0] == name){
+      
+      game.textures[i][1] = img
+    }
+  }
+  game.getObject("baseLayer").refresh = true;
+}
 
 //stackoverflow go brrrrrrrrr
 
@@ -1750,7 +1839,7 @@ game.addTemplate("terrain", [
           }else{
             var image = this.getTexture(getTile("tile", row[k])[0])
           }
-          ctx.drawImage(image, ((k*16)-scrollX/8) * 2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+          ctx.drawImage(image, ((k*16)-scrollX/8) * 2, ((j*16)-scrollY/8) * 2, 32, 32)
         }
       }
     }

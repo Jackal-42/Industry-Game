@@ -12,7 +12,9 @@ CodeBlock<br><br>
 data: The code to be evaluated once the delay reaches 0<br>
 delay: Decreases by 1 every frame and removes the object on 0<br><br>
 
-
+function overrideTexture(id, src)<br><br>
+id: The ID of the texture to be replaced<br>
+src: The filepath to the desired new texture<br>
 
 
 Installation:<br>

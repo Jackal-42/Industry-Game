@@ -148,13 +148,7 @@ game.loop = function(){
   //   document.getElementById('centerDisplay').style.display = "block"
   // }
 
-  try{
-    document.getElementById('facilityShownResources').innerHTML = ""
-    for(var i = 0, l = Object.keys(areas[areaIndex].networks[facilityDisplayed].data).length; i < l; i++){
-      document.getElementById('facilityShownResources').innerHTML += Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i].capitalize() + ": " + eval("areas[areaIndex].networks[facilityDisplayed].data." + Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i]) + "<br>"
-    }
-    
-  }catch{}
+  
 
   document.getElementById("funds").innerHTML = funds
 
@@ -295,26 +289,27 @@ game.loop = function(){
             }
           }catch(err){console.log(err)}
         }
-
-        // if(types[0][0] == "refinery" && types[1][0] == "warehouse"){
-        //   var index1 = 0;
-        //   var index2 = 0;
-        //   for(var j = 0, ll = areas[k].networks.length; j < ll; j++){
-        //     if(areas[k].networks[j].index == facility1.index){
-        //       index1 = j
-        //     }else if(areas[k].networks[j].index == facility2.index){
-        //       index2 = j
-        //     }
-        //   }
-        //   if(areas[k].networks[index1].data.crude_oil > 0){
-        //     areas[k].networks[index1].data.crude_oil -= 1
-        //     areas[k].networks[index2].data.crude_oil += 1
-        //     if(debugging){updateNetworkLog()}
-        //   }
-        // }
+      }
+      for(var i = 0, l = areas[k].networks.length; i < l; i++){
+        if(areas[k].networks[i].name == "pipeSegment"){continue}
+        for(var j = 0, jl = facilities.length; j < jl; j++){
+          if(facilities[j].name == areas[k].networks[i].name){
+            for(var a = 0, al = facilities[j].storage.length; a < al; a++){
+              if(eval("areas[k].networks[i].data." + facilities[j].storage[a]) > facilities[j].maxItems){eval("areas[k].networks[i].data." + facilities[j].storage[a] + " = " + facilities[j].maxItems)}
+            }
+          }
+        }
       }
     }
   }
+
+  try{
+    document.getElementById('facilityShownResources').innerHTML = ""
+    for(var i = 0, l = Object.keys(areas[areaIndex].networks[facilityDisplayed].data).length; i < l; i++){
+      document.getElementById('facilityShownResources').innerHTML += Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i].capitalize() + ": " + eval("areas[areaIndex].networks[facilityDisplayed].data." + Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i]) + "<br>"
+    }
+    
+  }catch{}
 
   ctx = game.getLayer("main").context
 
