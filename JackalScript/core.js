@@ -22,7 +22,7 @@ function loadScript(url, callback){
     script.src = url;
     document.getElementsByTagName("head")[0].appendChild(script);
 }
-loadScript("JackalScript/blanket.js", function(){console.log("Blanket Loaded"); loadScript("JackalScript/math.js", function(){console.log("Math Loaded"); loadScript("JackalScript/utility.js", function(){console.log("Utility Loaded"); loadScript("JackalScript/physics.js", function(){console.log("Physics Loaded"); loadScript("JackalScript/images.js", function(){console.log("Images Loaded"); loadScript("JackalScript/audio.js", function(){console.log("Audio Loaded\n"); document.getElementById("load").style.display = "none"; loadScript("framework.js", function(){console.log("Framework Loaded"); loadScript("stages.js", function(){console.log("Stages Loaded"); loadScript("main.js", function(){console.log("Setup Complete")})})})})})})})})})
+loadScript("JackalScript/blanket.js", function(){console.log("Blanket Loaded"); loadScript("JackalScript/math.js", function(){console.log("Math Loaded"); loadScript("JackalScript/utility.js", function(){console.log("Utility Loaded"); loadScript("JackalScript/physics.js", function(){console.log("Physics Loaded"); loadScript("JackalScript/images.js", function(){console.log("Images Loaded"); loadScript("JackalScript/audio.js", function(){console.log("Audio Loaded\n");loadScript("framework.js", function(){console.log("Framework Loaded"); loadScript("stages.js", function(){console.log("Stages Loaded"); loadScript("main.js", function(){document.getElementById("load").style.display = "none"; console.log("Setup Complete")})})})})})})})})})
 //Loads all the seperate files in the JackalScript Engine in the correct order
 
 // function loadOthers(){

@@ -101,19 +101,21 @@ p{
 }
 
 .hotbarButton{
-  width: 70%;
-  padding-top: 70%;
-  position: relative;
-  left: 8%;
-  right: 22%;
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+  padding-top: 100%;
+  position: absolute;
+  left: 0%;
+  right: 0%;
   margin-top: 8px;
-  background-color: antiquewhite;
-  border: 2px solid rgb(88, 36, 6);
-  transition: background-color 250ms, 100ms;
+  background-color: rgb(233, 197, 150);
+  border: 3px solid rgb(88, 36, 6);
+  transition: background-color 250ms, top 150ms, left 100ms;
 }
 
 .hotbarButton:hover{
-  background-color: beige;
+  background-color: rgb(243, 213, 174);
 }
 
 
@@ -127,7 +129,7 @@ p{
   right: 5%;
   top: 5%;
   bottom: 5%;
-  transition: 150ms;
+  transition: 50ms;
 }
 
 .hotbarButton:hover img{
@@ -139,6 +141,22 @@ p{
   right: 2%;
   top: 2%;
   bottom: 2%;
+}
+
+.hotbarMenuVertical {
+  width: 80px;
+  height: 100%;
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  transition: height 400ms;
+}
+
+.hotbarMenuHorizontal{
+  position: absolute;
+  height: 80px;
+  width: 100%;
+  transition: background-color 250ms, top 150ms, left 100ms;
 }
 
 #centerDisplay{

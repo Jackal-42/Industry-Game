@@ -13,6 +13,8 @@ game.getLayer("oil").clearFrames = false;
 game.addLayer("terrain")
 game.getLayer("terrain").clearFrames = false;
 game.addLayer("main")
+game.addLayer("water")
+
 
 
 // game.addTexture("grass", "docs/assets/grass.png")
@@ -87,7 +89,45 @@ var terrain = [
   ["placeholder", "docs/assets/null.png"],
   ["placeholder", "docs/assets/null.png"],
   ["grass", "docs/assets/grass.png"],
+  ["grass_tli", "docs/assets/grass_tli.png"],
+  ["grass_tlo", "docs/assets/grass_tlo.png"],
+  ["grass_tri", "docs/assets/grass_tri.png"],
+  ["grass_tro", "docs/assets/grass_tro.png"],
+  ["grass_bli", "docs/assets/grass_bli.png"],
+  ["grass_blo", "docs/assets/grass_blo.png"],
+  ["grass_bri", "docs/assets/grass_bri.png"],
+  ["grass_bro", "docs/assets/grass_bro.png"],
+  ["grass_b", "docs/assets/grass_b.png"],
+  ["grass_t", "docs/assets/grass_t.png"],
+  ["grass_l", "docs/assets/grass_l.png"],
+  ["grass_r", "docs/assets/grass_r.png"],
+  ["sand", "docs/assets/sand.png"],
+  ["sand_tli", "docs/assets/sand_tli.png"],
+  ["sand_tlo", "docs/assets/sand_tlo.png"],
+  ["sand_tri", "docs/assets/sand_tri.png"],
+  ["sand_tro", "docs/assets/sand_tro.png"],
+  ["sand_bli", "docs/assets/sand_bli.png"],
+  ["sand_blo", "docs/assets/sand_blo.png"],
+  ["sand_bri", "docs/assets/sand_bri.png"],
+  ["sand_bro", "docs/assets/sand_bro.png"],
+  ["seafloor", "docs/assets/seafloor.png"],
+  ["sand_b", "docs/assets/sand_b.png"],
+  ["sand_t", "docs/assets/sand_t.png"],
+  ["sand_l", "docs/assets/sand_l.png"],
+  ["sand_r", "docs/assets/sand_r.png"],
   ["water", "docs/assets/water.png"],
+  ["water_tli", "docs/assets/water_tli.png"],
+  ["water_tlo", "docs/assets/water_tlo.png"],
+  ["water_tri", "docs/assets/water_tri.png"],
+  ["water_tro", "docs/assets/water_tro.png"],
+  ["water_bli", "docs/assets/water_bli.png"],
+  ["water_blo", "docs/assets/water_blo.png"],
+  ["water_bri", "docs/assets/water_bri.png"],
+  ["water_bro", "docs/assets/water_bro.png"],
+  ["water_b", "docs/assets/water_b.png"],
+  ["water_t", "docs/assets/water_t.png"],
+  ["water_l", "docs/assets/water_l.png"],
+  ["water_r", "docs/assets/water_r.png"],
 ]
 
 var tiles = [
@@ -157,6 +197,9 @@ for(var i = 0, l = tiles.length; i < l; i++){
 for(var i = 0, l = terrain.length; i < l; i++){
   game.addTexture(terrain[i][0], terrain[i][1])
 }
+
+game.addTexture("pipe_submerge", "docs/assets/pipe_submerge.png")
+game.addTexture("pipe_corner", "docs/assets/pipe_corner.png")
 
 game.addTexture("ship", "docs/assets/ship.png")
 game.addTexture("tank", "docs/assets/tank.png")
@@ -514,6 +557,20 @@ var facilities = [
   },
 ]
 
+var activeOverlay = [];
+
+
+function Overlay(type, texture, x, y, rotation){
+  this.texture = texture;
+  this.x = x;
+  this.y = y;
+  this.rotation = rotation * (Math.PI/180);
+  this.type = type;
+  this.data = {};
+  if(type == "ripple"){
+    this.data = {age: 0}
+  }
+}
 
 function overrideTexture(name, src){
   var img = document.createElement("img")
@@ -526,7 +583,7 @@ function overrideTexture(name, src){
       game.textures[i][1] = img
     }
   }
-  game.getObject("baseLayer").refresh = true;
+  game.getObject("baseLayer").render = true;
 }
 
 
@@ -578,6 +635,7 @@ function loadArea(id){
   for(var i = 0, l = areas.length; i < l; i++){
     if(areas[i].name == areaLoaded){
       areas[i].baseLayer = game.getObject("baseLayer").mapData
+      areas[i].waterLayer = game.getObject("waterLayer").mapData
       areas[i].activeLayer = game.getObject("activeLayer").mapData
     }
   }
@@ -586,10 +644,12 @@ function loadArea(id){
       areaLoaded = id
       areaIndex = i
       game.getObject("baseLayer").mapData = areas[i].baseLayer
+      game.getObject("waterLayer").mapData = areas[i].waterLayer
       game.getObject("activeLayer").mapData = areas[i].activeLayer
-      game.getObject("baseLayer").refresh = true;
     }
   }
+  game.getObject('baseLayer').render = true;
+  game.getObject('waterLayer').render = true;
   updateNetworkLog()
 }
 
@@ -616,7 +676,6 @@ function setWindowScale(){
     game.layers[i].canvas.width = offsetWidth
     game.layers[i].canvas.height = offsetHeight
   }
-  try{game.getObject("baseLayer").render = true}catch{}
 }
 setWindowScale()
 
@@ -673,9 +732,10 @@ function lg(expression){
   
 }
 
-function Area(name, baseLayer, activeLayer, networks, links){
+function Area(name, baseLayer, waterLayer, activeLayer, networks, links){
   this.name = name;
   this.baseLayer = baseLayer;
+  this.waterLayer = waterLayer;
   this.activeLayer = activeLayer;
   this.networks = networks;
   this.links = links;
@@ -690,20 +750,103 @@ function Network(name, points, data, index){
 
 game.window.style.overflow = "hidden"
 
-var leftMenu = document.createElement('div')
-leftMenu.id = "slideMenuLeft"
+// var leftMenu = document.createElement('div')
+// leftMenu.id = "slideMenuLeft"
 
-leftMenu.innerHTML = `<button style=\"position: absolute; right: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuLeft\').style.right == \'98%\'){document.getElementById(\'slideMenuLeft\').style.right = \'86%\'}else{document.getElementById(\'slideMenuLeft\').style.right = \'98%\'}\"> </button>
+// leftMenu.innerHTML = `<button style=\"position: absolute; right: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuLeft\').style.right == \'98%\'){document.getElementById(\'slideMenuLeft\').style.right = \'86%\'}else{document.getElementById(\'slideMenuLeft\').style.right = \'98%\'}\"> </button>
 
-<button id="pipe_hotbar" onclick="pressHotbarButton('pipe')" class="hotbarButton" style="margin-top: 14px;"><img src="docs/assets/pipe_icon.png"></button>
+// <button id="pipe_hotbar" onclick="pressHotbarButton('pipe')" class="hotbarButton" style="margin-top: 14px;"><img src="docs/assets/pipe_icon.png"></button>
 
-<button id="rail_hotbar" onclick="pressHotbarButton('rail')" class="hotbarButton"><img src="docs/assets/rail_icon.png"></button>
+// <button id="rail_hotbar" onclick="pressHotbarButton('rail')" class="hotbarButton"><img src="docs/assets/rail_icon.png"></button>
 
-<button id="erase_hotbar" onclick="pressHotbarButton('erase')" class="hotbarButton"><img src="docs/assets/erase_icon.png"></button>
+// <button id="erase_hotbar" onclick="pressHotbarButton('erase')" class="hotbarButton"><img src="docs/assets/erase_icon.png"></button>
+
+// `
+
+// game.window.appendChild(leftMenu)
+
+function toggleVerticalHotbarMenu(id){
+  for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
+    if(document.getElementById(id).children[i].style.top == "0px"){
+      document.getElementById(id).children[i].style.top = document.getElementById(id).children[i].getAttribute("savestate")
+      if(key(16) && document.getElementById(id).children[i].className == "hotbarMenuHorizontal"){
+        toggleHorizontalHotbarMenu(document.getElementById(id).children[i].id)
+      }
+    }else{
+      if(document.getElementById(id).children[i].className == "hotbarMenuHorizontal"){
+        document.getElementById(id).children[i].style.top = "0px";
+        toggleHorizontalHotbarMenu(document.getElementById(id).children[i].id)
+      }
+    }
+  }
+}
+
+function toggleHorizontalHotbarMenu(id){
+  for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
+    if(document.getElementById(id).children[i].style.left == "0px"){
+      if(document.getElementById(id).style.top == "0px"){return;}
+      document.getElementById(id).children[i].style.left = document.getElementById(id).children[i].getAttribute("savestate")
+    }else{
+      document.getElementById(id).children[i].style.left = "0px";
+    }
+  }
+}
+
+var hotbarMenu = document.createElement('div')
+hotbarMenu.id = "hotbarMenuVertical"
+hotbarMenu.className = "hotbarMenuVertical"
+
+hotbarMenu.innerHTML = `
+
+<button savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="toggleVerticalHotbarMenu('hotbarMenuVertical')"><img src="docs/assets/hammer.png"></button>
+
+
+<div class="hotbarMenuHorizontal" savestate="89px" style="top: 89px; z-index: 3;" id="hotbarMenu1">
+
+<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu1')"><img src="docs/assets/gear.png"></button>
+
+<button savestate="88px" style="left: 88px;" class="hotbarButton"><img src="docs/assets/pipe_icon.png"></button>
+
+<button savestate="176px" style="left: 176px;" class="hotbarButton"><img src="docs/assets/rail_icon.png"></button>
+
+</div>
+
+
+
+<div class="hotbarMenuHorizontal" savestate="177px" style="top: 177px; z-index: 3;" id="hotbarMenu2">
+
+<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu2')"><img src="docs/assets/null.png"></button>
+
+<button savestate="88px" style="left: 88px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+
+<button savestate="176px" style="left: 176px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+
+</div>
+
+<div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
+
+<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu3')"><img src="docs/assets/null.png"></button>
+
+<button savestate="88px" style="left: 88px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+
+<button savestate="176px" style="left: 176px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+
+</div>
+
+
+<div class="hotbarMenuHorizontal" savestate="353px" style="top: 353px; z-index: 3;" id="hotbarMenu4">
+
+<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu4')"><img src="docs/assets/erase_icon.png"></button>
+
+</div>
+
+
 
 `
 
-game.window.appendChild(leftMenu)
+game.window.appendChild(hotbarMenu)
+
+
 
 var rightMenu = document.createElement('div')
 rightMenu.id = "slideMenuRight"
@@ -752,9 +895,128 @@ function pressHotbarButton(type){
 pressHotbarButton("pipe")
 
 
+
+function getTerrainBorders(array, x, y, type){
+  var waterEdge = false;
+  if(type == "W"){type = "w"; waterEdge = true;}
+  try{var top = (array[y - 1].charAt(x) == type) ? true : false}catch{var top = true}
+
+  try{var bottom = (array[y + 1].charAt(x) == type) ? true : false}catch{var bottom = true}
+
+  try{var left = (array[y].charAt(x-1) == type) ? true : false}catch{var left = true}
+
+  try{var right = (array[y].charAt(x+1) == type) ? true : false}catch{var right = true}
+
+  if(x == 0){
+    left = true;
+  }
+  if(type == "w" && !waterEdge){
+    try{if(array[y - 1].charAt(x) == "g"){
+      top = true
+    }}catch{}
+    try{if(array[y + 1].charAt(x) == "g"){
+      bottom = true
+    }}catch{}
+    try{if(array[y].charAt(x - 1) == "g"){
+      left = true
+    }}catch{}
+    try{if(array[y].charAt(x + 1) == "g"){
+      right = true
+    }}catch{}
+  }
+  if(waterEdge){
+    try{if(array[y - 1].charAt(x) == "W"){
+      top = true
+    }}catch{}
+    try{if(array[y + 1].charAt(x) == "W"){
+      bottom = true
+    }}catch{}
+    try{if(array[y].charAt(x - 1) == "W"){
+      left = true
+    }}catch{}
+    try{if(array[y].charAt(x + 1) == "W"){
+      right = true
+    }}catch{}
+  }
+
+
+  if(top && bottom && left && right){
+    if(x == 0){return ""}
+    if(type == "w" && !waterEdge){
+      try{if(array[y-1].charAt(x-1) != type && array[y-1].charAt(x-1) != "g"){return "_tli"}}catch{}
+      try{if(array[y-1].charAt(x+1) != type && array[y-1].charAt(x+1) != "g"){return "_tri"}}catch{}
+      try{if(array[y+1].charAt(x-1) != type && array[y+1].charAt(x-1) != "g"){return "_bli"}}catch{}
+      try{if(array[y+1].charAt(x+1) != type && array[y+1].charAt(x+1) != "g"){return "_bri"}}catch{}
+    }else if(waterEdge){
+      try{if(array[y-1].charAt(x-1) != type && array[y-1].charAt(x-1) != "W"){return "_tli"}}catch{}
+      try{if(array[y-1].charAt(x+1) != type && array[y-1].charAt(x+1) != "W"){return "_tri"}}catch{}
+      try{if(array[y+1].charAt(x-1) != type && array[y+1].charAt(x-1) != "W"){return "_bli"}}catch{}
+      try{if(array[y+1].charAt(x+1) != type && array[y+1].charAt(x+1) != "W"){return "_bri"}}catch{}
+    }else{
+      try{if(array[y-1].charAt(x-1) != type){return "_tli"}}catch{}
+      try{if(array[y-1].charAt(x+1) != type){return "_tri"}}catch{}
+      try{if(array[y+1].charAt(x-1) != type){return "_bli"}}catch{}
+      try{if(array[y+1].charAt(x+1) != type){return "_bri"}}catch{}
+    }
+
+    
+    return ""
+  }
+  if(bottom && left && right){
+    return "_t"
+  }
+  if(top && left && right){
+    return "_b"
+  }
+  if(top && bottom && right){
+    return "_l"
+  }
+  if(top && bottom && left){
+    return "_r"
+  }
+  if(top && left){
+    return "_bro"
+  }
+  if(top && right){
+    return "_blo"
+  }
+  if(bottom && left){
+    return "_tro"
+  }
+  if(bottom && right){
+    return "_tlo"
+  }
+  return ""
+}
+
+function sanitizeMap(array){
+  var sanitized = [];
+  var sanitizedWater = [];
+  for(var i = 0, l = array.length; i < l; i++){
+    sanitized.push("")
+    sanitizedWater.push("")
+    for(var k = 0, kl = array[i].length; k < kl; k++){
+      if(array[i].charAt(k) == "g"){
+        var edgeType = getTerrainBorders(array, k, i, "g")
+        sanitized[i] += getTileId("terrain", "grass" + edgeType, "")
+        sanitizedWater[i] += "-"
+      }else if(array[i].charAt(k) == "w"){
+        sanitized[i] += getTileId("terrain", "sand" + getTerrainBorders(array, k, i, "w"), "")
+        sanitizedWater[i] += getTileId("terrain", "water" + getTerrainBorders(array, k, i, "W"), "")
+      }else if(array[i].charAt(k) == "W"){
+        sanitized[i] += getTileId("terrain", "seafloor", "")
+        sanitizedWater[i] += getTileId("terrain", "water", "")
+      }
+    }
+  }
+  
+  return {ground: sanitized, water: sanitizedWater};
+}
+
 //Returns the tile at the specified coords
-function getMapData(x, y){
-  try{return game.getObject("activeLayer").mapData[y].charAt(x)}catch{return 0}
+function getMapData(x, y, layer){
+  if(layer === undefined){layer = "activeLayer"}
+  try{return game.getObject(layer).mapData[y].charAt(x)}catch{return 0}
 }
 
 //Changes a tile and nothing else. Logs it if enabled.
@@ -814,15 +1076,86 @@ function connectPipes(x1, y1, x2, y2){
   if(pipe2Connections == "lr" || pipe2Connections == "tb"){
     return;
   }
-  var endPoints = [];
-  for(var j = 0; j < l; j++){
-    if(areas[areaIndex].networks[j].name == 'pipeSegment'){
-      endPoints.push(areas[areaIndex].networks[j].points[0])
-      endPoints.push(areas[areaIndex].networks[j].points[1])
+  var pipeRotation = 0;
+
+  //PIPE CORNER IS BOTTOM LEFT
+
+  try{
+    if(getTile("terrain", getMapData(x1, y1, "waterLayer"))[0].substring(0, 6) == "water_"){
+      if(getTile("terrain", getMapData(x2, y2, "baseLayer"))[0].substring(0, 5) == "grass"){
+        if(x2 > x1){
+          pipeRotation = -90
+        }else if(x2 < x1){
+          pipeRotation = 90
+        }else if(y2 < y1){
+          pipeRotation = 180
+        }
+        var submergedCorner = false;
+        for(var i = 0, l = activeOverlay.length; i < l; i++){
+          if(activeOverlay[i].type == "pipe" && activeOverlay[i].x == x1 && activeOverlay[i].y == y1){
+            submergedCorner = true;
+            break;
+          }
+        }
+        activeOverlay.push(new Overlay("pipe", "pipe_submerge", x1, y1, pipeRotation))
+        activeOverlay.push(new Overlay("ripple", "null", x1, y1, 0))
+        if(submergedCorner){
+          var cornerRotation = 0;
+          if(pipeRotation + activeOverlay[i].rotation / (Math.PI/180) == 90){
+            if(pipeRotation == 0 || activeOverlay[i].rotation / (Math.PI/180) == 0){
+              cornerRotation = 180;
+            }
+          }else if(pipeRotation + activeOverlay[i].rotation / (Math.PI/180) == 270){
+            cornerRotation = 270;
+          }else{
+            cornerRotation = 90;
+          }
+          activeOverlay.push(new Overlay("pipe", "pipe_corner", x1, y1, cornerRotation))
+        }
+      }
     }
-  }
+  }catch{}
+  try{    
+    if(getTile("terrain", getMapData(x1, y1, "baseLayer"))[0].substring(0, 5) == "grass"){
+      if(getTile("terrain", getMapData(x2, y2, "waterLayer"))[0].substring(0, 6) == "water_"){
+        if(x1 > x2){
+          pipeRotation = -90
+        }else if(x1 < x2){
+          pipeRotation = 90
+        }else if(y1 < y2){
+          pipeRotation = 180
+        }
+        var submergedCorner = false;
+        for(var i = 0, l = activeOverlay.length; i < l; i++){
+          if(activeOverlay[i].type == "pipe" && activeOverlay[i].x == x2 && activeOverlay[i].y == y2){
+            submergedCorner = true;
+            break;
+          }
+        }
+        activeOverlay.push(new Overlay("pipe", "pipe_submerge", x2, y2, pipeRotation))
+        activeOverlay.push(new Overlay("ripple", "null", x2, y2, 0))
+        if(submergedCorner){
+          var cornerRotation = 0;
+          if(pipeRotation + activeOverlay[i].rotation / (Math.PI/180) == 90){
+            if(pipeRotation == 0 || activeOverlay[i].rotation / (Math.PI/180) == 0){
+              cornerRotation = 180;
+            }
+          }else if(pipeRotation + activeOverlay[i].rotation / (Math.PI/180) == 270){
+            cornerRotation = 270;
+          }else{
+            cornerRotation = 90;
+          }
+          activeOverlay.push(new Overlay("pipe", "pipe_corner", x2, y2, cornerRotation))
+        }
+      }
+    }
+  }catch{}
+  var endPoints = [];
+  
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name == 'pipeSegment'){
+      endPoints.push(areas[areaIndex].networks[j].points[0])
+      endPoints.push(areas[areaIndex].networks[j].points[1])
       
       var stringArray2 = JSON.stringify([x2, y2])
       if(JSON.stringify(areas[areaIndex].networks[i].points).includes(stringArray2)){
@@ -1182,7 +1515,13 @@ function updatePipe(x, y){
   }
 
 
-  
+  for(var i = 0, l = activeOverlay.length; i < l; i++){
+    if(activeOverlay[i].type == "pipe" && activeOverlay[i].x == x && activeOverlay[i].y == y){
+      activeOverlay.splice(i, 1)
+      i--
+      l--
+    }
+  }  
 
   if(mapData == "X"){
     if(updateDirection == "x" || updateDirection == ""){
@@ -1702,63 +2041,37 @@ game.addTemplate("terrain", [
   ["refresh", true],
   ["render", true],
   ["layerId", "main"],
+  ["backup", false],
   ["mapData", [
-    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~~~111111111111111111111111111111111111111",
-    "1111~~~~~~1111~~~~~~~~~~1111111111111111111111111111111111111111",
-    "11111111111111111~~~11111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "~~~111~~~~~~1111111111111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~111~~~111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~~111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~~~11111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~~~~~1111111111111111111111111111111111111111111111",
-    "~~~~~~~~~~~~~~11111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
-    "1111111111111111111111111111111111111111111111111111111111111111",
     
-    ]],
+  ]],
   ["role", `
     
-    ctx = game.getLayer(self.layerId).context;
+
+    var mapTargetX = scrollX
+    var mapTargetY = scrollY
+    var mapWidth = Math.floor(offsetWidth/32) + 2
+    var mapHeight = Math.floor(offsetHeight/32) + 2
+    if(self.backup){
+      ctx = document.getElementById(self.layerId).getContext('2d');
+      mapTargetX = 0;
+      marTargetY = 0;
+      mapWidth = 64;
+      mapHeight = 40;
+    }else{
+      ctx = game.getLayer(self.layerId).context;
+    }
     
     
     ctx.imageSmoothingEnabled = false;
     if(self.refresh || self.render){
-      ctx.clearRect(0, 0, offsetWidth, offsetHeight)
-      for(var j = Math.floor(scrollY/128)-1, ll = Math.floor(scrollY/128)+Math.floor(offsetHeight/32) + 2; j < ll; j++){
+      ctx.clearRect(0, 0, 2048, 1280)
+      for(var j = Math.floor(mapTargetY/128)-1, ll = Math.floor(mapTargetY/128)+mapHeight; j < ll; j++){
         if(j < 0 || j > 39){
           continue;
         }
         var row = this.objects[i].mapData[j].split("");
-        for(var k = Math.floor(scrollX/128)-1, lll = Math.floor(scrollX/128)+Math.floor(offsetWidth/32) + 2; k < lll; k++){
+        for(var k = Math.floor(mapTargetX/128)-1, lll = Math.floor(mapTargetX/128)+mapWidth; k < lll; k++){
           if(k < 0 || k > row.length){
             continue;
           }
@@ -1825,23 +2138,23 @@ game.addTemplate("terrain", [
 
             if(intersectors.includes(conduitTextureX)){
 
-              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
             }else{
 
-              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-scrollX/8)*2, ((j*16)-scrollY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
             }
             continue;
           }
-          if(self.id == "baseLayer"){
+          if(self.id == "baseLayer" || self.id == "waterLayer"){
             var image = this.getTexture(getTile("terrain", row[k])[0])
           }else{
             var image = this.getTexture(getTile("tile", row[k])[0])
           }
-          ctx.drawImage(image, ((k*16)-scrollX/8) * 2, ((j*16)-scrollY/8) * 2, 32, 32)
+          ctx.drawImage(image, ((k*16)-mapTargetX/8) * 2, ((j*16)-mapTargetY/8) * 2, 32, 32)
         }
       }
     }

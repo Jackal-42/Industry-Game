@@ -121,23 +121,19 @@ game.loop = function(){
   if(key("left")){
     if(scrollX > 0){
       scrollX += -23
-      game.getObject("baseLayer").render = true;
       if(scrollX < 0){scrollX = 0}
     }
   }
   if(key("right")){
     scrollX += 23
-    game.getObject("baseLayer").render = true;
     if(scrollX/4 > 2048 - offsetWidth){scrollX = (2048 - offsetWidth)*4}
   }
   if(key("up")){
     scrollY += -23
-    game.getObject("baseLayer").render = true;
     if(scrollY < 0){scrollY = 0}
   }
   if(key("down")){
     scrollY += 23
-    game.getObject("baseLayer").render = true;
     if(scrollY/4 > 1280 - offsetHeight){scrollY = (1280 - offsetHeight)*4}
   }
 
@@ -159,6 +155,13 @@ game.loop = function(){
     }
   }
 
+  ctx = game.getLayer("terrain").context
+  
+
+  ctx.drawImage(document.getElementById("terrainCanvas"), (scrollX/4) * -1, (scrollY/4) * -1, 2048, 1280)
+
+  ctx = game.getLayer("main").context
+  
   game.tick()
   beginMouseHold = false;
   endMouseHold = false;
@@ -311,7 +314,7 @@ game.loop = function(){
     
   }catch{}
 
-  ctx = game.getLayer("main").context
+  
 
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
@@ -319,6 +322,45 @@ game.loop = function(){
     }
   }
 
+
+  ctx = game.getLayer("water").context
+  ctx.globalCompositeOperation = "source-over"
+  ctx.imageSmoothingEnabled = false
+
+  ctx.globalAlpha = 0.6;
+  ctx.drawImage(document.getElementById("waterCanvas"), (scrollX/4) * -1, (scrollY/4) * -1, 2048, 1280)
+  ctx.globalAlpha = 1;
+
+  for( var i = 0, l = activeOverlay.length; i < l; i++){
+    if(activeOverlay[i].type == "ripple"){
+      ctx.globalCompositeOperation = "source-atop"
+      ctx.strokeStyle = "rgb(200, 200, 255)"
+      ctx.globalAlpha = (2-(activeOverlay[i].data.age/100))
+      ctx.beginPath()
+      ctx.arc((activeOverlay[i].x*32)-scrollX/4 + 16, (activeOverlay[i].y*32)-scrollY/4 + 16, 1 + activeOverlay[i].data.age/8, 0, 2 * Math.PI);
+      ctx.stroke()
+      activeOverlay[i].data.age++
+      if(activeOverlay[i].data.age > 200){
+        activeOverlay.splice(i, 1)
+        i--
+        l--
+      }
+      ctx.globalAlpha = 1;
+    }
+  }
+  for( var i = 0, l = activeOverlay.length; i < l; i++){
+    if(activeOverlay[i].type == "pipe"){
+      ctx.save()
+      ctx.globalCompositeOperation = "source-over"
+      ctx.translate((activeOverlay[i].x*32)-scrollX/4+16, (activeOverlay[i].y*32)-scrollY/4+16)
+      ctx.rotate(activeOverlay[i].rotation)
+      ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16, -16, 32, 32)
+      if(framesElapsed % 4 == 1 && Math.random() < 0.005){
+        activeOverlay.push(new Overlay("ripple", "null", activeOverlay[i].x, activeOverlay[i].y, 0))
+      }
+      ctx.restore()
+    }
+  }
 
   game.render()
   ctx = game.getLayer("main").context
