@@ -166,10 +166,10 @@ game.loop = function(){
   beginMouseHold = false;
   endMouseHold = false;
   //Calculates if a pipe is beginning or ending
-  if(!mouseDownPreviously && game.mouseDown){
+  if(!mouseDownPreviously && mouseDown){
     beginMouseHold = true
   }
-  if(mouseDownPreviously && !game.mouseDown){
+  if(mouseDownPreviously && !mouseDown){
     endMouseHold = true
   }
   if(endMouseHold){
@@ -202,7 +202,7 @@ game.loop = function(){
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
-  if(game.mouseDown && document.getElementById('centerDisplay').style.display == 'none'){
+  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none'){
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
     var slope = distanceY/distanceX
@@ -264,30 +264,59 @@ game.loop = function(){
           }
         }
 
+        var genderResolve = "null"
 
-        if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output"){
+        var isModular1 = false;
+        var isModular2 = false;
+
+        if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "modular"){
+          isModular1 = true;
+          if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
+            genderResolve = "input"
+          }else if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
+            genderResolve = "output"
+          }
+        }
+
+        if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "modular"){
+          isModular2 = true;
+        }
+
+
+        if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output" || genderResolve == "output"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
             break;
           }
           try{
-            for(var j = 0, jl = eval(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1]).length; j < jl; j++){
-              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j]))){continue}
-              if(eval("facility1.data." + facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j]) >= 1){
-                eval("facility1.data." + facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j] + " -= 1")
-                eval("facility2.data." + facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][j] + " += 1")
+            var movingItems = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1]
+
+            if(isModular1){
+              movingItems = fluids.slice()
+            }
+            for(var j = 0, jl = movingItems.length; j < jl; j++){
+              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !isModular2){continue}
+              if(eval("facility1.data." + movingItems[j]) >= 1 || isModular1){
+                eval("facility1.data." + movingItems[j] + " -= 1")
+                eval("facility2.data." + movingItems[j] + " += 1")
               }
             }
           }catch(err){console.log(err)}
-        }else{
+        }else if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "input" || genderResolve == "input"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
             break;
           }
           try{
-            for(var j = 0, jl = eval(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1]).length; j < jl; j++){
-              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j]))){continue}
-              if(eval("facility2.data." + facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j]) >= 1){
-                eval("facility2.data." + facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j] + " -= 1")
-                eval("facility1.data." + facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][j] + " += 1")
+            var movingItems = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1]
+
+            if(isModular2){
+              movingItems = fluids.slice()
+            }
+
+            for(var j = 0, jl = movingItems.length; j < jl; j++){
+              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !isModular1){continue}
+              if(eval("facility2.data." + movingItems[j]) >= 1){
+                eval("facility2.data." + movingItems[j] + " -= 1")
+                eval("facility1.data." + movingItems[j] + " += 1")
               }
             }
           }catch(err){console.log(err)}
@@ -388,7 +417,7 @@ game.loop = function(){
     ctx.globalAlpha = 1;
   }
   mouseDownPreviously = false;
-  if(game.mouseDown){mouseDownPreviously = true;}
+  if(mouseDown){mouseDownPreviously = true;}
   requestAnimationFrame(game.loop)
 }
 game.loop()

@@ -7,6 +7,7 @@
 
 var game = new Game("game");
 var framesElapsed = 0;
+var mouseDown = false;
 
 game.addLayer("oil")
 game.getLayer("oil").clearFrames = false;
@@ -14,6 +15,11 @@ game.addLayer("terrain")
 game.getLayer("terrain").clearFrames = false;
 game.addLayer("main")
 game.addLayer("water")
+game.addLayer("effects")
+game.getLayer("effects").clearFrames = false;
+game.getLayer("effects").canvas.style.zIndex = 1
+game.getLayer("effects").canvas.addEventListener("mousedown", function(){mouseDown = true;})
+game.getLayer("effects").canvas.addEventListener("mouseup", function(){mouseDown = false;})
 
 
 
@@ -209,6 +215,8 @@ game.addTexture("distiller", "docs/assets/distiller.png")
 game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
+
+var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water"]
 
 var facilities = [
   {
@@ -414,7 +422,7 @@ var facilities = [
     width: 2,
     height: 2,
     maxItems: 20,
-    storage: ["vapor", "kerosene", "naphtha"],
+    storage: fluids.slice(),
     layout: [[0, 0], [0, 1], [1, 0], [1, 1]],
     process: function(me){
       
@@ -424,56 +432,56 @@ var facilities = [
         x: -1,
         y: 0,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: -1,
         y: 1,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: 0,
         y: 2,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: 1,
         y: 2,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: 2,
         y: 1,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: 2,
         y: 0,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: 0,
         y: -1,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
 
       {
         x: 1,
         y: -1,
         conduit: "pipe",
-        gender: ["input", ["kerosene"]],
+        gender: ["modular", ["null"]],
       },
     ],
   },
@@ -1154,8 +1162,8 @@ function connectPipes(x1, y1, x2, y2){
   
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name == 'pipeSegment'){
-      endPoints.push(areas[areaIndex].networks[j].points[0])
-      endPoints.push(areas[areaIndex].networks[j].points[1])
+      endPoints.push(areas[areaIndex].networks[i].points[0])
+      endPoints.push(areas[areaIndex].networks[i].points[1])
       
       var stringArray2 = JSON.stringify([x2, y2])
       if(JSON.stringify(areas[areaIndex].networks[i].points).includes(stringArray2)){
@@ -1808,17 +1816,23 @@ function addPipe(x, y){
     }
 
     if(endMouseHold && conduits[conduitIndex].endPoints.includes(getMapData(x, y))){
+      var connectionCoords = [];
       if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
-        connectPipes(x, y, x, y-1)
+        connectionCoords = [x, y, x, y-1]
       }
       if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
-        connectPipes(x, y, x, y+1)
+        if(connectionCoords.length == 0){connectionCoords = [x, y, x, y+1]}else{connectionCoords = [0]}
       }
       if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
-        connectPipes(x, y, x-1, y)
+        if(connectionCoords.length == 0){connectionCoords = [x, y, x-1, y]}else{connectionCoords = [0]}
       }
       if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
-        connectPipes(x, y, x+1, y)
+        if(connectionCoords.length == 0){connectionCoords = [x, y, x+1, y]}else{connectionCoords = [0]}
+      }
+
+      
+      if(connectionCoords.length == 4){
+        connectPipes(connectionCoords[0], connectionCoords[1], connectionCoords[2], connectionCoords[3])
       }
     }
 
