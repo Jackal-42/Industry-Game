@@ -1797,13 +1797,21 @@ function addPipe(x, y){
       
       if(beginMouseHold){
         if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
-        connectPipes(x, y, x, y-1)
+          connectPipes(x, y, x, y-1)
+          previousPipeX = x;
+          previousPipeY = y;
         }else if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
           connectPipes(x, y, x, y+1)
+          previousPipeX = x;
+          previousPipeY = y;
         }else if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
           connectPipes(x, y, x-1, y)
+          previousPipeX = x;
+          previousPipeY = y;
         }else if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
           connectPipes(x, y, x+1, y)
+          previousPipeX = x;
+          previousPipeY = y;
         }
       }
 
@@ -1841,9 +1849,10 @@ function addPipe(x, y){
 
     if((conduits[conduitIndex].endPoints + "p").includes(getMapData(x, y)) && (conduits[conduitIndex].endPoints + "p").includes(getMapData(previousPipeX, previousPipeY)) && (Math.abs(x-previousPipeX) == 1 || Math.abs(y-previousPipeY) == 1)){
       connectPipes(x, y, previousPipeX, previousPipeY)
+      previousPipeX = x;
+      previousPipeY = y;
     }
-    previousPipeX = x;
-    previousPipeY = y;
+    
     
     
     if(crossingPipe){
