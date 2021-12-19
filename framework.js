@@ -216,7 +216,7 @@ game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
 
-var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water"]
+var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "storedItem"]
 
 var facilities = [
   {
@@ -425,7 +425,9 @@ var facilities = [
     storage: fluids.slice(),
     layout: [[0, 0], [0, 1], [1, 0], [1, 1]],
     process: function(me){
-      
+      if(me.data.storedItem != 0 && eval("me.data." + me.data.storedItem) == 0){
+        me.data.storedItem = 0
+      }
     },
     ports: [
       {
@@ -861,14 +863,19 @@ rightMenu.id = "slideMenuRight"
 
 rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 10%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'98%\'){document.getElementById(\'slideMenuRight\').style.left = \'80%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'98%\'}\"> </button>
 
-<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; right: 100%; width: 2000px; padding-right: 8px; text-align: right; margin-top: 16px; user-select: none;\">Funds: $<span id=\"funds\">0</span> </p>
-
 <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 11%;\">CUSTOM FONT<br><br>Political stuff, research stuff, and assorted options will go here, kinda like the main menu.</p>
 
 
 `
 
 game.window.appendChild(rightMenu)
+
+var fundsDisplay = document.createElement('div')
+
+fundsDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white;\">Funds: $<span id=\"funds\">0</span> </p>`
+
+game.window.appendChild(fundsDisplay)
+
 
 
 var centerDisplay = document.createElement('div')
@@ -1763,10 +1770,6 @@ function addPipe(x, y){
     }
     
   }else{
-    document.getElementById("display1").innerHTML = previousPipeX
-    document.getElementById("display2").innerHTML = neighbourX
-    document.getElementById("display3").innerHTML = previousPipeY
-    document.getElementById("display4").innerHTML = neighbourY
     crossingPipe = false;
     if((previousPipeX != x || previousPipeY != y) && conduits[conduitIndex].segments.includes(getMapData(x, y))){
       beginMouseHold = true
@@ -1838,9 +1841,9 @@ function addPipe(x, y){
 
     if((conduits[conduitIndex].endPoints + "p").includes(getMapData(x, y)) && (conduits[conduitIndex].endPoints + "p").includes(getMapData(previousPipeX, previousPipeY)) && (Math.abs(x-previousPipeX) == 1 || Math.abs(y-previousPipeY) == 1)){
       connectPipes(x, y, previousPipeX, previousPipeY)
-      previousPipeX = x;
-      previousPipeY = y;
     }
+    previousPipeX = x;
+    previousPipeY = y;
     
     
     if(crossingPipe){

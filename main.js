@@ -1,6 +1,8 @@
 var previousMouseX = 0;
 var previousMouseY = 0;
 var facilityDisplayed = 0;
+var mouseDownX = 0;
+var mouseDownY = 0;
 
 game.window.addEventListener('keydown', function (e) {
   if(e.keyCode != 9){return;}
@@ -19,6 +21,8 @@ game.window.addEventListener('keydown', function (e) {
 })
 
 game.window.addEventListener('click', function (e) {
+  if(mouseDownX != mouseX || mouseDownY != mouseY){return}
+
   if(conduitSelected == "erase"){return}
 
   var facilityString = JSON.stringify([Math.floor((game.mouseX + scrollX/4)/(32)), Math.floor((game.mouseY + scrollY/4)/(32))])
@@ -168,6 +172,9 @@ game.loop = function(){
   //Calculates if a pipe is beginning or ending
   if(!mouseDownPreviously && mouseDown){
     beginMouseHold = true
+    mouseDownX = mouseX;
+    mouseDownY = mouseY;
+
   }
   if(mouseDownPreviously && !mouseDown){
     endMouseHold = true
@@ -282,6 +289,32 @@ game.loop = function(){
           isModular2 = true;
         }
 
+        if(isModular1 && isModular2){
+
+          //Tank-to-tank tranfer makes the contents of two tanks evenly distributed
+          if(facility1.name == "tank" && facility2.name == "tank"){
+            if(facility1.data.storedItem != 0){
+              if(facility2.data.storedItem == 0 || facility2.data.storedItem == facility1.data.storedItem){
+                var totalSharedItems = eval("facility1.data." + facility1.data.storedItem) + eval("facility2.data." + facility1.data.storedItem)
+
+                eval("facility1.data." + facility1.data.storedItem + " = " + totalSharedItems/2)
+                eval("facility2.data." + facility1.data.storedItem + " = " + totalSharedItems/2)
+                facility2.data.storedItem = facility1.data.storedItem
+              }
+            }
+
+            if(facility2.data.storedItem != 0){
+              if(facility1.data.storedItem == 0 || facility1.data.storedItem == facility2.data.storedItem){
+                var totalSharedItems = eval("facility2.data." + facility2.data.storedItem) + eval("facility1.data." + facility2.data.storedItem)
+
+                eval("facility2.data." + facility2.data.storedItem + " = " + totalSharedItems/2)
+                eval("facility1.data." + facility2.data.storedItem + " = " + totalSharedItems/2)
+                facility1.data.storedItem = facility2.data.storedItem
+              }
+            }
+          }
+        }
+
 
         if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output" || genderResolve == "output"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
@@ -294,8 +327,12 @@ game.loop = function(){
               movingItems = fluids.slice()
             }
             for(var j = 0, jl = movingItems.length; j < jl; j++){
+              if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem)){
+                continue;
+              }
               if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !isModular2){continue}
-              if(eval("facility1.data." + movingItems[j]) >= 1 || isModular1){
+              if(eval("facility1.data." + movingItems[j]) >= 1){
+                if(isModular2){facility2.data.storedItem = movingItems[j]}
                 eval("facility1.data." + movingItems[j] + " -= 1")
                 eval("facility2.data." + movingItems[j] + " += 1")
               }
@@ -313,8 +350,12 @@ game.loop = function(){
             }
 
             for(var j = 0, jl = movingItems.length; j < jl; j++){
+              if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem)){
+                continue;
+              }
               if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !isModular1){continue}
               if(eval("facility2.data." + movingItems[j]) >= 1){
+                if(isModular1){facility1.data.storedItem = movingItems[j]}
                 eval("facility2.data." + movingItems[j] + " -= 1")
                 eval("facility1.data." + movingItems[j] + " += 1")
               }

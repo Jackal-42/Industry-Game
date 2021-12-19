@@ -156,4 +156,9 @@ createNetwork(22, 2, "ship")
 
 createNetwork(11, 12, "tank")
 
+
+createNetwork(6, 12, "tank")
+
+createNetwork(2, 12, "tank")
+
 game.addObject("selector")
