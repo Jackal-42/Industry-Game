@@ -161,4 +161,6 @@ createNetwork(6, 12, "tank")
 
 createNetwork(2, 12, "tank")
 
+createNetwork(8, 10, "valve")
+
 game.addObject("selector")

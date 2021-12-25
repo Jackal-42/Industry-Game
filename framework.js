@@ -23,29 +23,6 @@ game.getLayer("effects").canvas.addEventListener("mouseup", function(){mouseDown
 
 
 
-// game.addTexture("grass", "docs/assets/grass.png")
-// game.addTexture("water", "docs/assets/water.png")
-
-
-// game.addTexture("pipe_h", "docs/assets/pipe_h.png")//1
-// game.addTexture("pipe_v", "docs/assets/pipe_v.png")//2
-// game.addTexture("pipe_tl", "docs/assets/pipe_tl.png")//3
-// game.addTexture("pipe_tr", "docs/assets/pipe_tr.png")//4
-// game.addTexture("pipe_bl", "docs/assets/pipe_bl.png")//5
-// game.addTexture("pipe_br", "docs/assets/pipe_br.png")//6
-// game.addTexture("pipe_xt", "docs/assets/pipe_xt.png")//7
-// game.addTexture("pipe_xr", "docs/assets/pipe_xr.png")//8
-// game.addTexture("pipe_xb", "docs/assets/pipe_xb.png")//9
-// game.addTexture("pipe_xl", "docs/assets/pipe_xl.png")//0
-// game.addTexture("pipe_x", "docs/assets/pipe_x.png")//X
-// game.addTexture("pipe_et", "docs/assets/pipe_et.png")//T
-// game.addTexture("pipe_er", "docs/assets/pipe_er.png")//R
-// game.addTexture("pipe_eb", "docs/assets/pipe_eb.png")//B
-// game.addTexture("pipe_el", "docs/assets/pipe_el.png")//L
-// game.addTexture("pipe_dot", "docs/assets/pipe_dot.png")//O
-
-
-
 
 //KEEP
 game.addTexture("selector", "docs/assets/selector.png")
@@ -209,6 +186,7 @@ game.addTexture("pipe_corner", "docs/assets/pipe_corner.png")
 
 game.addTexture("ship", "docs/assets/ship.png")
 game.addTexture("tank", "docs/assets/tank.png")
+game.addTexture("valve", "docs/assets/valve.png")
 game.addTexture("warehouse", "docs/assets/warehouse.png")
 game.addTexture("refinery", "docs/assets/refinery.png")
 game.addTexture("distiller", "docs/assets/distiller.png")
@@ -216,7 +194,7 @@ game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
 
-var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "storedItem"]
+var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water"]
 
 var facilities = [
   {
@@ -423,6 +401,7 @@ var facilities = [
     height: 2,
     maxItems: 20,
     storage: fluids.slice(),
+    data: [["storedItem", 0]],
     layout: [[0, 0], [0, 1], [1, 0], [1, 1]],
     process: function(me){
       if(me.data.storedItem != 0 && eval("me.data." + me.data.storedItem) == 0){
@@ -482,6 +461,52 @@ var facilities = [
       {
         x: 1,
         y: -1,
+        conduit: "pipe",
+        gender: ["modular", ["null"]],
+      },
+    ],
+  },
+
+  {
+    name: "valve",
+    width: 1,
+    height: 1,
+    maxItems: 4,
+    storage: fluids.slice(),
+    data: [["outputs", 0], ["outputCheck", 0], ["inputs", 0], ["inputCheck", 0], ["storedItem", 0]],
+    layout: [[0, 0]],
+    process: function(me){
+      me.data.outputs = me.data.outputCheck
+      me.data.outputCheck = 0
+      if(me.data.outputs == 0){me.data.outputs = 1}
+      me.data.inputs = me.data.inputCheck
+      me.data.inputCheck = 0
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["modular", ["null"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["modular", ["null"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["modular", ["null"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
         conduit: "pipe",
         gender: ["modular", ["null"]],
       },
@@ -1887,6 +1912,11 @@ function createNetwork(x, y, type, modifiers){
       }
       for(var k = 0, kl = facilities[i].storage.length; k < kl; k++){
         eval("facilityData." + facilities[i].storage[k] + " = 0")
+      }
+      if(!(facilities[i].data === undefined)){
+        for(var k = 0, kl = facilities[i].data.length; k < kl; k++){
+          eval("facilityData." + facilities[i].data[k][0] + " = " + facilities[i].data[k][1])
+        }
       }
 
       areas[areaIndex].networks.push(new Network(type, facilityCoordinates, facilityData, networkTotal))
