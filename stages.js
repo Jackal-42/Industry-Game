@@ -154,13 +154,15 @@ createNetwork(14, 3, "hydrotreater")
 createNetwork(14, 5, "hydrotreater")
 createNetwork(22, 2, "ship")
 
-createNetwork(11, 12, "tank")
+createNetwork(11, 13, "tank")
 
 
-createNetwork(6, 12, "tank")
+createNetwork(6, 13, "tank")
 
-createNetwork(2, 12, "tank")
+createNetwork(1, 13, "tank")
 
-createNetwork(8, 10, "valve")
+createNetwork(9, 11, "valve")
+
+createNetwork(4, 11, "valve")
 
 game.addObject("selector")
