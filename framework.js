@@ -190,11 +190,13 @@ game.addTexture("valve", "docs/assets/valve.png")
 game.addTexture("warehouse", "docs/assets/warehouse.png")
 game.addTexture("refinery", "docs/assets/refinery.png")
 game.addTexture("distiller", "docs/assets/distiller.png")
+game.addTexture("residue_processor", "docs/assets/residue_processor.png")
+game.addTexture("gas_processor", "docs/assets/gas_processor.png")
 game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
 
-var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water"]
+var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane"]
 
 var facilities = [
   {
@@ -252,6 +254,120 @@ var facilities = [
         y: 1,
         conduit: "pipe",
         gender: ["input", ["crude_oil"]],
+      },
+    ],
+  },
+
+  {
+    name: "residue_processor",
+    width: 1,
+    height: 2,
+    maxItems: 2,
+    storage: ["residue", "light_oil", "heavy_oil"],
+    layout: [[0, 0], [0, 1]],
+    process: function(me){
+      me.data.light_oil += me.data.residue/2
+      me.data.heavy_oil += me.data.residue/2
+      me.data.residue = 0;
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["residue"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["light_oil"]],
+      },
+
+      {
+        x: 1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["output", ["heavy_oil"]],
+      },
+
+      {
+        x: 0,
+        y: 2,
+        conduit: "pipe",
+        gender: ["input", ["residue"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["residue"]],
+      },
+
+      {
+        x: -1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["residue"]],
+      },
+    ],
+  },
+
+  {
+    name: "gas_processor",
+    width: 1,
+    height: 2,
+    maxItems: 2,
+    storage: ["crude_vapor", "crude_propane", "crude_butane"],
+    layout: [[0, 0], [0, 1]],
+    process: function(me){
+      me.data.crude_propane += me.data.crude_vapor/2
+      me.data.crude_butane += me.data.crude_vapor/2
+      me.data.crude_vapor = 0;
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["crude_vapor"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["crude_propane"]],
+      },
+
+      {
+        x: 1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["output", ["crude_butane"]],
+      },
+
+      {
+        x: 0,
+        y: 2,
+        conduit: "pipe",
+        gender: ["input", ["crude_vapor"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["crude_vapor"]],
+      },
+
+      {
+        x: -1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["crude_vapor"]],
       },
     ],
   },

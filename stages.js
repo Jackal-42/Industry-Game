@@ -146,8 +146,14 @@ tempMap.water, emptyLayer.slice(), [], []));
 tempMap = undefined;
 loadArea("shore")
 
-createNetwork(7, 3, "crude_source")
-createNetwork(10, 3, "distiller")
+createNetwork(4, 3, "crude_source")
+
+createNetwork(7, 2, "distiller")
+
+createNetwork(10, 0, "gas_processor")
+
+createNetwork(10, 4, "residue_processor")
+
 createNetwork(14, 1, "hydrogen_source")
 createNetwork(14, 3, "hydrotreater")
 

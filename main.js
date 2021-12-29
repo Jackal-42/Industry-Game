@@ -315,9 +315,7 @@ game.loop = function(){
           }
 
           if(facility1.name == "valve" || facility2.name == "valve"){
-            if(!(facility1.data.storedItem == 0 || facility2.data.storedItem == 0 || facility1.data.storedItem == facility2.data.storedItem)){
-              continue;
-            }
+            
             if(facility1.data.outputs == 0){facility1.data.outputs = 1}
 
             if(facility2.data.outputs == 0){facility2.data.outputs = 1}
@@ -327,60 +325,45 @@ game.loop = function(){
               if(facility1.data.inputs >= 1 && facility2.data.inputs == 0){
                 facility1.data.outputCheck++
 
-                if(eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
+                if(facility2.data.storedItem != 0 && eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
                   continue;
                 }
 
                 eval("facility1.data." + facility1.data.storedItem + " -= " + 1/facility1.data.outputs)
                 eval("facility2.data." + facility1.data.storedItem + " += " + 1/facility1.data.outputs)
+                facility2.data.storedItem = facility1.data.storedItem
               }
               if(facility2.data.inputs >= 1 && facility1.data.inputs == 0){
                 facility2.data.outputCheck++
 
-                if(eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
+                if(facility1.data.storedItem != 0 && eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
                   continue;
                 }
 
                 eval("facility2.data." + facility2.data.storedItem + " -= " + 1/facility2.data.outputs)
                 eval("facility1.data." + facility2.data.storedItem + " += " + 1/facility2.data.outputs)
-              }
-            }
-            if(!(facility1.data.inputs === undefined) && (facility2.data.inputs === undefined)){
-              if(facility1.data.inputs >= 1){
-                facility1.data.outputCheck++
-
-                if(eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
-                  continue;
-                }
-
-                eval("facility1.data." + facility1.data.storedItem + " -= " + 1/facility1.data.outputs)
-                eval("facility2.data." + facility1.data.storedItem + " += " + 1/facility1.data.outputs)
-              }else{
-
-                if(eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
-                  continue;
-                }
-
-                eval("facility2.data." + facility2.data.storedItem + " -= " + 1)
-                eval("facility1.data." + facility2.data.storedItem + " += " + 1)
+                facility1.data.storedItem = facility2.data.storedItem
               }
             }
             if(!(facility2.data.inputs === undefined) && (facility1.data.inputs === undefined)){
               if(facility2.data.inputs >= 1){
                 facility2.data.outputCheck++
 
-                if(eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
+                if(facility1.data.storedItem != 0 && eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
                   continue;
                 }
 
                 eval("facility2.data." + facility2.data.storedItem + " -= " + 1/facility2.data.outputs)
                 eval("facility1.data." + facility2.data.storedItem + " += " + 1/facility2.data.outputs)
+                facility1.data.storedItem = facility2.data.storedItem
               }else{
-                if(eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
+                if(facility2.data.storedItem != 0 && eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
                   continue;
                 }
                 eval("facility1.data." + facility1.data.storedItem + " -= " + 1)
                 eval("facility2.data." + facility1.data.storedItem + " += " + 1)
+
+                facility2.data.storedItem = facility1.data.storedItem
               }
             }
           }
