@@ -315,55 +315,103 @@ game.loop = function(){
           }
 
           if(facility1.name == "valve" || facility2.name == "valve"){
-            
+
             if(facility1.data.outputs == 0){facility1.data.outputs = 1}
 
             if(facility2.data.outputs == 0){facility2.data.outputs = 1}
 
 
             if(!(facility1.data.inputs === undefined) && !(facility2.data.inputs === undefined)){
-              if(facility1.data.inputs >= 1 && facility2.data.inputs == 0){
+              if(facility1.data.storedItem == 0 && facility2.data.storedItem == 0){continue;}
+
+              if(facility1.data.storedItem == 0 && facility2.data.canDistribute){
+                facility2.data.outputs++
+                eval("facility2.data." + facility2.data.storedItem + " -= " + 1/(facility2.data.outputs))
+                eval("facility1.data." + facility2.data.storedItem + " += " + 1/(facility2.data.outputs))
+                facility1.data.storedItem = facility2.data.storedItem
+              }
+              if(facility2.data.storedItem == 0 && facility1.data.canDistribute){
+                facility1.data.outputs++
+                eval("facility1.data." + facility1.data.storedItem + " -= " + 1/(facility1.data.outputs))
+                eval("facility2.data." + facility1.data.storedItem + " += " + 1/(facility1.data.outputs))
+                facility2.data.storedItem = facility1.data.storedItem
+              }
+              if(facility1.data.storedItem == facility2.data.storedItem){
+                if(facility1.data.inputs >= 1 && facility2.data.inputs == 0){
+                  facility1.data.outputCheck++
+
+                  if(eval("facility2.data." + facility1.data.storedItem + " >= " + facilities[facility1DataIndex].maxItems)){continue}
+
+                  if(facility1.data.canDistribute){
+                    eval("facility1.data." + facility1.data.storedItem + " -= " + 1/(facility1.data.outputs))
+                    eval("facility2.data." + facility1.data.storedItem + " += " + 1/(facility1.data.outputs))
+                  }
+                }
+                if(facility2.data.inputs >= 1 && facility1.data.inputs == 0){
+                  facility2.data.outputCheck++
+
+                  if(eval("facility1.data." + facility2.data.storedItem + " >= " + facilities[facility2DataIndex].maxItems)){continue}
+
+                  if(facility2.data.canDistribute){
+                    eval("facility2.data." + facility2.data.storedItem + " -= " + 1/(facility2.data.outputs))
+                    eval("facility1.data." + facility2.data.storedItem + " += " + 1/(facility2.data.outputs))
+                  }
+                }
+              }
+            }
+            if(!(facility1.data.inputs === undefined) && (facility2.data.inputs === undefined)){
+              if(facility1.data.storedItem != 0){
+                if(facility2.data.storedItem != 0 && facility2.data.storedItem != facility1.data.storedItem){continue}
                 facility1.data.outputCheck++
 
-                if(facility2.data.storedItem != 0 && eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
+                if(!(facility1.data.canDistribute)){continue}
+
+                facility2.data.storedItem = facility1.data.storedItem
+
+                if(eval("facility2.data." + facility2.data.storedItem + ">=" +  facilities[facility2DataIndex].maxItems)){
                   continue;
                 }
 
                 eval("facility1.data." + facility1.data.storedItem + " -= " + 1/facility1.data.outputs)
                 eval("facility2.data." + facility1.data.storedItem + " += " + 1/facility1.data.outputs)
                 facility2.data.storedItem = facility1.data.storedItem
-              }
-              if(facility2.data.inputs >= 1 && facility1.data.inputs == 0){
-                facility2.data.outputCheck++
+              }else{
+                facility1.data.storedItem = facility2.data.storedItem
 
-                if(facility1.data.storedItem != 0 && eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
+                if(facility2.data.storedItem == 0 || eval("facility1.data." + facility1.data.storedItem + ">=" +  facilities[facility1DataIndex].maxItems)){
                   continue;
                 }
+                eval("facility2.data." + facility2.data.storedItem + " -= " + 1)
+                eval("facility1.data." + facility2.data.storedItem + " += " + 1)
 
-                eval("facility2.data." + facility2.data.storedItem + " -= " + 1/facility2.data.outputs)
-                eval("facility1.data." + facility2.data.storedItem + " += " + 1/facility2.data.outputs)
-                facility1.data.storedItem = facility2.data.storedItem
+                
               }
             }
             if(!(facility2.data.inputs === undefined) && (facility1.data.inputs === undefined)){
-              if(facility2.data.inputs >= 1){
+              if(facility2.data.storedItem != 0){
+
+                if(facility1.data.storedItem != 0 && facility1.data.storedItem != facility2.data.storedItem){continue}
+
                 facility2.data.outputCheck++
 
-                if(facility1.data.storedItem != 0 && eval("facility1.data." + facility1.data.storedItem) == facility1.maxItems){
+                if(!(facility2.data.canDistribute)){continue}
+
+                facility1.data.storedItem = facility2.data.storedItem
+
+                if(eval("facility1.data." + facility1.data.storedItem + ">=" +  facilities[facility1DataIndex].maxItems)){
                   continue;
                 }
 
                 eval("facility2.data." + facility2.data.storedItem + " -= " + 1/facility2.data.outputs)
                 eval("facility1.data." + facility2.data.storedItem + " += " + 1/facility2.data.outputs)
-                facility1.data.storedItem = facility2.data.storedItem
               }else{
-                if(facility2.data.storedItem != 0 && eval("facility2.data." + facility2.data.storedItem) == facility2.maxItems){
+                facility2.data.storedItem = facility1.data.storedItem
+
+                if(facility1.data.storedItem == 0 || eval("facility2.data." + facility2.data.storedItem + ">=" +  facilities[facility2DataIndex].maxItems)){
                   continue;
                 }
                 eval("facility1.data." + facility1.data.storedItem + " -= " + 1)
                 eval("facility2.data." + facility1.data.storedItem + " += " + 1)
-
-                facility2.data.storedItem = facility1.data.storedItem
               }
             }
           }
@@ -375,6 +423,8 @@ game.loop = function(){
             break;
           }
           try{
+            if(facilities[facility2DataIndex].name == "valve"){facility2.data.inputCheck++}
+
             var movingItems = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1]
 
             if(isModular1){
@@ -391,10 +441,10 @@ game.loop = function(){
                 
                 amountTransferred = 1/facility1.data.outputs
               }
+
               if(eval("facility1.data." + movingItems[j]) >= 1){
-                if(facilities[facility2DataIndex].name == "valve"){facility2.data.inputCheck++}
                 if(isModular2){facility2.data.storedItem = movingItems[j]}
-                if(eval("facility2.data." + movingItems[j]) == facility2.maxItems){continue}
+                if(eval("facility2.data." + movingItems[j]+ ">=" + facilities[facility2DataIndex].maxItems)){continue}
                 eval("facility1.data." + movingItems[j] + " -= " + amountTransferred)
                 eval("facility2.data." + movingItems[j] + " += " + amountTransferred)
               }
@@ -405,6 +455,9 @@ game.loop = function(){
             break;
           }
           try{
+
+            if(facilities[facility1DataIndex].name == "valve"){facility1.data.inputCheck++}
+
             var movingItems = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1]
 
             if(isModular2){
@@ -424,10 +477,9 @@ game.loop = function(){
                 amountTransferred = 1/facility2.data.outputs
               }
               if(eval("facility2.data." + movingItems[j]) >= 1){
-                if(facilities[facility1DataIndex].name == "valve"){facility1.data.inputCheck++}
 
                 if(isModular1){facility1.data.storedItem = movingItems[j]}
-                if(eval("facility1.data." + movingItems[j]) == facility1.maxItems){continue}
+                if(eval("facility1.data." + movingItems[j] + ">=" + facilities[facility1DataIndex].maxItems)){continue}
                 eval("facility2.data." + movingItems[j] + " -= " + amountTransferred)
                 eval("facility1.data." + movingItems[j] + " += " + amountTransferred)
               }
@@ -440,7 +492,7 @@ game.loop = function(){
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[k].networks[i].name){
             for(var a = 0, al = facilities[j].storage.length; a < al; a++){
-              if(eval("areas[k].networks[i].data." + facilities[j].storage[a]) > facilities[j].maxItems){eval("areas[k].networks[i].data." + facilities[j].storage[a] + " = " + facilities[j].maxItems)}
+              if(eval("areas[k].networks[i].data." + facilities[j].storage[a] + ">" + facilities[j].maxItems)){eval("areas[k].networks[i].data." + facilities[j].storage[a] + " = " + facilities[j].maxItems)}
             }
           }
         }

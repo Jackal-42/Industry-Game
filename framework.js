@@ -589,9 +589,11 @@ var facilities = [
     height: 1,
     maxItems: 4,
     storage: fluids.slice(),
-    data: [["outputs", 0], ["outputCheck", 0], ["inputs", 0], ["inputCheck", 0], ["storedItem", 0]],
+    data: [["outputs", 0], ["outputCheck", 0], ["inputs", 0], ["inputCheck", 0], ["storedItem", 0], ["canDistribute", false]],
     layout: [[0, 0]],
     process: function(me){
+      me.data.canDistribute = false
+      if(me.data.storedItem != 0 && eval("me.data." + me.data.storedItem) >= 1){me.data.canDistribute = true}
       me.data.outputs = me.data.outputCheck
       me.data.outputCheck = 0
       if(me.data.outputs == 0){me.data.outputs = 1}
@@ -875,7 +877,7 @@ function dragElement(elmnt) {
 }
 
 function lg(expression){
-  if(expression == "robert chad"){
+  if(expression == "robert gigachad"){
     document.getElementById('evalOutput').innerHTML = "he really is tho";
   }else{
     document.getElementById('evalOutput').innerHTML = expression;
@@ -1296,6 +1298,7 @@ function connectPipes(x1, y1, x2, y2){
   var conduitIndex = getConduitIndex(conduitSelected)
   var joinEmptyNetwork = false;
   if(conduits[conduitIndex].corners.includes(getMapData(x2, y2))){return;}
+
   if(conduits[conduitIndex].endPoints.includes(getMapData(x1, y1)) && conduits[conduitIndex].endPoints.includes(getMapData(x2, y2))){
     joinEmptyNetwork = true;
   }
@@ -2010,6 +2013,12 @@ function addPipe(x, y){
     
   }else{
     crossingPipe = false;
+
+    if(beginMouseHold){
+      previousPipeX = x;
+      previousPipeY = y;
+    }
+
     if((previousPipeX != x || previousPipeY != y) && conduits[conduitIndex].segments.includes(getMapData(x, y))){
       beginMouseHold = true
         
@@ -2022,32 +2031,38 @@ function addPipe(x, y){
         if((conduits[conduitIndex].endPoints + conduits[conduitIndex].stub + "p-").includes(getMapData(previousPipeX, previousPipeY))){
           connectPipes(x, y, previousPipeX, previousPipeY)
         }
-      }else{
-        if(getMapData(x, y-1) == conduits[conduitIndex].bottom || getMapData(x, y-1) == "p"){
-          connectPipes(x, y, x, y-1)
-        }else if(getMapData(x, y+1) == conduits[conduitIndex].top || getMapData(x, y+1) == "p"){
-          connectPipes(x, y, x, y+1)
-        }else if(getMapData(x-1, y) == conduits[conduitIndex].right || getMapData(x-1, y) == "p"){
-          connectPipes(x, y, x-1, y)
-        }else if(getMapData(x+1, y) == conduits[conduitIndex].left || getMapData(x+1, y) == "p"){
-          connectPipes(x, y, x+1, y)
-        }
       }
       
       if(beginMouseHold){
-        if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1)) || getMapData(x, y-1) == "p"){
+        if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1))){
           connectPipes(x, y, x, y-1)
           previousPipeX = x;
           previousPipeY = y;
-        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1)) || getMapData(x, y+1) == "p"){
+        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x, y+1))){
           connectPipes(x, y, x, y+1)
           previousPipeX = x;
           previousPipeY = y;
-        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y)) || getMapData(x-1, y) == "p"){
+        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x-1, y))){
           connectPipes(x, y, x-1, y)
           previousPipeX = x;
           previousPipeY = y;
-        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y)) || getMapData(x+1, y) == "p"){
+        }else if(conduits[conduitIndex].endPoints.includes(getMapData(x+1, y))){
+          connectPipes(x, y, x+1, y)
+          previousPipeX = x;
+          previousPipeY = y;
+        }else if(getMapData(x, y-1) == "p"){
+          connectPipes(x, y, x, y-1)
+          previousPipeX = x;
+          previousPipeY = y;
+        }else if(getMapData(x, y+1) == "p"){
+          connectPipes(x, y, x, y+1)
+          previousPipeX = x;
+          previousPipeY = y;
+        }else if(getMapData(x-1, y) == "p"){
+          connectPipes(x, y, x-1, y)
+          previousPipeX = x;
+          previousPipeY = y;
+        }else if(getMapData(x+1, y) == "p"){
           connectPipes(x, y, x+1, y)
           previousPipeX = x;
           previousPipeY = y;
