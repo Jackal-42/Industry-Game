@@ -157,7 +157,7 @@ createNetwork(10, 4, "residue_processor")
 createNetwork(14, 1, "hydrogen_source")
 createNetwork(14, 3, "hydrotreater")
 
-createNetwork(14, 5, "hydrotreater")
+createNetwork(14, 7, "hydrotreater")
 createNetwork(22, 2, "ship")
 
 createNetwork(11, 13, "tank")
@@ -171,4 +171,4 @@ createNetwork(9, 11, "valve")
 
 createNetwork(4, 11, "valve")
 
-game.addObject("selector")
+// game.addObject("selector")

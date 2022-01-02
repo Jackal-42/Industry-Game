@@ -109,38 +109,48 @@ p{
   left: 0%;
   right: 0%;
   margin-top: 8px;
-  background-color: rgb(233, 197, 150);
-  border: 3px solid rgb(88, 36, 6);
-  transition: background-color 250ms, top 150ms, left 100ms;
-}
-
-.hotbarButton:hover{
-  background-color: rgb(243, 213, 174);
+  background-color: rgb(100, 100, 133);
+  border: 3px solid black;
+  transition: background-color 250ms, border 250ms, top 150ms, left 100ms;
 }
 
 
 
 .hotbarButton img{
+  -webkit-filter: blur(0.1px); 
+  -moz-filter: blur(0.1px); 
+  -ms-filter: blur(0.1px);
+  filter: blur(0.1px);
   user-select: none;
   position: absolute;
   width: 90%;
   height: 90%;
-  left: 5%;
-  right: 5%;
-  top: 5%;
-  bottom: 5%;
+  left: 0%;
+  top: 0%;
+  transform: translate(-50%, -50%);
+  margin-left: 50%;
+  margin-top: 52%;
   transition: 50ms;
 }
 
 .hotbarButton:hover img{
   user-select: none;
   position: absolute;
-  width: 96%;
-  height: 96%;
-  left: 2%;
-  right: 2%;
-  top: 2%;
-  bottom: 2%;
+  transform: translate(-50%, -50%) rotate(5deg);
+  margin-top: 42%;
+  transition: 100ms; 
+}
+
+.clickityElement{
+  animation-name: clickity;
+  animation-duration: 0.2s;
+  animation-timing-function: ease-out;
+}
+
+@keyframes clickity {
+  40% {margin-top: 60%; transform: translate(-50%, -50%) rotate(10deg);}
+  60% {margin-top: 60%; transform: translate(-50%, -50%) rotate(10deg);}
+  100% {margin-top: 42%;}
 }
 
 .hotbarMenuVertical {

@@ -13,8 +13,10 @@ game.addLayer("oil")
 game.getLayer("oil").clearFrames = false;
 game.addLayer("terrain")
 game.getLayer("terrain").clearFrames = false;
+
 game.addLayer("main")
 game.addLayer("water")
+
 game.addLayer("effects")
 game.getLayer("effects").clearFrames = false;
 game.getLayer("effects").canvas.style.zIndex = 1
@@ -124,6 +126,8 @@ var facility
 
 var conduits = [];
 var conduitSelected = "pipe"
+var facilitySelected = "distiller"
+var facilityRotation = 90
 
 function addConduit(id){
   conduits.push(new Conduit(id, tiles.length))
@@ -710,6 +714,14 @@ var facilities = [
   },
 ]
 
+function getFacility(name){
+  for(var i = 0, l = facilities.length; i < l; i++){
+    if(facilities[i].name == name){
+      return facilities[i]
+    }
+  }
+}
+
 var activeOverlay = [];
 
 
@@ -877,7 +889,7 @@ function dragElement(elmnt) {
 }
 
 function lg(expression){
-  if(expression == "robert gigachad"){
+  if(expression == "robert chad"){
     document.getElementById('evalOutput').innerHTML = "he really is tho";
   }else{
     document.getElementById('evalOutput').innerHTML = expression;
@@ -894,8 +906,9 @@ function Area(name, baseLayer, waterLayer, activeLayer, networks, links){
   this.links = links;
 }
 
-function Network(name, points, data, index){
+function Network(name, rotation, points, data, index){
   this.name = name;
+  this.rotation = rotation;
   this.points = points;
   this.data = data;
   this.index = index;
@@ -936,11 +949,59 @@ function toggleVerticalHotbarMenu(id){
 
 function toggleHorizontalHotbarMenu(id){
   for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
-    if(document.getElementById(id).children[i].style.left == "0px"){
+    if(document.getElementById(id).children[i].style.left == "0px" || document.getElementById(id).children[i].style.left == "90px"){
       if(document.getElementById(id).style.top == "0px"){return;}
       document.getElementById(id).children[i].style.left = document.getElementById(id).children[i].getAttribute("savestate")
     }else{
       document.getElementById(id).children[i].style.left = "0px";
+      var hotbarButtonName = document.getElementById(id).children[i].id.split("_")
+      hotbarButtonName = [hotbarButtonName.shift(), hotbarButtonName.join("_")][1]
+      if(hotbarButtonName == conduitSelected || (hotbarButtonName == facilitySelected && conduitSelected == "facility")){
+        document.getElementById(id).children[i].style.left = "90px";
+      }
+    }
+  }
+}
+
+function selectPlaceable(id){
+  var hotbarButtons = document.getElementsByClassName("hotbarButton")
+  var elementID = "hotbar_" + id
+  var elementIndex = -1
+  for(var i = 0, l = hotbarButtons.length; i < l; i++){
+    if(hotbarButtons[i].id == elementID){
+      elementIndex = i
+    }
+  }
+  if(elementIndex == -1){return}
+  
+
+  hotbarButtons[elementIndex].childNodes[0].classList.remove('clickityElement'); // reset animation
+  void hotbarButtons[elementIndex].childNodes[0].offsetWidth; // trigger reflow
+  hotbarButtons[elementIndex].childNodes[0].classList.add('clickityElement'); // start animation
+
+  if(id.includes("menu")){return}
+
+  for(var i = 0, l = hotbarButtons.length; i < l; i++){
+    if(hotbarButtons[i].id == elementID){
+      hotbarButtons[i].style.backgroundColor = "rgb(251, 255, 0)"
+      hotbarButtons[i].style.border = "3px solid yellow"
+    }else{
+      hotbarButtons[i].style.backgroundColor = "rgb(100, 100, 111)"
+      hotbarButtons[i].style.border = "3px solid black"
+    }
+    if(hotbarButtons[i].style.left == "90px" && !(hotbarButtons[i].id == elementID)){hotbarButtons[i].style.left = "0px"}
+  }
+
+  for(var i = 0, l = conduits.length; i < l; i++){
+    if(conduits[i].id == id){
+      conduitSelected = id
+    }
+  }
+
+  for(var i = 0, l = facilities.length; i < l; i++){
+    if(facilities[i].name == id){
+      conduitSelected = "facility"
+      facilitySelected = id
     }
   }
 }
@@ -951,16 +1012,20 @@ hotbarMenu.className = "hotbarMenuVertical"
 
 hotbarMenu.innerHTML = `
 
-<button savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="toggleVerticalHotbarMenu('hotbarMenuVertical')"><img src="docs/assets/hammer.png"></button>
+<button id="hotbar_hammer_menu" savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="selectPlaceable('hammer_menu'); toggleVerticalHotbarMenu('hotbarMenuVertical')"><img class="clickityElement" src="docs/assets/hammer.png"></button>
 
 
 <div class="hotbarMenuHorizontal" savestate="89px" style="top: 89px; z-index: 3;" id="hotbarMenu1">
 
-<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu1')"><img src="docs/assets/gear.png"></button>
+<button id="hotbar_gear_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('gear_menu'); toggleHorizontalHotbarMenu('hotbarMenu1')"><img class="clickityElement" src="docs/assets/gear.png"></button>
 
-<button savestate="88px" style="left: 88px;" class="hotbarButton"><img src="docs/assets/pipe_icon.png"></button>
+<button id="hotbar_pipe" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('pipe')"><img class="clickityElement" src="docs/assets/pipe_icon.png"></button>
 
-<button savestate="176px" style="left: 176px;" class="hotbarButton"><img src="docs/assets/rail_icon.png"></button>
+<button id="hotbar_rail" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('rail')"><img class="clickityElement" src="docs/assets/rail_icon.png"></button>
+
+<button id="hotbar_valve" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('valve')"><img class="clickityElement" src="docs/assets/valve.png"></button>
+
+<button id="hotbar_tank" savestate="352px" style="left: 352px;" class="hotbarButton" onclick="selectPlaceable('tank')"><img class="clickityElement" src="docs/assets/tank.png"></button>
 
 </div>
 
@@ -968,28 +1033,32 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="177px" style="top: 177px; z-index: 3;" id="hotbarMenu2">
 
-<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu2')"><img src="docs/assets/null.png"></button>
+<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 45%;"></button>
 
-<button savestate="88px" style="left: 88px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+<button id="hotbar_distiller" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('distiller')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 45%;"></button>
 
-<button savestate="176px" style="left: 176px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+<button id="hotbar_residue_processor" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('residue_processor')"><img class="clickityElement" src="docs/assets/residue_processor.png" style="width: 45%;"></button>
+
+<button id="hotbar_gas_processor" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('gas_processor')"><img class="clickityElement" src="docs/assets/gas_processor.png" style="width: 45%;"></button>
+
+<button id="hotbar_hydrotreater" savestate="352px" style="left: 352px;" class="hotbarButton" onclick="selectPlaceable('hydrotreater')"><img class="clickityElement" src="docs/assets/hydrotreater.png" style="height: 45%;"></button>
 
 </div>
 
 <div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
 
-<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu3')"><img src="docs/assets/null.png"></button>
+<button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3')"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
 
-<button savestate="88px" style="left: 88px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+<button id="hotbar_crude_source" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('crude_source')"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
 
-<button savestate="176px" style="left: 176px;" class="hotbarButton"><img src="docs/assets/null.png"></button>
+<button id="hotbar_hydrogen_source" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source')"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
 
 </div>
 
 
 <div class="hotbarMenuHorizontal" savestate="353px" style="top: 353px; z-index: 3;" id="hotbarMenu4">
 
-<button class="hotbarButton" style="z-index: 3;" onclick="toggleHorizontalHotbarMenu('hotbarMenu4')"><img src="docs/assets/erase_icon.png"></button>
+<button id="hotbar_erase" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('erase'); toggleHorizontalHotbarMenu('hotbarMenu4')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
 
 </div>
 
@@ -998,6 +1067,9 @@ hotbarMenu.innerHTML = `
 `
 
 game.window.appendChild(hotbarMenu)
+
+
+selectPlaceable('pipe')
 
 
 
@@ -1038,19 +1110,19 @@ centerDisplay.innerHTML = `
 
 game.window.appendChild(centerDisplay)
 
-function pressHotbarButton(type){
-  conduitSelected = type
-  var hotbarButtons = document.getElementsByClassName("hotbarButton")
-  for(var i = 0, l = hotbarButtons.length; i < l; i++){
-    if(hotbarButtons[i].id.split("_")[0] == type){
-      hotbarButtons[i].style.border = "4px solid red"
-    }else{
-      hotbarButtons[i].style.border = "2px solid rgb(88, 36, 6)"
-    }
-  }
-}
+// function pressHotbarButton(type){
+//   conduitSelected = type
+//   var hotbarButtons = document.getElementsByClassName("hotbarButton")
+//   for(var i = 0, l = hotbarButtons.length; i < l; i++){
+//     if(hotbarButtons[i].id.split("_")[0] == type){
+//       hotbarButtons[i].style.border = "4px solid red"
+//     }else{
+//       hotbarButtons[i].style.border = "2px solid rgb(88, 36, 6)"
+//     }
+//   }
+// }
 
-pressHotbarButton("pipe")
+// pressHotbarButton("pipe")
 
 
 
@@ -1609,6 +1681,9 @@ function addPipeNetwork(endPoints){
   var facility1String = JSON.stringify([facility1X, facility1Y])
   var facility2String = JSON.stringify([facility2X, facility2Y])
   var facilityIDs = [];
+
+
+
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
       var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
@@ -1628,8 +1703,15 @@ function addPipeNetwork(endPoints){
     }
   }
 
+  
 
   if(facilityIDs[1] != undefined){
+    facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
+    facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
+    facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
+    facility2Y = getNetwork(areaIndex, facilityIDs[1]).points[0][1]
+
+
     networkTotal++
 
     var facility1PortIndex = 0;
@@ -1646,23 +1728,48 @@ function addPipeNetwork(endPoints){
         facility2TemplateID = i
       }
     }
+    var rotatedEndPoints = [[0, 0], [0, 0]]
+
+    if(getNetwork(areaIndex, facilityIDs[0]).rotation == 90){
+      rotatedEndPoints[0] = [facility1X + (endPoints[0][1] - facility1Y), facility1Y - (facility1X-endPoints[0][0])]
+    }else if(getNetwork(areaIndex, facilityIDs[0]).rotation == 180){
+      rotatedEndPoints[0] = [facility1X + ((endPoints[0][0] - facility1X) * -1), facility1Y + ((endPoints[0][1] - facility1Y) * -1)]
+    }else if(getNetwork(areaIndex, facilityIDs[0]).rotation == 270){
+      rotatedEndPoints[0] = [facility1X - (endPoints[0][1] - facility1Y), facility1Y + (facility1X-endPoints[0][0])]
+    }else{
+      rotatedEndPoints[0] = [endPoints[0][0], endPoints[0][1]]
+    }
+
+
+    if(getNetwork(areaIndex, facilityIDs[1]).rotation == 90){
+      rotatedEndPoints[1] = [facility2X + (endPoints[1][1] - facility2Y), facility2Y + (facility2X-endPoints[1][0])]
+    }else if(getNetwork(areaIndex, facilityIDs[1]).rotation == 180){
+      rotatedEndPoints[1] = [facility2X + ((endPoints[1][0] - facility2X) * -1), facility2Y + ((endPoints[1][1] - facility2Y) * -1)]
+    }else if(getNetwork(areaIndex, facilityIDs[1]).rotation == 270){
+      rotatedEndPoints[1] = [facility2X - (endPoints[1][1] - facility2Y), facility2Y - (facility2X-endPoints[1][0])]
+    }else{
+      rotatedEndPoints[1] = [endPoints[1][0], endPoints[1][1]]
+    }
+
+
+
     
 
     for(var c = 0, cl = facilities[facility1TemplateID].ports.length; c < cl; c++){
-      if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + facilities[facility1TemplateID].ports[c].x == endPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + facilities[facility1TemplateID].ports[c].y == endPoints[0][1]){
+      if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + facilities[facility1TemplateID].ports[c].x == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + facilities[facility1TemplateID].ports[c].y == rotatedEndPoints[0][1]){
         facility1PortIndex = c
       }
     }
 
     for(var c = 0, cl = facilities[facility2TemplateID].ports.length; c < cl; c++){
-      if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + facilities[facility2TemplateID].ports[c].x == endPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + facilities[facility2TemplateID].ports[c].y == endPoints[1][1]){
+      if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + facilities[facility2TemplateID].ports[c].x == rotatedEndPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + facilities[facility2TemplateID].ports[c].y == rotatedEndPoints[1][1]){
         facility2PortIndex = c
       }
     }
 
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
-    areas[areaIndex].networks.push(new Network("pipeSegment", endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, networkTotal))
+    areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, networkTotal))
   }
 
   updateNetworkLog()
@@ -2130,14 +2237,33 @@ function getNetwork(area, id){
 }
 
 function createNetwork(x, y, type, modifiers){
+  if(modifiers === undefined){
+    modifiers = ""
+  }
   networkTotal++
   for(var i = 0, l = facilities.length; i < l; i++){
     if(facilities[i].name == type){
+      var rotation = 0;
       var facilityCoordinates = [];
       var facilityData = {};
+
+      eval(modifiers)
+
+      var rotatedLayout = []
       for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
-        changeMapData(x + facilities[i].layout[k][0], y + facilities[i].layout[k][1], "p")
-        facilityCoordinates.push([x + facilities[i].layout[k][0], y + facilities[i].layout[k][1]])
+        if(rotation == 90){
+          rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0]])
+        }else if(rotation == 180){
+          rotatedLayout.push([facilities[i].layout[k][0] * -1, facilities[i].layout[k][1] * -1])
+        }else if(rotation == 270){
+          rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0] * -1])
+        }else{
+          rotatedLayout.push([facilities[i].layout[k][0], facilities[i].layout[k][1]])
+        }
+      }
+      for(var k = 0, kl = rotatedLayout.length; k < kl; k++){
+        changeMapData(x + rotatedLayout[k][0], y + rotatedLayout[k][1], "p")
+        facilityCoordinates.push([x + rotatedLayout[k][0], y + rotatedLayout[k][1]])
       }
       for(var k = 0, kl = facilities[i].storage.length; k < kl; k++){
         eval("facilityData." + facilities[i].storage[k] + " = 0")
@@ -2148,7 +2274,7 @@ function createNetwork(x, y, type, modifiers){
         }
       }
 
-      areas[areaIndex].networks.push(new Network(type, facilityCoordinates, facilityData, networkTotal))
+      areas[areaIndex].networks.push(new Network(type, rotation, facilityCoordinates, facilityData, networkTotal))
 
       break;
     }
@@ -2553,6 +2679,12 @@ game.addTemplate("selector", [
     }
     if(this.objects[i].y > 608){
       this.objects[i].y = 608
+    }
+    if(conduitSelected == "facility"){
+
+    }else{
+      self.width = 32
+      self.height = 32
     }
     
   `],

@@ -4,24 +4,48 @@ var facilityDisplayed = 0;
 var mouseDownX = 0;
 var mouseDownY = 0;
 
-game.window.addEventListener('keydown', function (e) {
-  if(e.keyCode != 9){return;}
-  var hotbarButtons = document.getElementsByClassName("hotbarButton")
-  for(var i = 0, l = hotbarButtons.length; i < l; i++){
-    if(hotbarButtons[i].id.split("_")[0] == conduitSelected){
-      if(i == l - 1){
-        hotbarButtons[0].click();
-        return;
-      }else{
-        hotbarButtons[i + 1].click();
-        return;
-      }
+document.addEventListener('keydown', function (e) {
+  if(e.keyCode == 90){
+    facilityRotation += 90
+    if(facilityRotation > 270){
+      facilityRotation = 0
     }
   }
 })
 
 game.window.addEventListener('click', function (e) {
   if(mouseDownX != mouseX || mouseDownY != mouseY){return}
+
+  if(conduitSelected == "facility"){
+    for(var i = 0, l = facilities.length; i < l; i++){
+      if(facilities[i].name == facilitySelected){
+        var rotatedLayout = []
+        for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
+          if(facilityRotation == 90){
+            rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0]])
+          }else if(facilityRotation == 180){
+            rotatedLayout.push([facilities[i].layout[k][0] * -1, facilities[i].layout[k][1] * -1])
+          }else if(facilityRotation == 270){
+            rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0] * -1])
+          }else{
+            rotatedLayout.push([facilities[i].layout[k][0], facilities[i].layout[k][1]])
+          }
+        }
+        
+        var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
+        var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
+
+        for(var k = 0, kl = rotatedLayout.length; k < kl; k++){
+
+          if(getMapData(facilityPlotX + rotatedLayout[k][0], facilityPlotY + rotatedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + rotatedLayout[k][0], facilityPlotY + rotatedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
+            return;
+          }
+        }
+        createNetwork(facilityPlotX, facilityPlotY, facilitySelected, ("rotation = " + facilityRotation))
+        return;
+      }
+    }
+  }
 
   if(conduitSelected == "erase"){return}
 
@@ -179,7 +203,7 @@ game.loop = function(){
   if(mouseDownPreviously && !mouseDown){
     endMouseHold = true
   }
-  if(endMouseHold){
+  if(endMouseHold && conduitSelected != "facility"){
     mouseX = Math.floor((game.mouseX + scrollX/4)/(32))
     mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
     addPipe(mouseX, mouseY)
@@ -192,16 +216,16 @@ game.loop = function(){
   mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
   if(mouseX < 0){mouseX = 0}
   if(mouseY < 0){mouseY = 0}
-  var selector = game.getObject("selector")
-  selector.x = (mouseX*32)-scrollX/4
-  selector.y = (mouseY*32)-scrollY/4
+  // var selector = game.getObject("selector")
+  // selector.x = (mouseX*32)-scrollX/4
+  // selector.y = (mouseY*32)-scrollY/4
   if(debugging){
     document.getElementById("cursorX").innerHTML = mouseX
     document.getElementById("cursorY").innerHTML = mouseY
     document.getElementById("dataAtCursor").innerHTML = tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0]
   }
   
-  if(conduitSelected != "erase"){
+  if(conduitSelected != "erase" && conduitSelected != "facility"){
     if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
       previousPipeX = mouseX;
       previousPipeY = mouseY;
@@ -209,7 +233,7 @@ game.loop = function(){
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
-  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none'){
+  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility"){
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
     var slope = distanceY/distanceX
@@ -512,7 +536,11 @@ game.loop = function(){
 
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
-      ctx.drawImage(game.getTexture(areas[areaIndex].networks[i].name), (areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4, (areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4, game.getTexture(areas[areaIndex].networks[i].name).width * 2, game.getTexture(areas[areaIndex].networks[i].name).height * 2)
+      ctx.save()
+      ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
+      ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
+      ctx.drawImage(game.getTexture(areas[areaIndex].networks[i].name), -16, -16, game.getTexture(areas[areaIndex].networks[i].name).width * 2, game.getTexture(areas[areaIndex].networks[i].name).height * 2)
+      ctx.restore()
     }
   }
 
@@ -557,10 +585,35 @@ game.loop = function(){
   }
 
   game.render()
+
+  ctx = game.getLayer("water").context
+
+  ctx.globalAlpha = (Math.sin(framesElapsed/8) + 2)/4
+  
+  ctx.fillStyle = "yellow"
+
+  var cursorWidth = 32;
+  var cursorHeight = 32;
+
+  if(conduitSelected == "facility"){
+    var facilitySelectedData = getFacility(facilitySelected)
+    cursorWidth = facilitySelectedData.width*32
+    cursorHeight = facilitySelectedData.height*32
+    ctx.save()
+    ctx.translate((mouseX*32)-scrollX/4 + 16, (mouseY*32)-scrollY/4 + 16)
+    ctx.rotate(facilityRotation * (Math.PI/180))
+    ctx.drawImage(game.getTexture(facilitySelected), -16, -16, cursorWidth, cursorHeight)
+    ctx.restore()
+  }else{
+    ctx.fillRect((mouseX*32)-scrollX/4, (mouseY*32)-scrollY/4, cursorWidth, cursorHeight)
+  }
+
+
   ctx = game.getLayer("main").context
 
+
   
-  ctx.drawImage(game.getTexture(conduitSelected + "_icon"), (game.mouseX + 16), (game.mouseY + 16), 16, 16)
+  // ctx.drawImage(game.getTexture(conduitSelected + "_icon"), (game.mouseX + 16), (game.mouseY + 16), 16, 16)
   
   if(fadeOpacity > 0 || fading){
     if(fading){
@@ -583,6 +636,7 @@ game.loop = function(){
   }
   mouseDownPreviously = false;
   if(mouseDown){mouseDownPreviously = true;}
+  framesElapsed++
   requestAnimationFrame(game.loop)
 }
 game.loop()
