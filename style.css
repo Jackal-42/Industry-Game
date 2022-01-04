@@ -91,12 +91,12 @@ p{
 
 #slideMenuRight{
   position: absolute;
-  width: 20%;
-  left: 98%;
+  width: 30%;
+  left: 70%;
   height: 102%;
   top: -1%;
   background-color: rgb(243, 205, 155);
-  transition: left 200ms;
+  transition: left 300ms;
   z-index: 4;
 }
 

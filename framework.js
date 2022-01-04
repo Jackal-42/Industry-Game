@@ -128,6 +128,28 @@ var conduits = [];
 var conduitSelected = "pipe"
 var facilitySelected = "distiller"
 var facilityRotation = 90
+var facilitySelectedLayout = [];
+
+function updateFacilitySelected(){
+  var rotatedLayout = []
+  for(var i = 0, l = facilities.length; i < l; i++){
+    if(facilities[i].name == facilitySelected){
+      for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
+        if(facilityRotation == 270){
+          rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0]])
+        }else if(facilityRotation == 180){
+          rotatedLayout.push([facilities[i].layout[k][0] * -1, facilities[i].layout[k][1] * -1])
+        }else if(facilityRotation == 90){
+          rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0] * -1])
+        }else{
+          rotatedLayout.push([facilities[i].layout[k][0], facilities[i].layout[k][1]])
+        }
+      }
+    }
+  }
+  
+  facilitySelectedLayout = rotatedLayout
+}
 
 function addConduit(id){
   conduits.push(new Conduit(id, tiles.length))
@@ -1002,6 +1024,7 @@ function selectPlaceable(id){
     if(facilities[i].name == id){
       conduitSelected = "facility"
       facilitySelected = id
+      updateFacilitySelected()
     }
   }
 }
@@ -1076,9 +1099,9 @@ selectPlaceable('pipe')
 var rightMenu = document.createElement('div')
 rightMenu.id = "slideMenuRight"
 
-rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 10%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'98%\'){document.getElementById(\'slideMenuRight\').style.left = \'80%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'98%\'}\"> </button>
+rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'96%\'){document.getElementById(\'slideMenuRight\').style.left = \'70%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'96%\'}\"> <img src=\"docs/assets/pipe_x.png\" style=\"width: 90%;\"> </button>
 
-<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 11%;\">CUSTOM FONT<br><br>Political stuff, research stuff, and assorted options will go here, kinda like the main menu.</p>
+<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 15%;\">UPGRADES<br><br>Political stuff, research stuff, and assorted options will go here, kinda like the main menu.</p>
 
 
 `
@@ -2734,3 +2757,18 @@ game.addTemplate("dynamicOil", [
     }
   `]
 ]);
+
+var tintCanvas = document.createElement("canvas")
+tintCanvas.style.display = "none"
+
+function tint(texture, color, amount){
+  var textureData = game.getTexture(texture)
+  tintCanvas.width = textureData.width
+  tintCanvas.height = textureData.height
+  tintCanvas.getContext("2d").drawImage(textureData, 0, 0, textureData.width, textureData.height)
+  tintCanvas.getContext("2d").fillStyle = color
+  tintCanvas.getContext("2d").globalCompositeOperation = "source-atop"
+  tintCanvas.getContext("2d").globalAlpha = amount
+  tintCanvas.getContext("2d").fillRect(0, 0, textureData.width, textureData.height)
+  return tintCanvas
+}

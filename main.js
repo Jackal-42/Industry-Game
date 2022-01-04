@@ -10,6 +10,7 @@ document.addEventListener('keydown', function (e) {
     if(facilityRotation > 270){
       facilityRotation = 0
     }
+    updateFacilitySelected()
   }
 })
 
@@ -17,34 +18,18 @@ game.window.addEventListener('click', function (e) {
   if(mouseDownX != mouseX || mouseDownY != mouseY){return}
 
   if(conduitSelected == "facility"){
-    for(var i = 0, l = facilities.length; i < l; i++){
-      if(facilities[i].name == facilitySelected){
-        var rotatedLayout = []
-        for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
-          if(facilityRotation == 90){
-            rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0]])
-          }else if(facilityRotation == 180){
-            rotatedLayout.push([facilities[i].layout[k][0] * -1, facilities[i].layout[k][1] * -1])
-          }else if(facilityRotation == 270){
-            rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0] * -1])
-          }else{
-            rotatedLayout.push([facilities[i].layout[k][0], facilities[i].layout[k][1]])
-          }
-        }
         
-        var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
-        var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
+    var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
+    var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
 
-        for(var k = 0, kl = rotatedLayout.length; k < kl; k++){
+    for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
 
-          if(getMapData(facilityPlotX + rotatedLayout[k][0], facilityPlotY + rotatedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + rotatedLayout[k][0], facilityPlotY + rotatedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
-            return;
-          }
-        }
-        createNetwork(facilityPlotX, facilityPlotY, facilitySelected, ("rotation = " + facilityRotation))
+      if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
         return;
       }
     }
+    createNetwork(facilityPlotX, facilityPlotY, facilitySelected, ("rotation = " + facilityRotation))
+    return;
   }
 
   if(conduitSelected == "erase"){return}
@@ -544,6 +529,7 @@ game.loop = function(){
     }
   }
 
+  
 
   ctx = game.getLayer("water").context
   ctx.globalCompositeOperation = "source-over"
@@ -586,6 +572,7 @@ game.loop = function(){
 
   game.render()
 
+  
   ctx = game.getLayer("water").context
 
   ctx.globalAlpha = (Math.sin(framesElapsed/8) + 2)/4
@@ -602,12 +589,27 @@ game.loop = function(){
     ctx.save()
     ctx.translate((mouseX*32)-scrollX/4 + 16, (mouseY*32)-scrollY/4 + 16)
     ctx.rotate(facilityRotation * (Math.PI/180))
-    ctx.drawImage(game.getTexture(facilitySelected), -16, -16, cursorWidth, cursorHeight)
+    var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
+    var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
+    var validPlot = true;
+
+    for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
+
+      if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
+        validPlot = false;
+      }
+    }
+    if(validPlot){
+      ctx.drawImage(game.getTexture(facilitySelected), -16, -16, cursorWidth, cursorHeight)
+    }else{
+      ctx.drawImage( tint( facilitySelected, "red", 0.5), -16, -16, cursorWidth, cursorHeight)
+    }
+    
+    
     ctx.restore()
   }else{
     ctx.fillRect((mouseX*32)-scrollX/4, (mouseY*32)-scrollY/4, cursorWidth, cursorHeight)
   }
-
 
   ctx = game.getLayer("main").context
 
