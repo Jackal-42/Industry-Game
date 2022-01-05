@@ -146,29 +146,7 @@ tempMap.water, emptyLayer.slice(), [], []));
 tempMap = undefined;
 loadArea("shore")
 
-createNetwork(4, 3, "crude_source")
-
-createNetwork(7, 2, "distiller")
-
-createNetwork(10, 0, "gas_processor")
-
-createNetwork(10, 4, "residue_processor")
-
-createNetwork(14, 1, "hydrogen_source")
-createNetwork(14, 3, "hydrotreater")
-
-createNetwork(14, 7, "hydrotreater")
 createNetwork(22, 2, "ship")
 
-createNetwork(11, 13, "tank")
-
-
-createNetwork(6, 13, "tank")
-
-createNetwork(1, 13, "tank")
-
-createNetwork(9, 11, "valve")
-
-createNetwork(4, 11, "valve")
 
 // game.addObject("selector")

@@ -127,7 +127,7 @@ var facility
 var conduits = [];
 var conduitSelected = "pipe"
 var facilitySelected = "distiller"
-var facilityRotation = 90
+var facilityRotation = 0
 var facilitySelectedLayout = [];
 
 function updateFacilitySelected(){
@@ -960,6 +960,7 @@ function toggleVerticalHotbarMenu(id){
       if(key(16) && document.getElementById(id).children[i].className == "hotbarMenuHorizontal"){
         toggleHorizontalHotbarMenu(document.getElementById(id).children[i].id)
       }
+      document.getElementById("hotbar_erase").style.left = "0em"
     }else{
       if(document.getElementById(id).children[i].className == "hotbarMenuHorizontal"){
         document.getElementById(id).children[i].style.top = "0px";
@@ -1027,6 +1028,9 @@ function selectPlaceable(id){
       updateFacilitySelected()
     }
   }
+  if(id == "erase"){
+    conduitSelected = "erase"
+  }
 }
 
 var hotbarMenu = document.createElement('div')
@@ -1081,7 +1085,7 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="353px" style="top: 353px; z-index: 3;" id="hotbarMenu4">
 
-<button id="hotbar_erase" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('erase'); toggleHorizontalHotbarMenu('hotbarMenu4')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
+<button id="hotbar_erase" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
 
 </div>
 

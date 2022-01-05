@@ -575,6 +575,7 @@ game.loop = function(){
 
   
   ctx = game.getLayer("water").context
+  ctx.globalCompositeOperation = "source-over"
 
   ctx.globalAlpha = (Math.sin(framesElapsed/8) + 2)/4
   
