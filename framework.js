@@ -135,12 +135,12 @@ function updateFacilitySelected(){
   for(var i = 0, l = facilities.length; i < l; i++){
     if(facilities[i].name == facilitySelected){
       for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
-        if(facilityRotation == 270){
-          rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0]])
+        if(facilityRotation == 90){
+          rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0]])
         }else if(facilityRotation == 180){
           rotatedLayout.push([facilities[i].layout[k][0] * -1, facilities[i].layout[k][1] * -1])
-        }else if(facilityRotation == 90){
-          rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0] * -1])
+        }else if(facilityRotation == 270){
+          rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0] * -1])
         }else{
           rotatedLayout.push([facilities[i].layout[k][0], facilities[i].layout[k][1]])
         }

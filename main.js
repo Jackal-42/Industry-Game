@@ -81,6 +81,7 @@ function toggleDebugMenu(){
     document.getElementById('debug').style.width = '250px'
   }
 }
+toggleDebugMenu()
 
 document.getElementById("monitorVariableInput").addEventListener('input', function monitorSearch(){
   document.getElementById("searchResults").innerHTML = ""
