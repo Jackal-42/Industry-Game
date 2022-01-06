@@ -1094,9 +1094,59 @@ hotbarMenu.innerHTML = `
 `
 
 game.window.appendChild(hotbarMenu)
-
-
 selectPlaceable('pipe')
+
+var hotbarButtonOver = "none"
+
+function assignHotbarButtonListeners(){
+  var hotbarButtonsActive = document.getElementsByClassName("hotbarButton")
+  for(var i = 0, l = hotbarButtonsActive.length; i < l; i++){
+    eval("$("+hotbarButtonsActive[i].id+").hover(function(){hotbarButtonOver = \""+hotbarButtonsActive[i].id+"\"; checkTemporaryTooltip()}, function(){hotbarButtonOver = \"none\"})")
+  }
+}
+assignHotbarButtonListeners()
+
+var hotbarOverCheck = "none"
+var mouseOverCheckX = 0
+var mouseOverCheckY = 0
+
+function checkTemporaryTooltip(){
+  hotbarOverCheck = hotbarButtonOver
+  mouseOverCheckX = game.mouseX
+  mouseOverCheckY = game.mouseY
+  setTimeout(createTemporaryTooltip, 400)
+}
+
+var temporaryTooltips = []
+
+function createTemporaryTooltip(){
+  if(document.getElementsByClassName("tooltip").length != 0){return}
+  if(hotbarOverCheck == hotbarButtonOver){
+    if(mouseOverCheckX == game.mouseX && mouseOverCheckY == game.mouseY){
+      var tooltip = document.createElement("div")
+      tooltip.classList.add("tooltip")
+      tooltip.style.left = game.mouseX + 8 + "px"
+      tooltip.style.top = game.mouseY + 8 + "px"
+
+      tooltip.name = document.getElementsByClassName("tooltip").length
+
+      eval("tooltip.onclick = function(){checkTooltipClick = "+ (document.getElementsByClassName("tooltip").length) +"}")
+
+      var tooltipIndex = 0
+      for(var i = 0, l = tooltips.length; i < l; i++){
+        if(tooltips[i].name == hotbarButtonOver){
+          tooltipIndex = i
+          break;
+        }
+      }
+      tooltip.innerHTML = "<p style=\"font-size: 24px; margin-left: 2px; font-family: \'Pixellari\'; \">" + tooltips[tooltipIndex].title +  "</p><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">" + tooltips[tooltipIndex].text + "</p>"
+      game.window.appendChild(tooltip)
+      temporaryTooltips.push(tooltip)
+    }else{
+      checkTemporaryTooltip()
+    }
+  }
+}
 
 
 
@@ -1137,21 +1187,137 @@ centerDisplay.innerHTML = `
 
 game.window.appendChild(centerDisplay)
 
-// function pressHotbarButton(type){
-//   conduitSelected = type
-//   var hotbarButtons = document.getElementsByClassName("hotbarButton")
-//   for(var i = 0, l = hotbarButtons.length; i < l; i++){
-//     if(hotbarButtons[i].id.split("_")[0] == type){
-//       hotbarButtons[i].style.border = "4px solid red"
-//     }else{
-//       hotbarButtons[i].style.border = "2px solid rgb(88, 36, 6)"
-//     }
-//   }
-// }
+var tooltips = [
+  {
+    name: "fallback",
+    title: "",
+    text: "Undefined Tooltip"
+  },
 
-// pressHotbarButton("pipe")
+  {
+    name: "hotbar_gear_menu",
+    title: "Transit",
+    text: ""
+  },
 
+  {
+    name: "hotbar_facilities_menu",
+    title: "Facilities",
+    text: ""
+  },
 
+  {
+    name: "hotbar_hammer_menu",
+    title: "Build",
+    text: ""
+  },
+
+  {
+    name: "hotbar_erase",
+    title: "Eraser",
+    text: ""
+  },
+
+  {
+    name: "hotbar_pipe",
+    title: "Pipe",
+    text: "Used to transport liquids and gases between your facilities"
+  },
+
+  {
+    name: "hotbar_valve",
+    title: "Valve",
+    text: "Used to split an input into multiple outputs or merge multiple inputs into one output"
+  },
+
+  {
+    name: "hotbar_tank",
+    title: "Tank",
+    text: "Used to store liquids and gases for later use or sale"
+  },
+
+  {
+    name: "hotbar_distiller",
+    title: "Distiller",
+    text: "Converts crude oil into crude <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_vapor\')\">vapor</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_naphtha\')\">naphtha</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_kerosene\')\">kerosene</span>, and <span class=\"tooltipLink\" onclick=\"createTooltip(\'residue\')\">residue</span>"
+  },
+
+  {
+    name: "hotbar_gas_processor",
+    title: "Vapor Processor",
+    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_vapor\')\">crude vapor</span> into crude propane and butane"
+  },
+
+  {
+    name: "hotbar_residue_processor",
+    title: "Residue Processor",
+    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'residue\')\">residue</span> into light oil and heavy oil"
+  },
+
+  {
+    name: "hotbar_hydrotreater",
+    title: "Hydrotreater",
+    text: "Purifies crude products using <span class=\"tooltipLink\" onclick=\"createTooltip(\'hydrogen\')\">hydrogen</span> gas and makes them safe for use"
+  },
+
+  {
+    name: "crude_kerosene",
+    title: "<img src=\"docs/assets/crude_kerosene_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Kerosene</span>",
+    text: "This flammable oil is commonly used for heating, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be sold"
+  },
+
+  {
+    name: "crude_naphtha",
+    title: "<img src=\"docs/assets/crude_naphtha_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Naphtha</span>",
+    text: "This oil is one of the most important ingredients in gasoline, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+  },
+
+  {
+    name: "crude_vapor",
+    title: "<img src=\"docs/assets/crude_vapor_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Vapor</span>",
+    text: "This mixture of gases can be seperated into crude propane and butane at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>"
+  },
+
+  {
+    name: "residue",
+    title: "<img src=\"docs/assets/residue_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Residue</span>",
+    text: "This mixture of solids can be seperated into light oil and heavy oil at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span>"
+  },
+
+  {
+    name: "hydrogen",
+    title: "<img src=\"docs/assets/hydrogen_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Hydrogen</span>",
+    text: "This gas is used by the <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> to bring the impurities out of other oils and gases"
+  },
+  
+]
+
+var checkTooltipClick = -1
+
+var tooltip;
+function createTooltip(name){
+  tooltip = document.createElement("div")
+  tooltip.classList.add("tooltip")
+  tooltip.style.left = game.mouseX + 8 + "px"
+  tooltip.style.top = game.mouseY + 8 + "px"
+  
+  tooltip.name = document.getElementsByClassName("tooltip").length
+
+  eval("tooltip.onclick = function(){checkTooltipClick = "+ (document.getElementsByClassName("tooltip").length) +"}")
+  var tooltipIndex = 0
+  for(var i = 0, l = tooltips.length; i < l; i++){
+    if(tooltips[i].name == name){
+      tooltipIndex = i
+      break;
+    }
+  }
+  tooltip.innerHTML = "<p style=\"font-size: 24px; margin-left: 2px; font-family: \'Pixellari\'; \">" + tooltips[tooltipIndex].title +  "</p><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">" + tooltips[tooltipIndex].text + "</p>"
+  setTimeout(appendTooltip, 1)
+}
+
+function appendTooltip(){
+  game.window.appendChild(tooltip)
+}
 
 function getTerrainBorders(array, x, y, type){
   var waterEdge = false;

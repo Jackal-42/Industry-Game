@@ -14,7 +14,39 @@ document.addEventListener('keydown', function (e) {
   }
 })
 
+game.window.addEventListener("mousemove", function(){
+  for(var i = 0, l = temporaryTooltips.length; i < l; i++){
+    var elementRect = temporaryTooltips[i].getBoundingClientRect()
+    if(elementRect.left > game.mouseX + 12 || elementRect.right < game.mouseX - 6 || elementRect.top > game.mouseY + 12 || elementRect.bottom < game.mouseY - 6){
+      if(document.getElementsByClassName("tooltip").length == 1){
+        temporaryTooltips[i].remove()
+      }
+      temporaryTooltips.splice(i, 1)
+      i--
+      l--
+      checkTemporaryTooltip()
+    }
+  }
+})
+
 game.window.addEventListener('click', function (e) {
+  var tooltipsActive = document.getElementsByClassName("tooltip")
+  if(checkTooltipClick < 0){
+    for(var i = 0, l = tooltipsActive.length; i < l; i++){
+      tooltipsActive[0].remove()
+    }
+  }else{
+    if(checkTooltipClick === undefined){checkTooltipClick = 0}
+    var incrementer = 0
+    for(var i = 0, l = tooltipsActive.length; i < l; i++){
+      if(tooltipsActive[incrementer].name > checkTooltipClick){  
+        tooltipsActive[incrementer].remove()
+      }else{
+        incrementer++
+      }
+    }
+    checkTooltipClick = -1
+  }
   if(mouseDownX != mouseX || mouseDownY != mouseY){return}
 
   if(conduitSelected == "facility"){
