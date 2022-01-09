@@ -26,3 +26,11 @@
 * Start out dumping other gasses / side products that have no use (?)
 * News feed marquee (?)
 * Transport material from one area to another (?)
+
+NOTE TO FUTURE SELF
+To Do for today/tomorrow
+* Custom tooltips based on which items a facility can take
+* Add a catchall tooltip for modular facilities
+* Comment code
+* Move long definitions (tooltip/texture/facility) to a different file to improve load times
+* 

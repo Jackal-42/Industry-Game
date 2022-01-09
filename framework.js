@@ -5,7 +5,7 @@
 //Computerized valve that can change flow depending on any variable
 
 
-var game = new Game("game");
+
 var framesElapsed = 0;
 var mouseDown = false;
 
@@ -38,6 +38,8 @@ var tileIds = ("X-p&" + "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QW
 
 //RESERVED: [ X ] [ - ] [ p ] [ & ]
 
+
+//Returns an array consisting of the internal name of a tile and the url of the texture of that tile based on the tile's ID and the layer it appears in
 function getTile(layer, id){
   if(layer == "terrain"){
     var requestedTile = terrain[tileIds.indexOf(id)]
@@ -57,6 +59,7 @@ function getTile(layer, id){
   }
 }
 
+//Returns the ID of a conduit tile based on the type of conduit and its connections
 function getTileId(layer, type, connections){
   for(var i = 0, l = eval(layer + ".length"); i < l; i++){
     if(eval(layer)[i][0] == type + connections){
@@ -130,6 +133,8 @@ var facilitySelected = "distiller"
 var facilityRotation = 0
 var facilitySelectedLayout = [];
 
+
+//Updates the facilitySelectedLayout variable to accound for the current selected facility and its rotation. The facilitySelectedLayout variable is a shortcut to checking whether the tile you are hovering over is a valid placement spot
 function updateFacilitySelected(){
   var rotatedLayout = []
   for(var i = 0, l = facilities.length; i < l; i++){
@@ -151,6 +156,8 @@ function updateFacilitySelected(){
   facilitySelectedLayout = rotatedLayout
 }
 
+
+//Creates a set of textures corresponding to every segment of a specified conduit and adds them to the tiles variable (used for checking tile IDs). Also creates a conduit object, explained below
 function addConduit(id){
   conduits.push(new Conduit(id, tiles.length))
   // tiles.push([id, "docs/assets/" + id + ".png"])
@@ -170,8 +177,10 @@ function addConduit(id){
 addConduit("pipe")
 addConduit("rail")
 
+//The conduits that are allowed to intersect other conduits
 var intersectors = ["pipe"]
 
+//Creates an object with a lot of shortcut attributes to different types of conduit tiles, used later in pipe connection calculations
 function Conduit(id, index){
   this.id = id;
   this.endPoints = tileIds[index + 6] + tileIds[index + 7] + tileIds[index + 8] + tileIds[index + 9]
@@ -192,6 +201,7 @@ function Conduit(id, index){
   this.hv = tileIds[index] + tileIds[index + 1]
 }
 
+//gets the index of a type of conduit in the conduits variable
 function getConduitIndex(id){
   for(var i = 0, l = conduits.length; i < l; i++){
     if(conduits[i].id == id){
@@ -222,520 +232,23 @@ game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
 
-var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane"]
+game.addTexture("crude_oil_icon", "docs/assets/crude_oil_icon.png")
+game.addTexture("gasoline_icon", "docs/assets/gasoline_icon.png")
+game.addTexture("water_icon", "docs/assets/water_icon.png")
+game.addTexture("crude_vapor_icon", "docs/assets/crude_vapor_icon.png")
+game.addTexture("kerosene_icon", "docs/assets/kerosene_icon.png")
+game.addTexture("any_oil_icon", "docs/assets/any_oil_icon.png")
+game.addTexture("crude_kerosene_icon", "docs/assets/crude_kerosene_icon.png")
 
-var facilities = [
-  {
-    name: "distiller",
-    width: 1,
-    height: 2,
-    maxItems: 2,
-    storage: ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue"],
-    layout: [[0, 0], [0, 1]],
-    process: function(me){
-      me.data.crude_vapor += me.data.crude_oil/4
-      me.data.crude_naphtha += me.data.crude_oil/4
-      me.data.crude_kerosene += me.data.crude_oil/4
-      me.data.residue += me.data.crude_oil/4
-      me.data.crude_oil = 0;
-    },
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["output", ["crude_vapor"]],
-      },
+game.addTexture("naphtha_icon", "docs/assets/naphtha_icon.png")
+game.addTexture("crude_naphtha_icon", "docs/assets/crude_naphtha_icon.png")
 
-      {
-        x: 1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["crude_naphtha"]],
-      },
+game.addTexture("hydrogen_icon", "docs/assets/hydrogen_icon.png")
+game.addTexture("residue_icon", "docs/assets/residue_icon.png")
+game.addTexture("facility_arrow", "docs/assets/facility_arrow.png")
+game.addTexture("facility_double_arrow", "docs/assets/facility_double_arrow.png")
 
-      {
-        x: 1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["output", ["crude_kerosene"]],
-      },
-
-      {
-        x: 0,
-        y: 2,
-        conduit: "pipe",
-        gender: ["output", ["residue"]],
-      },
-
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["crude_oil"]],
-      },
-
-      {
-        x: -1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["crude_oil"]],
-      },
-    ],
-  },
-
-  {
-    name: "residue_processor",
-    width: 1,
-    height: 2,
-    maxItems: 2,
-    storage: ["residue", "light_oil", "heavy_oil"],
-    layout: [[0, 0], [0, 1]],
-    process: function(me){
-      me.data.light_oil += me.data.residue/2
-      me.data.heavy_oil += me.data.residue/2
-      me.data.residue = 0;
-    },
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["input", ["residue"]],
-      },
-
-      {
-        x: 1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["light_oil"]],
-      },
-
-      {
-        x: 1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["output", ["heavy_oil"]],
-      },
-
-      {
-        x: 0,
-        y: 2,
-        conduit: "pipe",
-        gender: ["input", ["residue"]],
-      },
-
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["residue"]],
-      },
-
-      {
-        x: -1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["residue"]],
-      },
-    ],
-  },
-
-  {
-    name: "gas_processor",
-    width: 1,
-    height: 2,
-    maxItems: 2,
-    storage: ["crude_vapor", "crude_propane", "crude_butane"],
-    layout: [[0, 0], [0, 1]],
-    process: function(me){
-      me.data.crude_propane += me.data.crude_vapor/2
-      me.data.crude_butane += me.data.crude_vapor/2
-      me.data.crude_vapor = 0;
-    },
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["input", ["crude_vapor"]],
-      },
-
-      {
-        x: 1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["crude_propane"]],
-      },
-
-      {
-        x: 1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["output", ["crude_butane"]],
-      },
-
-      {
-        x: 0,
-        y: 2,
-        conduit: "pipe",
-        gender: ["input", ["crude_vapor"]],
-      },
-
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["crude_vapor"]],
-      },
-
-      {
-        x: -1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["crude_vapor"]],
-      },
-    ],
-  },
-
-  {
-    name: "hydrotreater",
-    width: 2,
-    height: 1,
-    maxItems: 1,
-    storage: ["hydrogen", "crude_vapor", "crude_kerosene", "crude_naphtha", "vapor", "kerosene", "naphtha"],
-    layout: [[0, 0], [1, 0]],
-    process: function(me){
-      while(true){
-        if(me.data.hydrogen >= 1){
-          if(me.data.crude_kerosene >= 1){
-            me.data.hydrogen -= 1;
-            me.data.crude_kerosene -= 1;
-            me.data.kerosene += 1;
-            continue;
-          }
-          if(me.data.crude_vapor >= 1){
-            me.data.hydrogen -= 1;
-            me.data.crude_vapor -= 1;
-            me.data.vapor += 1;
-            continue;
-          }
-          if(me.data.crude_naphtha >= 1){
-            me.data.hydrogen -= 1;
-            me.data.crude_naphtha -= 1;
-            me.data.naphtha += 1;
-            continue;
-          }
-          break;
-        }
-        break;
-      }
-    },
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["input", ["hydrogen"]],
-      },
-
-      {
-        x: 1,
-        y: -1,
-        conduit: "pipe",
-        gender: ["input", ["hydrogen"]],
-      },
-
-      {
-        x: 2,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["kerosene", "naphtha", "vapor"]]
-      },
-
-      {
-        x: 1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["hydrogen"]],
-      },
-
-      {
-        x: 0,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["hydrogen"]],
-      },
-
-      {
-        id: "main_input",
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["crude_kerosene", "crude_naphtha", "crude_vapor"]],
-      },
-    ],
-  },
-
-  {
-    name: "ship",
-    width: 2,
-    height: 4,
-    maxItems: 256,
-    storage: ["vapor", "kerosene", "naphtha"],
-    layout: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
-    process: function(me){
-      funds += me.data.vapor * 20
-      funds += me.data.kerosene * 10
-      funds += me.data.naphtha * 15
-      me.data.vapor = 0;
-      me.data.kerosene = 0;
-      me.data.naphtha = 0;
-    },
-    ports: [
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },
-
-      {
-        x: -1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },
-
-      {
-        x: -1,
-        y: 2,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },
-
-      {
-        x: 2,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },
-
-      {
-        x: 2,
-        y: 1,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },
-
-      {
-        x: 2,
-        y: 2,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },      
-    ],
-  },
-
-  {
-    name: "tank",
-    width: 2,
-    height: 2,
-    maxItems: 20,
-    storage: fluids.slice(),
-    data: [["storedItem", 0]],
-    layout: [[0, 0], [0, 1], [1, 0], [1, 1]],
-    process: function(me){
-      if(me.data.storedItem != 0 && eval("me.data." + me.data.storedItem) == 0){
-        me.data.storedItem = 0
-      }
-    },
-    ports: [
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: -1,
-        y: 1,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 0,
-        y: 2,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 1,
-        y: 2,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 2,
-        y: 1,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 2,
-        y: 0,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 1,
-        y: -1,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-    ],
-  },
-
-  {
-    name: "valve",
-    width: 1,
-    height: 1,
-    maxItems: 4,
-    storage: fluids.slice(),
-    data: [["outputs", 0], ["outputCheck", 0], ["inputs", 0], ["inputCheck", 0], ["storedItem", 0], ["canDistribute", false]],
-    layout: [[0, 0]],
-    process: function(me){
-      me.data.canDistribute = false
-      if(me.data.storedItem != 0 && eval("me.data." + me.data.storedItem) >= 1){me.data.canDistribute = true}
-      me.data.outputs = me.data.outputCheck
-      me.data.outputCheck = 0
-      if(me.data.outputs == 0){me.data.outputs = 1}
-      me.data.inputs = me.data.inputCheck
-      me.data.inputCheck = 0
-    },
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: 0,
-        y: 1,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["modular", ["null"]],
-      },
-    ],
-  },
-
-  {
-    name: "crude_source",
-    width: 1,
-    height: 1,
-    maxItems: 4,
-    storage: ["crude_oil"],
-    layout: [[0, 0]],
-    process: function(me){me.data.crude_oil = 4},
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["output", ["crude_oil"]],
-      },
-
-      {
-        x: 1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["crude_oil"]],
-      },
-
-      {
-        x: 0,
-        y: 1,
-        conduit: "pipe",
-        gender: ["output", ["crude_oil"]],
-      },
-
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["crude_oil"]],
-      },
-    ],
-  },
-
-  {
-    name: "hydrogen_source",
-    width: 1,
-    height: 1,
-    maxItems: 4,
-    storage: ["hydrogen"],
-    layout: [[0, 0]],
-    process: function(me){me.data.hydrogen = 4},
-    ports: [
-      {
-        x: 0,
-        y: -1,
-        conduit: "pipe",
-        gender: ["output", ["hydrogen"]],
-      },
-
-      {
-        x: 1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["hydrogen"]],
-      },
-
-      {
-        x: 0,
-        y: 1,
-        conduit: "pipe",
-        gender: ["output", ["hydrogen"]],
-      },
-
-      {
-        x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["output", ["hydrogen"]],
-      },
-    ],
-  },
-]
-
+//Returns a facility template by name
 function getFacility(name){
   for(var i = 0, l = facilities.length; i < l; i++){
     if(facilities[i].name == name){
@@ -744,9 +257,10 @@ function getFacility(name){
   }
 }
 
+//The little textures of pipes entering the water and used for the ripple effect
 var activeOverlay = [];
 
-
+//Creates either a submerging pipe or a ripple
 function Overlay(type, texture, x, y, rotation){
   this.texture = texture;
   this.x = x;
@@ -759,6 +273,7 @@ function Overlay(type, texture, x, y, rotation){
   }
 }
 
+//For testing new textures without deleting the old ones
 function overrideTexture(name, src){
   var img = document.createElement("img")
   img.style.display = "none"
@@ -813,10 +328,12 @@ function CodeBlock(data, delay){
   this.delay = delay;
 }
 
+//Waits delay milliseconds before executing the data
 function cacheCode(data, delay){
   cachedCode.push(new CodeBlock(data, delay))
 }
 
+//Changes the area of the map and hides it with a fade
 function loadArea(id){
 
   for(var i = 0, l = areas.length; i < l; i++){
@@ -840,6 +357,7 @@ function loadArea(id){
   updateNetworkLog()
 }
 
+//Only used in the debug menu
 function toggleMenu(menu){
   if(document.getElementById(menu).style.display == "none"){
     document.getElementById(menu).style.display = "block"
@@ -855,6 +373,7 @@ var offsetWidth = 0;
 
 window.addEventListener('resize', setWindowScale)
 
+//Keeps track of the size of the window and scales the canvas accordingly to make sure that the game does not render more than it needs to
 function setWindowScale(){
   offsetWidth = game.window.offsetWidth
   offsetHeight = game.window.offsetHeight
@@ -910,6 +429,7 @@ function dragElement(elmnt) {
   }
 }
 
+//Logs the result of an expression to the debug menu
 function lg(expression){
   if(expression == "robert chad"){
     document.getElementById('evalOutput').innerHTML = "he really is tho";
@@ -938,6 +458,8 @@ function Network(name, rotation, points, data, index){
 
 game.window.style.overflow = "hidden"
 
+//I AM KEEPING THIS HERE JUST IN CASE DO NOT JUDGE ME
+
 // var leftMenu = document.createElement('div')
 // leftMenu.id = "slideMenuLeft"
 
@@ -953,6 +475,7 @@ game.window.style.overflow = "hidden"
 
 // game.window.appendChild(leftMenu)
 
+//Used for extending and retracting the hammer hotbar menu
 function toggleVerticalHotbarMenu(id){
   for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
     if(document.getElementById(id).children[i].style.top == "0px"){
@@ -970,6 +493,7 @@ function toggleVerticalHotbarMenu(id){
   }
 }
 
+//Expands and retracts the submenus
 function toggleHorizontalHotbarMenu(id){
   for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
     if(document.getElementById(id).children[i].style.left == "0px" || document.getElementById(id).children[i].style.left == "90px"){
@@ -986,6 +510,7 @@ function toggleHorizontalHotbarMenu(id){
   }
 }
 
+//Generates the little bob upon clicking a hotbar button and changes the variables that determine what you draw with the mouse
 function selectPlaceable(id){
   var hotbarButtons = document.getElementsByClassName("hotbarButton")
   var elementID = "hotbar_" + id
@@ -1032,6 +557,8 @@ function selectPlaceable(id){
     conduitSelected = "erase"
   }
 }
+
+//The hotbar menu
 
 var hotbarMenu = document.createElement('div')
 hotbarMenu.id = "hotbarMenuVertical"
@@ -1098,6 +625,7 @@ selectPlaceable('pipe')
 
 var hotbarButtonOver = "none"
 
+//Generates all the event listeners that determine which hotbar button is currently being hovered over and for how long, used for generating tooltips
 function assignHotbarButtonListeners(){
   var hotbarButtonsActive = document.getElementsByClassName("hotbarButton")
   for(var i = 0, l = hotbarButtonsActive.length; i < l; i++){
@@ -1110,6 +638,7 @@ var hotbarOverCheck = "none"
 var mouseOverCheckX = 0
 var mouseOverCheckY = 0
 
+//See if the mouse has been still long enough to spawn a tooltip
 function checkTemporaryTooltip(){
   hotbarOverCheck = hotbarButtonOver
   mouseOverCheckX = game.mouseX
@@ -1119,19 +648,19 @@ function checkTemporaryTooltip(){
 
 var temporaryTooltips = []
 
+//Just like a normal tooltip except it despawns when the mouse moves too far away instead of on click
 function createTemporaryTooltip(){
   if(document.getElementsByClassName("tooltip").length != 0){return}
   if(hotbarOverCheck == hotbarButtonOver){
     if(mouseOverCheckX == game.mouseX && mouseOverCheckY == game.mouseY){
       var tooltip = document.createElement("div")
       tooltip.classList.add("tooltip")
-      tooltip.style.left = game.mouseX + 8 + "px"
-      tooltip.style.top = game.mouseY + 8 + "px"
 
       tooltip.name = document.getElementsByClassName("tooltip").length
 
       eval("tooltip.onclick = function(){checkTooltipClick = "+ (document.getElementsByClassName("tooltip").length) +"}")
 
+      //Finds the correct data to generate the tooltip
       var tooltipIndex = 0
       for(var i = 0, l = tooltips.length; i < l; i++){
         if(tooltips[i].name == hotbarButtonOver){
@@ -1139,8 +668,16 @@ function createTemporaryTooltip(){
           break;
         }
       }
+      if(tooltipIndex == 0){return}
       tooltip.innerHTML = "<p style=\"font-size: 24px; margin-left: 2px; font-family: \'Pixellari\'; \">" + tooltips[tooltipIndex].title +  "</p><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">" + tooltips[tooltipIndex].text + "</p>"
       game.window.appendChild(tooltip)
+      if(game.mouseX > window.innerWidth - 250){tooltipSpawnDirectionX = -1}
+      if(game.mouseX < 250){tooltipSpawnDirectionX = 0}
+      if(game.mouseY > window.innerHeight - tooltip.offsetHeight){tooltipSpawnDirectionY = -1}
+      if(game.mouseY < tooltip.offsetHeight){tooltipSpawnDirectionY = 0}
+      tooltip.style.left = game.mouseX + 8 + (250*tooltipSpawnDirectionX) + "px"
+      tooltip.style.top = game.mouseY + 8 + (tooltip.offsetHeight * tooltipSpawnDirectionY) + "px"
+
       temporaryTooltips.push(tooltip)
     }else{
       checkTemporaryTooltip()
@@ -1176,130 +713,33 @@ centerDisplay.id = "centerDisplay"
 centerDisplay.innerHTML = `
 <button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)" style='width: 10%; padding-top: 10%; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
 
-<img id="facilityShownImage" src='docs/assets/refinery.png' style="position: absolute; left: 1%; top: 1%; width: 20%; border: 2px solid rgb(88, 36, 6); background-color: tan;">
+<div id="facilityShownRange">
+<canvas id="facilityShownCanvas" width="500" height="500" style="height: 60%; border: 1px solid black; position: absolute; top: 1%; left: 1%; background-color: rgb(100, 100, 133)"></canvas>
+</div>
 
-<p id="facilityShown" style="font-family: \'Pixellari\'; font-size: 32px; margin-left: 24%; margin-top: 2%;">Refinery</p>
+<p id="facilityShown" style="font-family: \'Pixellari\'; font-size: 32px; margin-left: 37%; margin-top: 2%;">Refinery</p>
 
-<p id="facilityShownResources" style="font-family: \'Pixellari\'; font-size: 24px; margin-left: 24%; margin-top: -1%;">Oil: 100</p>
+<p id="facilityShownResources" style="font-family: \'Pixellari\'; font-size: 24px; margin-left: 37%; margin-top: -1%;">Oil: 100</p>
 
 
 `
 
+
 game.window.appendChild(centerDisplay)
 
-var tooltips = [
-  {
-    name: "fallback",
-    title: "",
-    text: "Undefined Tooltip"
-  },
-
-  {
-    name: "hotbar_gear_menu",
-    title: "Transit",
-    text: ""
-  },
-
-  {
-    name: "hotbar_facilities_menu",
-    title: "Facilities",
-    text: ""
-  },
-
-  {
-    name: "hotbar_hammer_menu",
-    title: "Build",
-    text: ""
-  },
-
-  {
-    name: "hotbar_erase",
-    title: "Eraser",
-    text: ""
-  },
-
-  {
-    name: "hotbar_pipe",
-    title: "Pipe",
-    text: "Used to transport liquids and gases between your facilities"
-  },
-
-  {
-    name: "hotbar_valve",
-    title: "Valve",
-    text: "Used to split an input into multiple outputs or merge multiple inputs into one output"
-  },
-
-  {
-    name: "hotbar_tank",
-    title: "Tank",
-    text: "Used to store liquids and gases for later use or sale"
-  },
-
-  {
-    name: "hotbar_distiller",
-    title: "Distiller",
-    text: "Converts crude oil into crude <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_vapor\')\">vapor</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_naphtha\')\">naphtha</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_kerosene\')\">kerosene</span>, and <span class=\"tooltipLink\" onclick=\"createTooltip(\'residue\')\">residue</span>"
-  },
-
-  {
-    name: "hotbar_gas_processor",
-    title: "Vapor Processor",
-    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_vapor\')\">crude vapor</span> into crude propane and butane"
-  },
-
-  {
-    name: "hotbar_residue_processor",
-    title: "Residue Processor",
-    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'residue\')\">residue</span> into light oil and heavy oil"
-  },
-
-  {
-    name: "hotbar_hydrotreater",
-    title: "Hydrotreater",
-    text: "Purifies crude products using <span class=\"tooltipLink\" onclick=\"createTooltip(\'hydrogen\')\">hydrogen</span> gas and makes them safe for use"
-  },
-
-  {
-    name: "crude_kerosene",
-    title: "<img src=\"docs/assets/crude_kerosene_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Kerosene</span>",
-    text: "This flammable oil is commonly used for heating, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be sold"
-  },
-
-  {
-    name: "crude_naphtha",
-    title: "<img src=\"docs/assets/crude_naphtha_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Naphtha</span>",
-    text: "This oil is one of the most important ingredients in gasoline, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
-  },
-
-  {
-    name: "crude_vapor",
-    title: "<img src=\"docs/assets/crude_vapor_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Vapor</span>",
-    text: "This mixture of gases can be seperated into crude propane and butane at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>"
-  },
-
-  {
-    name: "residue",
-    title: "<img src=\"docs/assets/residue_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Residue</span>",
-    text: "This mixture of solids can be seperated into light oil and heavy oil at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span>"
-  },
-
-  {
-    name: "hydrogen",
-    title: "<img src=\"docs/assets/hydrogen_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Hydrogen</span>",
-    text: "This gas is used by the <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> to bring the impurities out of other oils and gases"
-  },
-  
-]
+var facilityShownCanvas = document.getElementById("facilityShownCanvas")
+facilityShownCanvas.getContext("2d").fillRect(20, 20, 20, 20)
 
 var checkTooltipClick = -1
+var tooltipSpawnDirectionX = 0
+var tooltipSpawnDirectionY = 0
 
 var tooltip;
+
+//Generates a tooltip that disappears when clicking away from it
 function createTooltip(name){
   tooltip = document.createElement("div")
   tooltip.classList.add("tooltip")
-  tooltip.style.left = game.mouseX + 8 + "px"
-  tooltip.style.top = game.mouseY + 8 + "px"
   
   tooltip.name = document.getElementsByClassName("tooltip").length
 
@@ -1315,10 +755,33 @@ function createTooltip(name){
   setTimeout(appendTooltip, 1)
 }
 
-function appendTooltip(){
-  game.window.appendChild(tooltip)
+//The same as createTooltip() but the parameter is HTML code instead of a template ID
+function createCustomTooltip(content){
+  tooltip = document.createElement("div")
+  tooltip.classList.add("tooltip")
+  
+  tooltip.name = document.getElementsByClassName("tooltip").length
+
+  eval("tooltip.onclick = function(){checkTooltipClick = "+ (document.getElementsByClassName("tooltip").length) +"}")
+
+  tooltip.innerHTML = content
+  setTimeout(appendTooltip, 1)
 }
 
+//Adds the tooltip to the page and gives it the correct dimensions
+function appendTooltip(){
+  game.window.appendChild(tooltip)
+  if(game.mouseX > window.innerWidth - 250){tooltipSpawnDirectionX = -1}
+  if(game.mouseX < 250){tooltipSpawnDirectionX = 0}
+  if(game.mouseY > window.innerHeight - tooltip.offsetHeight){tooltipSpawnDirectionY = -1}
+  if(game.mouseY < tooltip.offsetHeight){tooltipSpawnDirectionY = 0}
+  tooltip.style.left = game.mouseX + 8 + (250*tooltipSpawnDirectionX) + "px"
+  tooltip.style.top = game.mouseY + 8 + (tooltip.offsetHeight * tooltipSpawnDirectionY) + "px"
+}
+
+//what the hell does this function do
+
+//Apparently it is used for determining which sides of a terrain tile are touching a different type of tile
 function getTerrainBorders(array, x, y, type){
   var waterEdge = false;
   if(type == "W"){type = "w"; waterEdge = true;}
@@ -1412,6 +875,7 @@ function getTerrainBorders(array, x, y, type){
   return ""
 }
 
+//Takes a map of only grass sand and seafloor tiles and rounds out the edges and adds water into the water layer
 function sanitizeMap(array){
   var sanitized = [];
   var sanitizedWater = [];
@@ -1481,6 +945,7 @@ function getPipeId(connections, index){
   return conduits[index].stub
 }
 
+//Generates the little image of a pipe enterimg the water
 function createPipeOverlay(x1, y1, x2, y2){
   var pipeRotation = 0;
 
@@ -1762,23 +1227,6 @@ function connectPipes(x1, y1, x2, y2){
 
 
 
-
-
-
-
-  //FIX FACILITY IDENTIFIERS
-
-
-
-
-
-
-
-
-
-  //POSSIBLE SOURCE OF ERROR
-  //Changed "rW&p" to "&p". r and W are no longer valid facility IDs
-
   if(getPipeId(pipe1Connections) != conduits[conduitIndex].stub && !"&p".includes(getMapData(x1, y1))){
     changeMapData(x1, y1, getPipeId(pipe1Connections))
   }
@@ -1979,8 +1427,7 @@ function updatePipe(x, y, sourceX, sourceY){
   
   var mapData = getMapData(x, y)
 
-  //POSSIBLE SOURCE OF ERROR
-  //See above source of error
+
   if("p&-".includes(mapData)){
     return;
   }
@@ -2153,7 +1600,7 @@ function killNetwork(x, y){
 
 var crossingPipe = false;
 
-//Adds a pipe at the specified coords and connects it to the surrounding ones
+//Adds a pipe at the specified coords and connects it to the surrounding ones. Also used for deleting a pipe or facility because S P A G H E T T I C O D E
 function addPipe(x, y){
   if(document.getElementById('centerDisplay').style.opacity == "1"){
     return;
@@ -2170,10 +1617,7 @@ function addPipe(x, y){
         l--
       }
     }  
-    //POTENTIAL SOURCE OF ERROR
-    //See above
 
-    //Its not really a source of error anymore I think but I will leave these comments it just in case
     if("p&".includes(mapData)){
       var coordString = JSON.stringify([x, y])
       var facilityIndex = -1;
@@ -2205,6 +1649,8 @@ function addPipe(x, y){
           break;
         }
       }
+
+      //I am leaving this code around just in case because I forget what it is for
 
       // changeMapData(x, y, "-")
       // changeMapData(x+1, y, "-")
@@ -2421,6 +1867,7 @@ function addPipe(x, y){
 
 var networkTotal = 0;
 
+//Return a network based in the area it is in and its id
 function getNetwork(area, id){
   for(var i = 0, l = areas[area].networks.length; i < l; i++){
     if(areas[area].networks[i].index == id){
@@ -2429,6 +1876,7 @@ function getNetwork(area, id){
   }
 }
 
+//Used for generating a new facility and the data that powers it. Pipe network generation is below with the createPipeNetwork() function
 function createNetwork(x, y, type, modifiers){
   if(modifiers === undefined){
     modifiers = ""
@@ -2473,29 +1921,10 @@ function createNetwork(x, y, type, modifiers){
     }
   }
 
-
-  // if(type == "distiller"){
-  //   areas[areaIndex].networks.push(new Network("distiller", [[x, y], [x, y+1]], {crude_oil: 0, crude_naphtha: 100,}, networkTotal))
-  //   changeMapData(x, y, "p")
-  //   changeMapData(x, y+1, "p")
-  // }
-  // if(type == "hydrotreater"){
-  //   areas[areaIndex].networks.push(new Network("hydrotreater", [[x, y], [x+1, y]], {crude_oil: 0, hydrogen: 0, crude_naphtha: 0,}, networkTotal))
-  //   changeMapData(x, y, "p")
-  //   changeMapData(x+1, y, "p")
-  // }
-  // if(type == "hydrogen_source"){
-  //   areas[areaIndex].networks.push(new Network("hydrogen_source", [[x, y]], {hydrogen: Infinity,}, networkTotal))
-  //   changeMapData(x, y, "p")
-  // }
-  // if(type == "crude_source"){
-  //   areas[areaIndex].networks.push(new Network("crude_source", [[x, y]], {crude_oil: Infinity,}, networkTotal))
-  //   changeMapData(x, y, "p")
-  // }
-
   if(debugging){updateNetworkLog()}
 }
 
+//Changes the network log in the debug menu
 function updateNetworkLog(){
   document.getElementById("networkLog").innerHTML = ""
   for(var j = 0, ll = areas.length; j < ll; j++){
@@ -2507,7 +1936,7 @@ function updateNetworkLog(){
   }
 }
 
-//Returns endpoints for a pipe segment network, given coordinates
+//Returns endpoints for a pipe segment network, given coordinates. I have no idea why I named it updateNetwork because it certainly does not
 function updateNetwork(x, y){
   conduitIndex = getConduitIndex(conduitSelected)
   if(conduitSelected == "erase"){conduitIndex = 0}
@@ -2629,308 +2058,11 @@ function updateNetwork(x, y){
 
 var framesElapsed = 0;
 
-//World Maps are 32 x 20
-game.addTemplate("terrain", [
-  ["x", 0],
-  ["y", 0],
-  ["momentumX", 0],
-  ["momentumY", 0],
-  ["width", 0],
-  ["height", 0],
-  ["spriteWidth", 0],
-  ["spriteHeight", 0],
-  ["spriteOffsetX", 0],
-  ["spriteOffsetY", 0],
-  ["rotation", 0],
-  ["refresh", true],
-  ["render", true],
-  ["layerId", "main"],
-  ["backup", false],
-  ["mapData", [
-    
-  ]],
-  ["role", `
-    
-
-    var mapTargetX = scrollX
-    var mapTargetY = scrollY
-    var mapWidth = Math.floor(offsetWidth/32) + 2
-    var mapHeight = Math.floor(offsetHeight/32) + 2
-    if(self.backup){
-      ctx = document.getElementById(self.layerId).getContext('2d');
-      mapTargetX = 0;
-      marTargetY = 0;
-      mapWidth = 64;
-      mapHeight = 40;
-    }else{
-      ctx = game.getLayer(self.layerId).context;
-    }
-    
-    
-    ctx.imageSmoothingEnabled = false;
-    if(self.refresh || self.render){
-      ctx.clearRect(0, 0, 2048, 1280)
-      for(var j = Math.floor(mapTargetY/128)-1, ll = Math.floor(mapTargetY/128)+mapHeight; j < ll; j++){
-        if(j < 0 || j > 39){
-          continue;
-        }
-        var row = this.objects[i].mapData[j].split("");
-        for(var k = Math.floor(mapTargetX/128)-1, lll = Math.floor(mapTargetX/128)+mapWidth; k < lll; k++){
-          if(k < 0 || k > row.length){
-            continue;
-          }
-          if("-p&".includes(row[k])){
-            continue;
-          }
-          if(row[k] == "X"){
-            xModifier = 0;
-            while(getMapData(k - 1 + xModifier, j) == "X"){xModifier--}
-            yModifier = 0;
-            while(getMapData(k, j - 1 + yModifier) == "X"){yModifier--}
-
-            var conduitTextureX = "null"
-            var conduitTextureY = "null"
-
-            if(getMapData(k - 1, j) == "p"){
-
-              var coordString = JSON.stringify([k - 1, j])
-
-              for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
-                if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
-                  for(var b = 0, lllll = facilities.length; b < lllll; b++){
-                    if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
-                      for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
-                        if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
-                          conduitTextureX = facilities[b].ports[c].conduit
-                          break;
-                        }
-                      }
-                    }
-                  }
-                  break;
-                }
-              }
-            }
-
-            if(getMapData(k, j - 1) == "p"){
-              var coordString = JSON.stringify([k, j - 1])
-
-              for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
-                if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
-                  for(var b = 0, lllll = facilities.length; b < lllll; b++){
-                    if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
-                      for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
-                        if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
-                          conduitTextureY = facilities[b].ports[c].conduit
-                          break;
-                        }
-                      }
-                    }
-                  }
-                  break;
-                }
-              }
-            }
-
-            if(conduitTextureX == "null"){
-              conduitTextureX = getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0]
-            }
-
-            if(conduitTextureY == "null"){
-              conduitTextureY = getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0]
-            }
-
-            if(intersectors.includes(conduitTextureX)){
-
-              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
-
-              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
-            }else{
-
-              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
-
-              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
-            }
-            continue;
-          }
-          if(self.id == "baseLayer" || self.id == "waterLayer"){
-            var image = this.getTexture(getTile("terrain", row[k])[0])
-          }else{
-            var image = this.getTexture(getTile("tile", row[k])[0])
-          }
-          ctx.drawImage(image, ((k*16)-mapTargetX/8) * 2, ((j*16)-mapTargetY/8) * 2, 32, 32)
-        }
-      }
-    }
-    self.render = false;
-  
-  
-  
-  
-  
-  `],
-  ["layer", "terrain"],
-  ["zindex", 1],
-  ["alpha", 1],
-]);
-game.addTemplate("selector", [
-  ["x", 0],
-  ["y", 0],
-  ["id", "selector"],
-  ["momentumX", 0],
-  ["momentumY", 0],
-  ["width", 32],
-  ["height", 32],
-  ["spriteWidth", 32],
-  ["spriteHeight", 32],
-  ["spriteOffsetX", 0],
-  ["spriteOffsetY", 0],
-  ["rotation", 0],
-  ["movementDelay", 0],
-  ["acceleration", 0],
-  ["controls", "mouse"],
-  ["role", `
-    this.objects[i].movementDelay--
-    if(this.objects[i].movementDelay < -2){
-      this.objects[i].acceleration = 0;
-    }
-    framesElapsed++
-    this.objects[i].alpha = (Math.sin(framesElapsed/8) + 2)/4;
-    if(this.objects[i].controls == "keyboard"){
-      if(key("down") && key("left") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y += 32
-        this.objects[i].x -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("down") && key("right") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y += 32
-        this.objects[i].x += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("up") && key("left") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y -= 32
-        this.objects[i].x -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("up") && key("right") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y -= 32
-        this.objects[i].x += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("down") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("up") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("left") && this.objects[i].movementDelay <= 0){
-        this.objects[i].x -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("right") && this.objects[i].movementDelay <= 0){
-        this.objects[i].x += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-    }else if(self.controls == "mouse"){
-      // self.x = (Math.floor(((this.mouseX/windowScale))/(16))*16) - (scrollX % 16)
-      // self.y = (Math.floor(((this.mouseY/windowScale))/(16))*16) - (scrollY % 16)
-    }
-    if(this.objects[i].x < 0){
-      this.objects[i].x = 0
-    }
-    if(this.objects[i].y < 0){
-      this.objects[i].y = 0
-    }
-    if(this.objects[i].x > 988){
-      this.objects[i].x = 992
-    }
-    if(this.objects[i].y > 608){
-      this.objects[i].y = 608
-    }
-    if(conduitSelected == "facility"){
-
-    }else{
-      self.width = 32
-      self.height = 32
-    }
-    
-  `],
-  ["layer", "main"],
-  ["texture", "selector"],
-  ["zindex", 1],
-  ["alpha", 1],
-]);
-game.window.style.backgroundColor = "aqua"
-game.addTemplate("dynamicOil", [
-  ["x", 0],
-  ["y", 0],
-  ["id", "dynamicOil"],
-  ["momentumX", 0],
-  ["momentumY", 0],
-  ["width", 1024],
-  ["height", 600],
-  ["spriteWidth", 0],
-  ["spriteHeight", 0],
-  ["spriteOffsetX", 0],
-  ["spriteOffsetY", 0],
-  ["droplets", []],
-  ["addDroplet", function(x, y){
-    this.droplets.push([x, y, 8, 1]);
-  }],
-  ["role", `
-    if(framesElapsed % 10 == 1){
-      if(framesElapsed % 60 == 1){
-        game.getObject("dynamicOil").addDroplet(20 + (Math.random()-0.5)*20, 280 + (Math.random()-0.5)*20)
-      }
-      var ctx = game.getLayer("oil").context;
-      game.getLayer("oil").clear()
-      for(var j = 0; j<self.droplets.length; j++){
-        ctx.globalAlpha = self.droplets[j][3];
-        ctx.beginPath();
-        ctx.arc(self.droplets[j][0], self.droplets[j][1], self.droplets[j][2], 0, 2 * Math.PI, false);
-        ctx.fillStyle = 'black';
-        ctx.fill();
-        self.droplets[j][0] += 0.2
-        self.droplets[j][2] += 0.06
-        self.droplets[j][3] -= 0.003
-        if(self.droplets[j][3] < 0.005){
-          self.droplets.splice(j, 1)
-          j--
-        }
-      }
-    }
-  `]
-]);
 
 var tintCanvas = document.createElement("canvas")
 tintCanvas.style.display = "none"
 
+//Tints an image and returns the result
 function tint(texture, color, amount){
   var textureData = game.getTexture(texture)
   tintCanvas.width = textureData.width
@@ -2942,3 +2074,5 @@ function tint(texture, color, amount){
   tintCanvas.getContext("2d").fillRect(0, 0, textureData.width, textureData.height)
   return tintCanvas
 }
+
+//If you still can't find what you are looking for, try the templates.js or main.js files

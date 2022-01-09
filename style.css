@@ -254,3 +254,33 @@ p{
   text-decoration: underline;
   cursor: pointer;
 }
+
+.tooltipRange{
+  position: absolute;
+  border: 2px solid red;
+  width: 20px;
+  height: 20px;
+  z-index: 4;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.tooltipBannerButton{
+  font-family: "Pixellari";
+  width: 252px;
+  padding: 4px;
+  padding-bottom: 0px;
+  margin: 0px;
+  margin-top: -2px;
+  font-size: 24px;
+  text-align: left;
+  border: none;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
+  background-color: rgb(255, 227, 193);
+  transition: background-color 200ms;
+}
+
+.tooltipBannerButton:hover{
+  background-color: rgb(212, 190, 162);
+}

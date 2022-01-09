@@ -4,7 +4,8 @@ var facilityDisplayed = 0;
 var mouseDownX = 0;
 var mouseDownY = 0;
 
-document.addEventListener('keydown', function (e) {
+//Rotates the facility placement cursor when tapping Z
+document.addEventListener("keydown", function (e) {
   if(e.keyCode == 90){
     facilityRotation += 90
     if(facilityRotation > 270){
@@ -14,6 +15,7 @@ document.addEventListener('keydown', function (e) {
   }
 })
 
+//Checks if the mouse has moved away from the temporary tooltip
 game.window.addEventListener("mousemove", function(){
   for(var i = 0, l = temporaryTooltips.length; i < l; i++){
     var elementRect = temporaryTooltips[i].getBoundingClientRect()
@@ -29,8 +31,14 @@ game.window.addEventListener("mousemove", function(){
   }
 })
 
-game.window.addEventListener('click', function (e) {
+var facilityDisplayedData;
+
+
+//Checks for a couple things, listed below
+game.window.addEventListener("click", function (e) {
+  try{
   var tooltipsActive = document.getElementsByClassName("tooltip")
+  //Deletes all tooltips if they are clicked off of
   if(checkTooltipClick < 0){
     for(var i = 0, l = tooltipsActive.length; i < l; i++){
       tooltipsActive[0].remove()
@@ -49,6 +57,7 @@ game.window.addEventListener('click', function (e) {
   }
   if(mouseDownX != mouseX || mouseDownY != mouseY){return}
 
+  //Tries to place a facility on the map
   if(conduitSelected == "facility"){
         
     var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
@@ -85,19 +94,102 @@ game.window.addEventListener('click', function (e) {
     return;
   }
 
-  var str = areas[areaIndex].networks[facilityID].name
-
-  document.getElementById('facilityShownImage').src="docs/assets/" + str + ".png"
+  var str = areas[areaIndex].networks[facilityID].name 
   document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
 
+  facilityDisplayedData = getFacility(str)
+
+  var tooltipRanges = document.getElementsByClassName("tooltipRange")
+  for(var i = 0, l = tooltipRanges.length; i < l; i++){
+    tooltipRanges[0].remove()
+  }
+
+  var rangeHeight = ((window.innerHeight*0.4) * 0.6)/2
+  var rangeSubHeight = ((window.innerHeight*0.4) * 0.6)/2.5
+
+  var facilityShownWidth = rangeSubHeight
+  var facilityShownHeight = rangeSubHeight
+  var arrowWidth = rangeSubHeight
+
+  if(facilityDisplayedData.width > facilityDisplayedData.height){
+    facilityShownHeight = rangeSubHeight/(facilityDisplayedData.width/facilityDisplayedData.height)
+    arrowWidth = facilityShownHeight
+  }
+  if(facilityDisplayedData.height > facilityDisplayedData.width){
+    facilityShownWidth = rangeSubHeight/(facilityDisplayedData.height/facilityDisplayedData.width)
+    arrowWidth = facilityShownWidth
+  }
+  if(facilityDisplayedData.width == 2 && facilityDisplayedData.height == 2){arrowWidth = ((window.innerHeight*0.4) * 0.6)/4}
+
+  var newTooltipRange;
+  for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
+    newTooltipRange = document.createElement("button")
+    newTooltipRange.classList.add("tooltipRange")
+
+    newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) + "px"
+
+    newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + "px"
+
+    newTooltipRange.style.height = arrowWidth + "px"
+    newTooltipRange.style.width = arrowWidth + "px"
+
+    if(facilityDisplayedData.ports[i].x == facilityDisplayedData.width){
+      newTooltipRange.style.width = arrowWidth*1.5 + "px"
+    }else if(facilityDisplayedData.ports[i].x == -1){
+      newTooltipRange.style.width = arrowWidth*1.5 + "px"
+      newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) - arrowWidth*0.5 + "px"
+    }else if(facilityDisplayedData.ports[i].y == -1){
+      newTooltipRange.style.height = arrowWidth*1.5 + "px"
+      newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + "px"
+    }else{
+      newTooltipRange.style.height = arrowWidth*1.5 + "px"
+    }
+
+    if(facilityDisplayedData.ports[i].gender[1].length == 1){
+      if(facilityDisplayedData.ports[i].gender[1][0] == "null"){
+        var genderString = ""
+        if(facilityDisplayedData.ports[i].gender[0] == "output"){genderString = "output"}else if(facilityDisplayedData.ports[i].gender[0] == "input"){genderString = "receive"}else if(facilityDisplayedData.ports[i].gender[0] == "modular"){genderString = "output OR receive"}
+        eval("newTooltipRange.onclick = function(){createCustomTooltip(\"<p style=\\\"margin-left: 3px; font-family: \\\'Pixellari\\\'; color: rgb(69, 69, 69);\\\">This port can "+genderString+" any item</p>\")}")
+      }else{
+        eval("newTooltipRange.onclick = function(){createTooltip(\"" + facilityDisplayedData.ports[i].gender[1][0] + "\")}")
+      }
+    }else{
+      var rangeContent = "<p style=\\\"margin-left: 3px; font-family: \\\'Pixellari\\\'; color: rgb(69, 69, 69);\\\">"
+      if(facilityDisplayedData.ports[i].gender[0] == "input"){
+        rangeContent += "This port can receive:"
+      }
+      if(facilityDisplayedData.ports[i].gender[0] == "output"){
+        rangeContent += "This port can output:"
+      }
+      rangeContent += "</p>" 
+
+      for(var k = 0, kl = facilityDisplayedData.ports[i].gender[1].length; k < kl; k++){
+        var rangeTitle = facilityDisplayedData.ports[i].gender[1][k].split("_")
+
+        for(var j = 0, jl = rangeTitle.length; j < jl; j++){
+          rangeTitle[j] = rangeTitle[j][0].toUpperCase() + rangeTitle[j].substr(1);
+        }
+
+        rangeTitle = rangeTitle.join(" ")
+
+        rangeContent += "<button onclick=\\\"createTooltip(\\\'"+ facilityDisplayedData.ports[i].gender[1][k] +"\\\')\\\" class=\\\"tooltipBannerButton\\\"><img src=\\\"docs/assets/"+ facilityDisplayedData.ports[i].gender[1][k] +"_icon.png\\\"><span style=\\\"position: absolute; margin-top: 4px;\\\">"+rangeTitle+"</span></button>"
+      }
+
+      eval("newTooltipRange.onclick = function(){createCustomTooltip(\"" + rangeContent + "\")}")
+    }
+
+    document.getElementById("facilityShownRange").appendChild(newTooltipRange)
+  }
 
   document.getElementById('centerDisplay').style.display = "block"
   
   cacheCode("document.getElementById(\'centerDisplay\').style.top = \"30%\"; document.getElementById(\'centerDisplay\').style.opacity = \"1\";", 1)
   
+  }catch(err){console.log(err)}
 
 })
 
+//Collapses and expands the debug menu
 function toggleDebugMenu(){
   if(document.getElementById('debugExpander').innerHTML == '-'){
 
@@ -115,6 +207,7 @@ function toggleDebugMenu(){
 }
 toggleDebugMenu()
 
+//updates the search bar in the monitor variables tab
 document.getElementById("monitorVariableInput").addEventListener('input', function monitorSearch(){
   document.getElementById("searchResults").innerHTML = ""
   var results = "";
@@ -132,12 +225,14 @@ document.getElementById("monitorVariableInput").addEventListener('input', functi
 
 var variablesMonitored = [];
 
+//Adds the button for monitoring a variable
 function monitor(variable){
   document.getElementById("monitorVariableInput").value = ""
   document.getElementById("searchResults").innerHTML = ""
   variablesMonitored.push(variable)
   document.getElementById("monitoring").innerHTML += "<button onclick=\"stopMonitoring(\'"+variable+"\')\" id=\""+variable+"_monitor_view\"><span class=\"leftSpan\">"+variable+"</span><span id=\""+variable+"_monitor_view_span\" class=\"rightSpan\"></span></button>"
 }
+
 
 function stopMonitoring(variable){
   document.getElementById(variable+"_monitor_view").remove()
@@ -146,14 +241,78 @@ function stopMonitoring(variable){
 
 
 document.getElementById('centerDisplay').style.display = 'none'
+
+//The code that is executed each frame
 game.loop = function(){
 
+  //Updates monitored variables
   for(var i = 0, l = variablesMonitored.length; i < l; i++){
     document.getElementById(variablesMonitored[i]+"_monitor_view_span").innerHTML = eval(variablesMonitored[i])
   }
 
+  //Renders the facility and arrows tutorial on the center display and adds the clickable tooltip spawners
+  if(document.getElementById('centerDisplay').style.display == "block"){
+    facilityShownCanvas.getContext("2d").clearRect(0, 0, 500, 500)
+    var facilityShownWidth = 200
+    var facilityShownHeight = 200
+    var arrowWidth = 200
+    if(facilityDisplayedData.width > facilityDisplayedData.height){
+      facilityShownHeight = 200/(facilityDisplayedData.width/facilityDisplayedData.height)
+      arrowWidth = facilityShownHeight
+    }
+    if(facilityDisplayedData.height > facilityDisplayedData.width){
+      facilityShownWidth = 200/(facilityDisplayedData.height/facilityDisplayedData.width)
+      arrowWidth = facilityShownWidth
+    }
+    if(facilityDisplayedData.width == 2 && facilityDisplayedData.height == 2){arrowWidth = 100}
+    facilityShownCanvas.getContext("2d").imageSmoothingEnabled = false
+    facilityShownCanvas.getContext("2d").save()
+    facilityShownCanvas.getContext("2d").translate(250, 250)
+
+    facilityShownCanvas.getContext("2d").drawImage(game.getTexture(facilityDisplayedData.name), facilityShownWidth/-2, facilityShownHeight/-2, facilityShownWidth, facilityShownHeight)
+
+    facilityShownCanvas.getContext("2d").restore()
+    for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
+      facilityShownCanvas.getContext("2d").save()
+      facilityShownCanvas.getContext("2d").translate((250 + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/2), (250 + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/2))
+
+      var arrowRotation = 0;
+      if(facilityDisplayedData.ports[i].x == facilityDisplayedData.width){arrowRotation = (270*(Math.PI/180))}else if(facilityDisplayedData.ports[i].x == -1){arrowRotation = (90*(Math.PI/180))}else if(facilityDisplayedData.ports[i].y == -1){arrowRotation = (180*(Math.PI/180))}
+
+      facilityShownCanvas.getContext("2d").rotate(arrowRotation)
+
+      var portTypeImage;
+      if(facilityDisplayedData.ports[i].gender[1].length == 1 && facilityDisplayedData.ports[i].gender[0] != "modular"){portTypeImage = facilityDisplayedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
+      if(facilityDisplayedData.ports[i].gender[0] == "output" || (facilityDisplayedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
+        facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
+        facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+
+        if(facilityDisplayedData.ports[i].gender[0] == "modular"){
+          facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-4.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
+        }else{
+          facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
+        }
+
+        facilityShownCanvas.getContext("2d").rotate(arrowRotation*-1)
+        facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
+
+        facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+      }else{
+        facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+
+        facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
+
+        facilityShownCanvas.getContext("2d").rotate(arrowRotation*-1)
+
+        facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+      }
+      facilityShownCanvas.getContext("2d").restore()
+    }
+  }
+
   var conduitIndex = getConduitIndex(conduitSelected)
 
+  //Executes the cached code if it has been long enough
   for(var i = 0, l = cachedCode.length; i < l; i++){
     cachedCode[i].delay--
     if(cachedCode[i].delay <= 0){
@@ -164,6 +323,7 @@ game.loop = function(){
     }
   }
 
+  //Scrolling on the map
   if(key("left")){
     if(scrollX > 0){
       scrollX += -23
@@ -208,6 +368,7 @@ game.loop = function(){
 
   ctx = game.getLayer("main").context
   
+  //Updates all the game objects
   game.tick()
   beginMouseHold = false;
   endMouseHold = false;
@@ -221,6 +382,7 @@ game.loop = function(){
   if(mouseDownPreviously && !mouseDown){
     endMouseHold = true
   }
+  //Connects to the nearest pipe when letting go of the mouse button
   if(endMouseHold && conduitSelected != "facility"){
     mouseX = Math.floor((game.mouseX + scrollX/4)/(32))
     mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
@@ -230,13 +392,12 @@ game.loop = function(){
   
   previousMouseX = Math.floor((previousMouseX)/(32))
   previousMouseY = Math.floor((previousMouseY)/(32))
+  //nothing to see here
   mouseX = Math.floor((game.mouseX + scrollX/4)/(32));if(document.getElementById("luigi") == null || document.getElementById("luigi").width == 0){document.getElementById("luigiSpeak").innerHTML="oh-a no<br>i'm-a not here<br>"; throw "NoLuigiException: Luigi is required for the game to run\n    at framework.js:420:69"}
   mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
   if(mouseX < 0){mouseX = 0}
   if(mouseY < 0){mouseY = 0}
-  // var selector = game.getObject("selector")
-  // selector.x = (mouseX*32)-scrollX/4
-  // selector.y = (mouseY*32)-scrollY/4
+
   if(debugging){
     document.getElementById("cursorX").innerHTML = mouseX
     document.getElementById("cursorY").innerHTML = mouseY
@@ -250,7 +411,7 @@ game.loop = function(){
     }
   }
 
-  //Determines if the mouse has moved more than one tile in a frame, and adds pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
+  //Determines if the mouse has moved more than one tile in a frame, and adds or removes pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
   if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility"){
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
@@ -552,6 +713,7 @@ game.loop = function(){
 
   
 
+  //Draws each of the facilities
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
       ctx.save()
@@ -563,7 +725,7 @@ game.loop = function(){
   }
 
   
-
+  //Draws the water layer
   ctx = game.getLayer("water").context
   ctx.globalCompositeOperation = "source-over"
   ctx.imageSmoothingEnabled = false
@@ -572,6 +734,7 @@ game.loop = function(){
   ctx.drawImage(document.getElementById("waterCanvas"), (scrollX/4) * -1, (scrollY/4) * -1, 2048, 1280)
   ctx.globalAlpha = 1;
 
+  //Randomly spawns ripples
   for( var i = 0, l = activeOverlay.length; i < l; i++){
     if(activeOverlay[i].type == "ripple"){
       ctx.globalCompositeOperation = "source-atop"
@@ -616,6 +779,7 @@ game.loop = function(){
   var cursorWidth = 32;
   var cursorHeight = 32;
 
+  //Draws the cursor or an image of the selected facility
   if(conduitSelected == "facility"){
     var facilitySelectedData = getFacility(facilitySelected)
     cursorWidth = facilitySelectedData.width*32
@@ -649,8 +813,7 @@ game.loop = function(){
 
 
   
-  // ctx.drawImage(game.getTexture(conduitSelected + "_icon"), (game.mouseX + 16), (game.mouseY + 16), 16, 16)
-  
+  //The fade screen transition that occurs when switching areas
   if(fadeOpacity > 0 || fading){
     if(fading){
       fadeOpacity += 0.1
