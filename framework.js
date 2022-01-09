@@ -223,6 +223,8 @@ game.addTexture("pipe_corner", "docs/assets/pipe_corner.png")
 game.addTexture("ship", "docs/assets/ship.png")
 game.addTexture("tank", "docs/assets/tank.png")
 game.addTexture("valve", "docs/assets/valve.png")
+game.addTexture("t_valve_left", "docs/assets/t_valve_left.png")
+game.addTexture("t_valve_right", "docs/assets/t_valve_right.png")
 game.addTexture("warehouse", "docs/assets/warehouse.png")
 game.addTexture("refinery", "docs/assets/refinery.png")
 game.addTexture("distiller", "docs/assets/distiller.png")
@@ -341,6 +343,7 @@ function loadArea(id){
       areas[i].baseLayer = game.getObject("baseLayer").mapData
       areas[i].waterLayer = game.getObject("waterLayer").mapData
       areas[i].activeLayer = game.getObject("activeLayer").mapData
+      areas[i].overlay = activeOverlay
     }
   }
   for(var i = 0, l = areas.length; i < l; i++){
@@ -350,6 +353,7 @@ function loadArea(id){
       game.getObject("baseLayer").mapData = areas[i].baseLayer
       game.getObject("waterLayer").mapData = areas[i].waterLayer
       game.getObject("activeLayer").mapData = areas[i].activeLayer
+      activeOverlay = areas[i].overlay
     }
   }
   game.getObject('baseLayer').render = true;
@@ -439,13 +443,14 @@ function lg(expression){
   
 }
 
-function Area(name, baseLayer, waterLayer, activeLayer, networks, links){
+function Area(name, baseLayer, waterLayer, activeLayer, networks, links, overlay){
   this.name = name;
   this.baseLayer = baseLayer;
   this.waterLayer = waterLayer;
   this.activeLayer = activeLayer;
   this.networks = networks;
   this.links = links;
+  this.overlay = overlay;
 }
 
 function Network(name, rotation, points, data, index){
@@ -581,6 +586,8 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_tank" savestate="352px" style="left: 352px;" class="hotbarButton" onclick="selectPlaceable('tank')"><img class="clickityElement" src="docs/assets/tank.png"></button>
 
+<button id="hotbar_t_valve" savestate="440px" style="left: 440px;" class="hotbarButton" onclick="selectPlaceable('t_valve')"><img class="clickityElement" src="docs/assets/t_valve_left.png"></button>
+
 </div>
 
 
@@ -711,15 +718,17 @@ var centerDisplay = document.createElement('div')
 centerDisplay.id = "centerDisplay"
 
 centerDisplay.innerHTML = `
-<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)" style='width: 10%; padding-top: 10%; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
+<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
 
 <div id="facilityShownRange">
-<canvas id="facilityShownCanvas" width="500" height="500" style="height: 60%; border: 1px solid black; position: absolute; top: 1%; left: 1%; background-color: rgb(100, 100, 133)"></canvas>
+<canvas id="facilityShownCanvas" width="500" height="500" style="width: 30%; border: 1px solid black; position: absolute; top: 6vh; left: 1%; background-color: rgb(100, 100, 133)"></canvas>
 </div>
 
-<p id="facilityShown" style="font-family: \'Pixellari\'; font-size: 32px; margin-left: 37%; margin-top: 2%;">Refinery</p>
+<p id="facilityShown" style="font-family: \'Pixellari\'; font-size: 6vh; margin-top: 0%; position: absolute;">Refinery</p>
 
-<p id="facilityShownResources" style="font-family: \'Pixellari\'; font-size: 24px; margin-left: 37%; margin-top: -1%;">Oil: 100</p>
+<p id="facilityShownDescription" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 6vh; color: rgb(69, 69, 69)"></p>
+
+<p id="facilityShownResources" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: -1%;"></p>
 
 
 `

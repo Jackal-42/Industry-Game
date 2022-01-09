@@ -32,7 +32,7 @@ game.window.addEventListener("mousemove", function(){
 })
 
 var facilityDisplayedData;
-
+var facilityDisplayedIndex;
 
 //Checks for a couple things, listed below
 game.window.addEventListener("click", function (e) {
@@ -94,18 +94,39 @@ game.window.addEventListener("click", function (e) {
     return;
   }
 
+  if(areas[areaIndex].networks[facilityID].name == "t_valve"){
+    if(areas[areaIndex].networks[facilityID].data.direction == "left"){
+      areas[areaIndex].networks[facilityID].data.direction = "right"
+    }else{
+      areas[areaIndex].networks[facilityID].data.direction = "left"
+    }
+    return;
+  }
+
   var str = areas[areaIndex].networks[facilityID].name 
   document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
 
   facilityDisplayedData = getFacility(str)
+  facilityDisplayedIndex = facilityID
+
+  try{
+    document.getElementById('facilityShownDescription').innerHTML = ""
+    for(var i = 0, l = tooltips.length; i < l; i++){
+      if(tooltips[i].name == "hotbar_" + facilityDisplayedData.name)
+      document.getElementById('facilityShownDescription').innerHTML = tooltips[i].text
+    }
+
+
+    
+  }catch{}
 
   var tooltipRanges = document.getElementsByClassName("tooltipRange")
   for(var i = 0, l = tooltipRanges.length; i < l; i++){
     tooltipRanges[0].remove()
   }
 
-  var rangeHeight = ((window.innerHeight*0.4) * 0.6)/2
-  var rangeSubHeight = ((window.innerHeight*0.4) * 0.6)/2.5
+  var rangeHeight = ((window.innerWidth*0.4) * 0.3)/2
+  var rangeSubHeight = ((window.innerWidth*0.4) * 0.3)/2.5
 
   var facilityShownWidth = rangeSubHeight
   var facilityShownHeight = rangeSubHeight
@@ -128,7 +149,7 @@ game.window.addEventListener("click", function (e) {
 
     newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) + "px"
 
-    newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + "px"
+    newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 + "px"
 
     newTooltipRange.style.height = arrowWidth + "px"
     newTooltipRange.style.width = arrowWidth + "px"
@@ -140,7 +161,7 @@ game.window.addEventListener("click", function (e) {
       newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) - arrowWidth*0.5 + "px"
     }else if(facilityDisplayedData.ports[i].y == -1){
       newTooltipRange.style.height = arrowWidth*1.5 + "px"
-      newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + "px"
+      newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + ((window.innerHeight*0.9)/100)*6 + "px"
     }else{
       newTooltipRange.style.height = arrowWidth*1.5 + "px"
     }
@@ -492,6 +513,18 @@ game.loop = function(){
           isModular2 = true;
         }
 
+        if(facility1.name == "t_valve"){
+          if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].direction != facility1.data.direction && facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].direction != "center"){
+            continue;
+          }
+        }
+
+        if(facility2.name == "t_valve"){
+          if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].direction != facility2.data.direction && facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].direction != "center"){
+            continue;
+          }
+        }
+
         if(isModular1 && isModular2){
 
           //Tank-to-tank tranfer makes the contents of two tanks evenly distributed
@@ -630,14 +663,14 @@ game.loop = function(){
 
             var movingItems = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1]
 
-            if(isModular1){
+            if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null"){
               movingItems = fluids.slice()
             }
             for(var j = 0, jl = movingItems.length; j < jl; j++){
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
                 continue;
               }
-              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !isModular2){continue}
+              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){continue}
               var amountTransferred = 1;
               if(facility1.name == "valve"){
                 facility1.data.outputCheck++
@@ -663,7 +696,7 @@ game.loop = function(){
 
             var movingItems = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1]
 
-            if(isModular2){
+            if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null"){
               movingItems = fluids.slice()
             }
 
@@ -671,7 +704,7 @@ game.loop = function(){
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
               }
-              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !isModular1){continue}
+              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){continue}
 
               var amountTransferred = 1;
               if(facility2.name == "valve"){
@@ -701,15 +734,25 @@ game.loop = function(){
         }
       }
     }
-  }
 
-  try{
-    document.getElementById('facilityShownResources').innerHTML = ""
-    for(var i = 0, l = Object.keys(areas[areaIndex].networks[facilityDisplayed].data).length; i < l; i++){
-      document.getElementById('facilityShownResources').innerHTML += Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i].capitalize() + ": " + eval("areas[areaIndex].networks[facilityDisplayed].data." + Object.keys(areas[areaIndex].networks[facilityDisplayed].data)[i]) + "<br>"
-    }
-    
-  }catch{}
+
+
+    try{
+      if(facilityDisplayedData.name == "tank"){
+        var str = areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem.split("_")
+
+        for(var j = 0, jl = str.length; j < jl; j++){
+          str[j] = str[j][0].toUpperCase() + str[j].substr(1);
+        }
+
+        str = str.join(" ")
+
+
+
+        document.getElementById('facilityShownResources').innerHTML = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+ areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem +"\')\">" + str + "</span>: " + eval("areas[areaIndex].networks[facilityDisplayedIndex].data." + areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem)
+      }
+    }catch(err){}
+  }
 
   
 
@@ -719,7 +762,16 @@ game.loop = function(){
       ctx.save()
       ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
       ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
-      ctx.drawImage(game.getTexture(areas[areaIndex].networks[i].name), -16, -16, game.getTexture(areas[areaIndex].networks[i].name).width * 2, game.getTexture(areas[areaIndex].networks[i].name).height * 2)
+      var facilityTextureName = areas[areaIndex].networks[i].name
+      if(areas[areaIndex].networks[i].name == "t_valve"){
+        if(areas[areaIndex].networks[i].data.direction == "left"){
+          facilityTextureName = "t_valve_left"
+        }else{
+          facilityTextureName = "t_valve_right"
+        }
+      }
+      var facilityTexture = game.getTexture(facilityTextureName)
+      ctx.drawImage(facilityTexture, -16, -16, facilityTexture.width * 2, facilityTexture.height * 2)
       ctx.restore()
     }
   }
@@ -797,10 +849,17 @@ game.loop = function(){
         validPlot = false;
       }
     }
+
+    var facilitySelectedTexture = facilitySelected
+
+    if(facilitySelectedData.name == "t_valve"){
+      facilitySelectedTexture = "t_valve_left"
+    }
+
     if(validPlot){
-      ctx.drawImage(game.getTexture(facilitySelected), -16, -16, cursorWidth, cursorHeight)
+      ctx.drawImage(game.getTexture(facilitySelectedTexture), -16, -16, cursorWidth, cursorHeight)
     }else{
-      ctx.drawImage( tint( facilitySelected, "red", 0.5), -16, -16, cursorWidth, cursorHeight)
+      ctx.drawImage( tint( facilitySelectedTexture, "red", 0.5), -16, -16, cursorWidth, cursorHeight)
     }
     
     
@@ -809,7 +868,7 @@ game.loop = function(){
     ctx.fillRect((mouseX*32)-scrollX/4, (mouseY*32)-scrollY/4, cursorWidth, cursorHeight)
   }
 
-  ctx = game.getLayer("main").context
+  ctx = game.getLayer("water").context
 
 
   
@@ -824,7 +883,9 @@ game.loop = function(){
       fading = false;
       eval(evalOnFade)
       evalOnFade = ""
+      fadeOpacity = 1
     }
+    
     
     if(fadeOpacity > 0){
       ctx.globalAlpha = fadeOpacity

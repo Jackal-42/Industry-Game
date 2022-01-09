@@ -106,7 +106,7 @@ var tempMap = sanitizeMap([
   "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"])
 
 areas.push(new Area("shore", tempMap.ground,
-tempMap.water, emptyLayer.slice(), [], []));
+tempMap.water, emptyLayer.slice(), [], [], []));
 
 game.getObject("baseLayer").mapData = areas[0].baseLayer
 game.getObject("activeLayer").mapData = areas[0].activeLayer
@@ -138,7 +138,7 @@ tempMap = sanitizeMap([
   "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
   "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"])
 areas.push(new Area("island", tempMap.ground,
-tempMap.water, emptyLayer.slice(), [], []));
+tempMap.water, emptyLayer.slice(), [], [], []));
 
 
 

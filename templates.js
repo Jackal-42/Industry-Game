@@ -438,6 +438,44 @@ var facilities = [
   },
 
   {
+    name: "t_valve",
+    width: 1,
+    height: 1,
+    maxItems: 4,
+    storage: fluids.slice(),
+    data: [["direction", "\"left\""]],
+    layout: [[0, 0]],
+    process: function(me){
+      
+    },
+    ports: [
+      {
+        x: 1,
+        y: 0,
+        direction: "right",
+        conduit: "pipe",
+        gender: ["output", ["null"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        direction: "center",
+        conduit: "pipe",
+        gender: ["input", ["null"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        direction: "left",
+        conduit: "pipe",
+        gender: ["output", ["null"]],
+      },
+    ],
+  },
+
+  {
     name: "crude_source",
     width: 1,
     height: 1,
@@ -564,6 +602,12 @@ var tooltips = [
     name: "hotbar_valve",
     title: "Valve",
     text: "Used to split an input into multiple outputs or merge multiple inputs into one output"
+  },
+
+  {
+    name: "hotbar_t_valve",
+    title: "T-Valve",
+    text: "The arrow on top determines which way the items fed into the bottom will flow. Click on it to flip it"
   },
 
   {
