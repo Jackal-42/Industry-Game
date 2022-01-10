@@ -225,6 +225,7 @@ game.addTexture("tank", "docs/assets/tank.png")
 game.addTexture("valve", "docs/assets/valve.png")
 game.addTexture("t_valve_left", "docs/assets/t_valve_left.png")
 game.addTexture("t_valve_right", "docs/assets/t_valve_right.png")
+game.addTexture("one_way_pipe", "docs/assets/one_way_pipe.png")
 game.addTexture("warehouse", "docs/assets/warehouse.png")
 game.addTexture("refinery", "docs/assets/refinery.png")
 game.addTexture("distiller", "docs/assets/distiller.png")
@@ -587,6 +588,8 @@ hotbarMenu.innerHTML = `
 <button id="hotbar_tank" savestate="352px" style="left: 352px;" class="hotbarButton" onclick="selectPlaceable('tank')"><img class="clickityElement" src="docs/assets/tank.png"></button>
 
 <button id="hotbar_t_valve" savestate="440px" style="left: 440px;" class="hotbarButton" onclick="selectPlaceable('t_valve')"><img class="clickityElement" src="docs/assets/t_valve_left.png"></button>
+
+<button id="hotbar_one_way_pipe" savestate="528px" style="left: 528px;" class="hotbarButton" onclick="selectPlaceable('one_way_pipe')"><img class="clickityElement" src="docs/assets/one_way_pipe.png"></button>
 
 </div>
 

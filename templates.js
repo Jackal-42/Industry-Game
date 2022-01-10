@@ -476,6 +476,34 @@ var facilities = [
   },
 
   {
+    name: "one_way_pipe",
+    width: 1,
+    height: 1,
+    maxItems: 2,
+    storage: fluids.slice(),
+    data: [],
+    layout: [[0, 0]],
+    process: function(me){
+      
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["output", ["null"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["null"]],
+      },
+    ],
+  },
+
+  {
     name: "crude_source",
     width: 1,
     height: 1,
@@ -608,6 +636,12 @@ var tooltips = [
     name: "hotbar_t_valve",
     title: "T-Valve",
     text: "The arrow on top determines which way the items fed into the bottom will flow. Click on it to flip it"
+  },
+
+  {
+    name: "hotbar_one_way_pipe",
+    title: "One-Way Pipe",
+    text: "Can be placed at any point along the length of a pipe segment to limit flow to the direction of the arrows"
   },
 
   {

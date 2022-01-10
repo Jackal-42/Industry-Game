@@ -102,6 +102,9 @@ game.window.addEventListener("click", function (e) {
     }
     return;
   }
+  if(areas[areaIndex].networks[facilityID].name == "one_way_pipe"){
+    return;
+  }
 
   var str = areas[areaIndex].networks[facilityID].name 
   document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
