@@ -7,8 +7,6 @@
   * Ships / Boats / Tankers
   * Semitruck
   * Train
-* Regulate coal production
-  * Coal amount -> temperature -> what you get
 * Cities
   * Refinery nearby causes urban sprawl (?)
   * Different prices with cities
