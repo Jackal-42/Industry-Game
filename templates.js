@@ -10,6 +10,7 @@ var facilities = [
     width: 1,
     height: 2,
     maxItems: 2,
+    pseudoPipe: false,
     storage: ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue"],
     layout: [[0, 0], [0, 1]],
     process: function(me){
@@ -69,6 +70,7 @@ var facilities = [
     width: 1,
     height: 2,
     maxItems: 2,
+    pseudoPipe: false,
     storage: ["residue", "light_oil", "heavy_oil"],
     layout: [[0, 0], [0, 1]],
     process: function(me){
@@ -126,6 +128,7 @@ var facilities = [
     width: 1,
     height: 2,
     maxItems: 2,
+    pseudoPipe: false,
     storage: ["crude_vapor", "crude_propane", "crude_butane"],
     layout: [[0, 0], [0, 1]],
     process: function(me){
@@ -183,6 +186,7 @@ var facilities = [
     width: 2,
     height: 1,
     maxItems: 1,
+    pseudoPipe: false,
     storage: ["hydrogen", "crude_vapor", "crude_kerosene", "crude_naphtha", "vapor", "kerosene", "naphtha"],
     layout: [[0, 0], [1, 0]],
     process: function(me){
@@ -262,6 +266,7 @@ var facilities = [
     width: 2,
     height: 4,
     maxItems: 256,
+    pseudoPipe: false,
     storage: ["vapor", "kerosene", "naphtha"],
     layout: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
     process: function(me){
@@ -322,6 +327,7 @@ var facilities = [
     width: 2,
     height: 2,
     maxItems: 20,
+    pseudoPipe: false,
     storage: fluids.slice(),
     data: [["storedItem", 0]],
     layout: [[0, 0], [0, 1], [1, 0], [1, 1]],
@@ -394,6 +400,7 @@ var facilities = [
     width: 1,
     height: 1,
     maxItems: 4,
+    pseudoPipe: true,
     storage: fluids.slice(),
     data: [["outputs", 0], ["outputCheck", 0], ["inputs", 0], ["inputCheck", 0], ["storedItem", 0], ["canDistribute", false]],
     layout: [[0, 0]],
@@ -442,6 +449,7 @@ var facilities = [
     width: 1,
     height: 1,
     maxItems: 4,
+    pseudoPipe: true,
     storage: fluids.slice(),
     data: [["direction", "\"left\""]],
     layout: [[0, 0]],
@@ -480,6 +488,7 @@ var facilities = [
     width: 1,
     height: 1,
     maxItems: 2,
+    pseudoPipe: true,
     storage: fluids.slice(),
     data: [],
     layout: [[0, 0]],
@@ -508,6 +517,7 @@ var facilities = [
     width: 1,
     height: 1,
     maxItems: 4,
+    pseudoPipe: false,
     storage: ["crude_oil"],
     layout: [[0, 0]],
     process: function(me){me.data.crude_oil = 4},
@@ -547,6 +557,7 @@ var facilities = [
     width: 1,
     height: 1,
     maxItems: 4,
+    pseudoPipe: false,
     storage: ["hydrogen"],
     layout: [[0, 0]],
     process: function(me){me.data.hydrogen = 4},
@@ -640,7 +651,7 @@ var tooltips = [
 
   {
     name: "hotbar_one_way_pipe",
-    title: "One-Way Pipe",
+    title: "One-Way Pump",
     text: "Can be placed at any point along the length of a pipe segment to limit flow to the direction of the arrows"
   },
 
@@ -710,6 +721,32 @@ var tooltips = [
     text: "This gas is used by the <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> to bring the impurities out of other oils and gases"
   },
   
+]
+
+var corporations = [
+  {
+    name: "Pebblefellow Industries",
+    worth: 10000,
+    shares: 1000,
+    playerShares: 1000,
+    owned: true,
+  },
+
+  {
+    name: "Western Gas & Oil",
+    worth: 25000,
+    shares: 1500,
+    playerShares: 0,
+    owned: false,
+  },
+
+  {
+    name: "Robtech Corporation",
+    worth: 300000,
+    shares: 4000,
+    playerShares: 0,
+    owned: false,
+  },
 ]
 
 //World Maps are 32 x 20

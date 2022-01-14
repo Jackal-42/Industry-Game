@@ -79,10 +79,6 @@ img {
   box-shadow: 2px 2px 4px #333333;
 }
 
-#menus{
-  
-}
-
 p{
   margin: 0;
   font-family: monospace;
@@ -283,4 +279,19 @@ p{
 
 .tooltipBannerButton:hover{
   background-color: rgb(212, 190, 162);
+}
+
+.upgradeButton{
+  font-family: "Pixellari";
+  width: 75%;
+  margin-left: 20%;
+  margin-top: 0.5%;
+  height: 5vw;
+  background-color: rgb(160, 160, 170);
+  border: 1px solid black;
+  transition: background-color 200ms;
+}
+
+.upgradeButton:hover{
+  background-color: rgb(180, 180, 200);
 }

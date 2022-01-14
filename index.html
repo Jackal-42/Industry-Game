@@ -9,7 +9,7 @@
   </head>
   <body>
     <p></p>
-    <div id="debug" style="position: absolute; height: 400px; width: 250px; border: 1px solid #424242; background-color: lightgray; top: 1%; right: 1%; z-index: 9; overflow: scroll; resize: vertical; user-select: none; cursor: default;">
+    <div id="debug" style="position: absolute; height: 400px; width: 250px; border: 1px solid #424242; background-color: lightgray; top: 1%; right: 70%; z-index: 9; overflow: scroll; resize: vertical; user-select: none; cursor: default;">
       <p id="debugHeader" style="background-color: gray; width: 100%; text-align: center; cursor: move; padding-bottom: 6px; padding-top: 6px;">Debug<button id="debugExpander" style="position: absolute; right: 3px; top: 3px;" onclick="toggleDebugMenu()">-</button></p>
       <div style="height: 92%;" id="menus">
         <p class="selector" onclick="toggleMenu('mouseInfo')"><span id="mouseInfoArrow">ᐳ </span>General</p>
@@ -61,7 +61,7 @@
     
     <div id="load">
       <div class="loader"></div>
-      <p class="loadText">Loading</p>
+      <p id="loadText" class="loadText">Loading</p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="JackalScript/core.js"></script>

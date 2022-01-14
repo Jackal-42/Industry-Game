@@ -12,6 +12,7 @@ var mouseDown = false;
 game.addLayer("oil")
 game.getLayer("oil").clearFrames = false;
 game.addLayer("terrain")
+game.getLayer("terrain").canvas.getContext("2d").imageSmoothingEnabled = false
 game.getLayer("terrain").clearFrames = false;
 
 game.addLayer("main")
@@ -338,7 +339,8 @@ function cacheCode(data, delay){
 
 //Changes the area of the map and hides it with a fade
 function loadArea(id){
-
+  scrollX = 0;
+  scrollY = 0;
   for(var i = 0, l = areas.length; i < l; i++){
     if(areas[i].name == areaLoaded){
       areas[i].baseLayer = game.getObject("baseLayer").mapData
@@ -454,11 +456,12 @@ function Area(name, baseLayer, waterLayer, activeLayer, networks, links, overlay
   this.overlay = overlay;
 }
 
-function Network(name, rotation, points, data, index){
+function Network(name, rotation, points, data, pseudoPipe, index){
   this.name = name;
   this.rotation = rotation;
   this.points = points;
   this.data = data;
+  this.pseudoPipe = pseudoPipe;
   this.index = index;
 }
 
@@ -562,6 +565,15 @@ function selectPlaceable(id){
   if(id == "erase"){
     conduitSelected = "erase"
   }
+}
+
+function rotate(cx, cy, x, y, angle) {
+  var radians = (Math.PI / 180) * angle,
+    cos = Math.cos(radians),
+    sin = Math.sin(radians),
+    nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+    ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+  return [Math.round(nx), Math.round(ny)];
 }
 
 //The hotbar menu
@@ -702,7 +714,26 @@ rightMenu.id = "slideMenuRight"
 
 rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'96%\'){document.getElementById(\'slideMenuRight\').style.left = \'70%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'96%\'}\"> <img src=\"docs/assets/pipe_x.png\" style=\"width: 90%;\"> </button>
 
-<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 15%;\">UPGRADES<br><br>Political stuff, research stuff, and assorted options will go here, kinda like the main menu.</p>
+<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 20%; width: 75%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">UPGRADES<br><br>
+<div id="upgrades" style="margin-top: -4%; height: 16vw;">
+
+
+<button class="upgradeButton">test1</button>
+
+<button class="upgradeButton">test2</button>
+
+<button class="upgradeButton">test3</button>
+
+
+</div>
+
+
+<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 20%; width: 75%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">STOCK MARKET<br><br>
+
+<div id="stockMarket">
+
+
+</div>
 
 
 `
@@ -714,6 +745,13 @@ var fundsDisplay = document.createElement('div')
 fundsDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white;\">Funds: $<span id=\"funds\">0</span> </p>`
 
 game.window.appendChild(fundsDisplay)
+
+
+var rotationDisplay = document.createElement('div')
+
+rotationDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; text-align: center; bottom: 0px; left: 16px; user-select: none; color: white;\">R: Rotate Facility</p>`
+
+game.window.appendChild(rotationDisplay)
 
 
 
@@ -731,7 +769,7 @@ centerDisplay.innerHTML = `
 
 <p id="facilityShownDescription" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 6vh; color: rgb(69, 69, 69)"></p>
 
-<p id="facilityShownResources" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: -1%;"></p>
+<p id="facilityShownResources" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 1%;"></p>
 
 
 `
@@ -1359,6 +1397,7 @@ function addPipeNetwork(endPoints){
   
 
   if(facilityIDs[1] != undefined){
+    console.log("e")
     facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
     facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
     facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
@@ -1381,48 +1420,141 @@ function addPipeNetwork(endPoints){
         facility2TemplateID = i
       }
     }
-    var rotatedEndPoints = [[0, 0], [0, 0]]
-
-    if(getNetwork(areaIndex, facilityIDs[0]).rotation == 90){
-      rotatedEndPoints[0] = [facility1X + (endPoints[0][1] - facility1Y), facility1Y - (facility1X-endPoints[0][0])]
-    }else if(getNetwork(areaIndex, facilityIDs[0]).rotation == 180){
-      rotatedEndPoints[0] = [facility1X + ((endPoints[0][0] - facility1X) * -1), facility1Y + ((endPoints[0][1] - facility1Y) * -1)]
-    }else if(getNetwork(areaIndex, facilityIDs[0]).rotation == 270){
-      rotatedEndPoints[0] = [facility1X - (endPoints[0][1] - facility1Y), facility1Y + (facility1X-endPoints[0][0])]
-    }else{
-      rotatedEndPoints[0] = [endPoints[0][0], endPoints[0][1]]
-    }
 
 
-    if(getNetwork(areaIndex, facilityIDs[1]).rotation == 90){
-      rotatedEndPoints[1] = [facility2X + (endPoints[1][1] - facility2Y), facility2Y + (facility2X-endPoints[1][0])]
-    }else if(getNetwork(areaIndex, facilityIDs[1]).rotation == 180){
-      rotatedEndPoints[1] = [facility2X + ((endPoints[1][0] - facility2X) * -1), facility2Y + ((endPoints[1][1] - facility2Y) * -1)]
-    }else if(getNetwork(areaIndex, facilityIDs[1]).rotation == 270){
-      rotatedEndPoints[1] = [facility2X - (endPoints[1][1] - facility2Y), facility2Y - (facility2X-endPoints[1][0])]
-    }else{
-      rotatedEndPoints[1] = [endPoints[1][0], endPoints[1][1]]
-    }
+    var rotatedEndPoints = [rotate(facility1X, facility1Y, endPoints[0][0], endPoints[0][1], getNetwork(areaIndex, facilityIDs[0]).rotation), rotate(facility2X, facility2Y, endPoints[1][0], endPoints[1][1], getNetwork(areaIndex, facilityIDs[1]).rotation)]
 
-
-
-    
+    // var rotatedEndPoints = endPoints.slice()
+    var rotatedPorts = []
 
     for(var c = 0, cl = facilities[facility1TemplateID].ports.length; c < cl; c++){
-      if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + facilities[facility1TemplateID].ports[c].x == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + facilities[facility1TemplateID].ports[c].y == rotatedEndPoints[0][1]){
+      rotatedPorts.push(rotate(0, 0, facilities[facility1TemplateID].ports[c].x, facilities[facility1TemplateID].ports[c].y, 0))
+    }
+
+    for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+      console.log(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0])
+      console.log(endPoints[0][0])
+      console.log(getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1])
+      console.log(endPoints[0][1])
+      console.log("")
+
+      if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[0][1]){
         facility1PortIndex = c
       }
     }
 
+    var rotatedPorts = []
+
     for(var c = 0, cl = facilities[facility2TemplateID].ports.length; c < cl; c++){
-      if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + facilities[facility2TemplateID].ports[c].x == rotatedEndPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + facilities[facility2TemplateID].ports[c].y == rotatedEndPoints[1][1]){
+      rotatedPorts.push(rotate(0, 0, facilities[facility2TemplateID].ports[c].x, facilities[facility2TemplateID].ports[c].y, 0))
+    }
+
+    for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+      if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[1][1]){
         facility2PortIndex = c
       }
     }
 
+
+
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
-    areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, networkTotal))
+    areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
+  }
+
+  updateNetworkLog()
+
+}
+
+//A modified variant of the addPipeNetwork() function which does not require a pipe segment, used for adjacent pipe-like facilities
+function addGhostNetwork(endPoints, connectionPoints){
+  var facility1X = endPoints[0][0]
+  var facility1Y = endPoints[0][1]
+  var facility2X = endPoints[1][0]
+  var facility2Y = endPoints[1][1]
+
+  var facility1String = JSON.stringify([facility1X, facility1Y])
+  var facility2String = JSON.stringify([facility2X, facility2Y])
+  var facilityIDs = [];
+
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name != "pipeSegment"){
+      var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
+      if(areaString.includes(facility1String)){
+        facilityIDs.push(areas[areaIndex].networks[i].index)
+      }
+    }
+  }
+
+
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name != "pipeSegment"){
+      var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
+      if(areaString.includes(facility2String)){
+        facilityIDs.push(areas[areaIndex].networks[i].index)
+      }
+    }
+  } 
+
+  if(facilityIDs[1] != undefined){
+    if(getNetwork(areaIndex, facilityIDs[0]).pseudoPipe == false && getNetwork(areaIndex, facilityIDs[1]).pseudoPipe == false){
+      return
+    }
+    facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
+    facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
+    facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
+    facility2Y = getNetwork(areaIndex, facilityIDs[1]).points[0][1]
+
+
+    networkTotal++
+
+    var facility1PortIndex = 0;
+    var facility2PortIndex = 0;
+    var facility1TemplateID = 0;
+    var facility2TemplateID = 0;
+    
+    for(var i = 0, l = facilities.length; i < l; i++){
+      if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
+        facility1TemplateID = i
+      }
+
+      if(facilities[i].name == getNetwork(areaIndex, facilityIDs[1]).name){
+        facility2TemplateID = i
+      }
+    }
+    var rotatedEndPoints = endPoints.slice()
+
+
+
+    var rotatedPorts = []
+
+    for(var c = 0, cl = facilities[facility1TemplateID].ports.length; c < cl; c++){
+      rotatedPorts.push(rotate(0, 0, facilities[facility1TemplateID].ports[c].x, facilities[facility1TemplateID].ports[c].y, getNetwork(areaIndex, facilityIDs[0]).rotation*-1))
+    }
+
+    for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+      if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[1][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[1][1]){
+        facility1PortIndex = c
+      }
+    }
+
+    var rotatedPorts = []
+
+    for(var c = 0, cl = facilities[facility2TemplateID].ports.length; c < cl; c++){
+      rotatedPorts.push(rotate(0, 0, facilities[facility2TemplateID].ports[c].x, facilities[facility2TemplateID].ports[c].y, getNetwork(areaIndex, facilityIDs[1]).rotation*-1))
+    }
+
+    for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+      if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[0][1]){
+        facility2PortIndex = c
+      }
+    }
+
+    
+
+    areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
+
+    areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
   }
 
   updateNetworkLog()
@@ -1904,16 +2036,10 @@ function createNetwork(x, y, type, modifiers){
 
       var rotatedLayout = []
       for(var k = 0, kl = facilities[i].layout.length; k < kl; k++){
-        if(rotation == 90){
-          rotatedLayout.push([facilities[i].layout[k][1], facilities[i].layout[k][0]])
-        }else if(rotation == 180){
-          rotatedLayout.push([facilities[i].layout[k][0] * -1, facilities[i].layout[k][1] * -1])
-        }else if(rotation == 270){
-          rotatedLayout.push([facilities[i].layout[k][1] * -1, facilities[i].layout[k][0] * -1])
-        }else{
-          rotatedLayout.push([facilities[i].layout[k][0], facilities[i].layout[k][1]])
-        }
+        rotatedLayout.push(rotate(0, 0, facilities[i].layout[k][0], facilities[i].layout[k][1], rotation*-1))
       }
+
+
       for(var k = 0, kl = rotatedLayout.length; k < kl; k++){
         changeMapData(x + rotatedLayout[k][0], y + rotatedLayout[k][1], "p")
         facilityCoordinates.push([x + rotatedLayout[k][0], y + rotatedLayout[k][1]])
@@ -1927,7 +2053,36 @@ function createNetwork(x, y, type, modifiers){
         }
       }
 
-      areas[areaIndex].networks.push(new Network(type, rotation, facilityCoordinates, facilityData, networkTotal))
+      areas[areaIndex].networks.push(new Network(type, rotation, facilityCoordinates, facilityData, facilities[i].pseudoPipe, networkTotal))
+
+      var rotatedPorts = []
+      for(var k = 0, kl = facilities[i].ports.length; k < kl; k++){
+        var portSourceX = 0;
+        var portSourceY = 0;
+        if(facilities[i].ports[k].x == -1){
+          portSourceX = 1
+        }
+        if(facilities[i].ports[k].x == facilities[i].width){
+          portSourceX = -1
+        }
+        if(facilities[i].ports[k].y == -1){
+          portSourceY = 1
+        }
+        if(facilities[i].ports[k].y == facilities[i].height){
+          portSourceY = -1
+        }
+
+        rotatedPorts.push([rotate(x, y, x + facilities[i].ports[k].x, y + facilities[i].ports[k].y, rotation*-1), rotate(x, y, x + portSourceX, y + portSourceY, rotation*-1)])
+
+        
+      }
+
+
+      for(var k = 0, kl = rotatedPorts.length; k < kl; k++){
+        if(getTile("tiles", getMapData(rotatedPorts[k][0][0], rotatedPorts[k][0][1]))[0] == "connector"){
+          addGhostNetwork([[rotatedPorts[k][0][0] + rotatedPorts[k][1][0] - x, rotatedPorts[k][0][1] + rotatedPorts[k][1][1] - y], [rotatedPorts[k][0][0], rotatedPorts[k][0][1]]], [[rotatedPorts[k][0][0] - x, rotatedPorts[k][0][1] - y], [0,  0]])
+        }
+      }
 
       break;
     }

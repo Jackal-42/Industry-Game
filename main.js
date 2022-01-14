@@ -6,7 +6,7 @@ var mouseDownY = 0;
 
 //Rotates the facility placement cursor when tapping Z
 document.addEventListener("keydown", function (e) {
-  if(e.keyCode == 90){
+  if(e.keyCode == 82){
     facilityRotation += 90
     if(facilityRotation > 270){
       facilityRotation = 0
@@ -205,6 +205,7 @@ game.window.addEventListener("click", function (e) {
     document.getElementById("facilityShownRange").appendChild(newTooltipRange)
   }
 
+  checkFacilityShownResources()
   document.getElementById('centerDisplay').style.display = "block"
   
   cacheCode("document.getElementById(\'centerDisplay\').style.top = \"30%\"; document.getElementById(\'centerDisplay\').style.opacity = \"1\";", 1)
@@ -261,6 +262,25 @@ function monitor(variable){
 function stopMonitoring(variable){
   document.getElementById(variable+"_monitor_view").remove()
   variablesMonitored.splice(variablesMonitored.indexOf(variable), 1)
+}
+
+function checkFacilityShownResources(){
+  document.getElementById('facilityShownResources').innerHTML = ""
+  try{
+    if(facilityDisplayedData.name == "tank"){
+      var str = areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem.split("_")
+
+      for(var j = 0, jl = str.length; j < jl; j++){
+        str[j] = str[j][0].toUpperCase() + str[j].substr(1);
+      }
+
+      str = str.join(" ")
+
+
+
+      document.getElementById('facilityShownResources').innerHTML = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+ areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem +"\')\">" + str + "</span>: " + eval("areas[areaIndex].networks[facilityDisplayedIndex].data." + areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem)
+    }
+  }catch(err){}
 }
 
 
@@ -669,17 +689,18 @@ game.loop = function(){
             if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null"){
               movingItems = fluids.slice()
             }
+            
+            var amountTransferred = 1;
+            if(facility1.name == "valve"){
+              facility1.data.outputCheck++
+              
+              amountTransferred = 1/facility1.data.outputs
+            }
             for(var j = 0, jl = movingItems.length; j < jl; j++){
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
                 continue;
               }
               if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){continue}
-              var amountTransferred = 1;
-              if(facility1.name == "valve"){
-                facility1.data.outputCheck++
-                
-                amountTransferred = 1/facility1.data.outputs
-              }
 
               if(eval("facility1.data." + movingItems[j]) >= 1){
                 if(isModular2){facility2.data.storedItem = movingItems[j]}
@@ -703,18 +724,18 @@ game.loop = function(){
               movingItems = fluids.slice()
             }
 
+            var amountTransferred = 1;
+            if(facility2.name == "valve"){
+              facility2.data.outputCheck++
+              
+              amountTransferred = 1/facility2.data.outputs
+            }
             for(var j = 0, jl = movingItems.length; j < jl; j++){
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
               }
               if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){continue}
-
-              var amountTransferred = 1;
-              if(facility2.name == "valve"){
-                facility2.data.outputCheck++
-                
-                amountTransferred = 1/facility2.data.outputs
-              }
+              
               if(eval("facility2.data." + movingItems[j]) >= 1){
 
                 if(isModular1){facility1.data.storedItem = movingItems[j]}
@@ -739,22 +760,7 @@ game.loop = function(){
     }
 
 
-
-    try{
-      if(facilityDisplayedData.name == "tank"){
-        var str = areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem.split("_")
-
-        for(var j = 0, jl = str.length; j < jl; j++){
-          str[j] = str[j][0].toUpperCase() + str[j].substr(1);
-        }
-
-        str = str.join(" ")
-
-
-
-        document.getElementById('facilityShownResources').innerHTML = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+ areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem +"\')\">" + str + "</span>: " + eval("areas[areaIndex].networks[facilityDisplayedIndex].data." + areas[areaIndex].networks[facilityDisplayedIndex].data.storedItem)
-      }
-    }catch(err){}
+    checkFacilityShownResources()
   }
 
   
@@ -836,6 +842,7 @@ game.loop = function(){
 
   //Draws the cursor or an image of the selected facility
   if(conduitSelected == "facility"){
+    rotationDisplay.style.display = "block"
     var facilitySelectedData = getFacility(facilitySelected)
     cursorWidth = facilitySelectedData.width*32
     cursorHeight = facilitySelectedData.height*32
@@ -868,6 +875,7 @@ game.loop = function(){
     
     ctx.restore()
   }else{
+    rotationDisplay.style.display = "none"
     ctx.fillRect((mouseX*32)-scrollX/4, (mouseY*32)-scrollY/4, cursorWidth, cursorHeight)
   }
 
