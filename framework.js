@@ -209,6 +209,7 @@ function getConduitIndex(id){
       return i
     }
   }
+  return 0
 }
 
 for(var i = 0, l = tiles.length; i < l; i++){
@@ -520,7 +521,10 @@ function toggleHorizontalHotbarMenu(id){
 }
 
 //Generates the little bob upon clicking a hotbar button and changes the variables that determine what you draw with the mouse
+
+var canPlaceFacility = true
 function selectPlaceable(id){
+  canPlaceFacility = false
   var hotbarButtons = document.getElementsByClassName("hotbarButton")
   var elementID = "hotbar_" + id
   var elementIndex = -1
@@ -1276,7 +1280,8 @@ function connectPipes(x1, y1, x2, y2){
 
 
 
-
+  var previousMapData1 = getMapData(x1, y1)
+  var previousMapData2 = getMapData(x2, y2)
   if(getPipeId(pipe1Connections) != conduits[conduitIndex].stub && !"&p".includes(getMapData(x1, y1))){
     changeMapData(x1, y1, getPipeId(pipe1Connections))
   }
@@ -1302,16 +1307,21 @@ function connectPipes(x1, y1, x2, y2){
     if(endPoints[0][0] == x1 && endPoints[0][1] == y1){
       pos = 1;
     }
-    if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0], endPoints[pos][1] + 1) == "p"){
+    // if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0], endPoints[pos][1] + 1) == "p"){
 
-      addPipeNetwork(endPoints)
-      
-      if(debugging){updateNetworkLog()}
+    if(addPipeNetwork(endPoints)){
+      changeMapData(x1, y1, previousMapData1)
+      changeMapData(x2, y2, previousMapData2)
     }
+    
+    if(debugging){updateNetworkLog()}
+    // }
   }
 
   //If both ends of pipe connect to facilities, create a new network and links.
   if(joinEmptyNetwork){
+    var previousMapData1 = getMapData(x1, y1)
+    var previousMapData2 = getMapData(x2, y2)
     var endPoints = updateNetwork(x1, y1)
     var endX = endPoints[0][0]
     var endY = endPoints[0][1]
@@ -1321,7 +1331,10 @@ function connectPipes(x1, y1, x2, y2){
       endY = endPoints[1][1]
       connections = getPipeConnections(endX, endY)
       if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p")){
-        addPipeNetwork(endPoints)
+        if(addPipeNetwork(endPoints)){
+          changeMapData(x1, y1, previousMapData1)
+          changeMapData(x2, y2, previousMapData2)
+        }
       }
     }
   }
@@ -1397,7 +1410,6 @@ function addPipeNetwork(endPoints){
   
 
   if(facilityIDs[1] != undefined){
-    console.log("e")
     facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
     facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
     facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
@@ -1432,11 +1444,6 @@ function addPipeNetwork(endPoints){
     }
 
     for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
-      console.log(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0])
-      console.log(endPoints[0][0])
-      console.log(getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1])
-      console.log(endPoints[0][1])
-      console.log("")
 
       if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[0][1]){
         facility1PortIndex = c
@@ -1455,14 +1462,73 @@ function addPipeNetwork(endPoints){
       }
     }
 
-
-
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
     areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
   }
 
+  if(facilityIDs[1] == undefined){facilityIDs[1] = facilityIDs[0]}
+
+  facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
+  facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
+  facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
+  facility2Y = getNetwork(areaIndex, facilityIDs[1]).points[0][1]
+
+
+  networkTotal++
+
+  var facility1PortIndex = 0;
+  var facility2PortIndex = 0;
+  var facility1TemplateID = 0;
+  var facility2TemplateID = 0;
+  
+  for(var i = 0, l = facilities.length; i < l; i++){
+    if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
+      facility1TemplateID = i
+    }
+
+    if(facilities[i].name == getNetwork(areaIndex, facilityIDs[1]).name){
+      facility2TemplateID = i
+    }
+  }
+
+
+  var rotatedEndPoints = [rotate(facility1X, facility1Y, endPoints[0][0], endPoints[0][1], getNetwork(areaIndex, facilityIDs[0]).rotation), rotate(facility2X, facility2Y, endPoints[1][0], endPoints[1][1], getNetwork(areaIndex, facilityIDs[1]).rotation)]
+
+  var facility1Break = false
+  var facility2Break = false
+
+  // var rotatedEndPoints = endPoints.slice()
+  var rotatedPorts = []
+
+  for(var c = 0, cl = facilities[facility1TemplateID].ports.length; c < cl; c++){
+    rotatedPorts.push(rotate(0, 0, facilities[facility1TemplateID].ports[c].x, facilities[facility1TemplateID].ports[c].y, 0))
+  }
+
+  for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+
+    if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[0][1]){
+      if(facilities[facility1TemplateID].ports[c].gender[0] == "breaker"){facility1Break = true}
+    }
+  }
+
+  var rotatedPorts = []
+
+  for(var c = 0, cl = facilities[facility2TemplateID].ports.length; c < cl; c++){
+    rotatedPorts.push(rotate(0, 0, facilities[facility2TemplateID].ports[c].x, facilities[facility2TemplateID].ports[c].y, 0))
+  }
+
+  for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+    if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[1][1]){
+      if(facilities[facility2TemplateID].ports[c].gender[0] == "breaker"){facility2Break = true}
+    }
+  }
+  if(facility1Break || facility2Break){
+    return true;
+  }
+
   updateNetworkLog()
+  return false;
 
 }
 
@@ -1745,12 +1811,12 @@ function killNetwork(x, y){
 var crossingPipe = false;
 
 //Adds a pipe at the specified coords and connects it to the surrounding ones. Also used for deleting a pipe or facility because S P A G H E T T I C O D E
-function addPipe(x, y){
+function addPipe(x, y, mode){
   if(document.getElementById('centerDisplay').style.opacity == "1"){
     return;
   }
   var conduitIndex = getConduitIndex(conduitSelected)
-  if(key(16) || conduitSelected == "erase"){
+  if(key(16) || conduitSelected == "erase" || mode == "erase"){
     conduitIndex = 0;
     var mapData = getMapData(x, y)
 
@@ -2057,30 +2123,33 @@ function createNetwork(x, y, type, modifiers){
 
       var rotatedPorts = []
       for(var k = 0, kl = facilities[i].ports.length; k < kl; k++){
-        var portSourceX = 0;
-        var portSourceY = 0;
+        var portSourceX = facilities[i].ports[k].x;
+        var portSourceY = facilities[i].ports[k].y;
         if(facilities[i].ports[k].x == -1){
-          portSourceX = 1
+          portSourceX = 0
         }
         if(facilities[i].ports[k].x == facilities[i].width){
-          portSourceX = -1
+          portSourceX = facilities[i].width - 1
         }
         if(facilities[i].ports[k].y == -1){
-          portSourceY = 1
+          portSourceY = 0
         }
         if(facilities[i].ports[k].y == facilities[i].height){
-          portSourceY = -1
+          portSourceY = facilities[i].height - 1
         }
 
         rotatedPorts.push([rotate(x, y, x + facilities[i].ports[k].x, y + facilities[i].ports[k].y, rotation*-1), rotate(x, y, x + portSourceX, y + portSourceY, rotation*-1)])
 
-        
+        var pipeDisconnectCheck
       }
-
 
       for(var k = 0, kl = rotatedPorts.length; k < kl; k++){
         if(getTile("tiles", getMapData(rotatedPorts[k][0][0], rotatedPorts[k][0][1]))[0] == "connector"){
           addGhostNetwork([[rotatedPorts[k][0][0] + rotatedPorts[k][1][0] - x, rotatedPorts[k][0][1] + rotatedPorts[k][1][1] - y], [rotatedPorts[k][0][0], rotatedPorts[k][0][1]]], [[rotatedPorts[k][0][0] - x, rotatedPorts[k][0][1] - y], [0,  0]])
+        }else if(conduits[0].endPoints.includes(getMapData(rotatedPorts[k][0][0], rotatedPorts[k][0][1]))){
+          if(facilities[i].ports[k].gender[0] != "breaker"){
+            connectPipes(rotatedPorts[k][0][0], rotatedPorts[k][0][1], rotatedPorts[k][1][0], rotatedPorts[k][1][1])
+          }
         }
       }
 

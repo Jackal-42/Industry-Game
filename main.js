@@ -55,20 +55,35 @@ game.window.addEventListener("click", function (e) {
     }
     checkTooltipClick = -1
   }
-  if(mouseDownX != mouseX || mouseDownY != mouseY){return}
+  if((mouseDownX != mouseX || mouseDownY != mouseY) && conduitSelected != "facility"){return}
 
   //Tries to place a facility on the map
-  if(conduitSelected == "facility"){
+  if(conduitSelected == "facility" && canPlaceFacility){
         
     var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
     var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
 
-    for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
+    // for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
 
-      if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
-        return;
+    //   if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
+    //     return;
+    //   }
+    // }
+
+    var facilitySelectedData = getFacility(facilitySelected)
+
+    for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
+      if(facilitySelectedData.pseudoPipe == true){
+        if(!(conduits[0].segments + "-").includes(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer"))){
+          return;
+        }
+      }else{
+        if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
+          return;
+        }
       }
     }
+    addPipe(facilityPlotX, facilityPlotY, "erase")
     createNetwork(facilityPlotX, facilityPlotY, facilitySelected, ("rotation = " + facilityRotation))
     return;
   }
@@ -288,6 +303,8 @@ document.getElementById('centerDisplay').style.display = 'none'
 
 //The code that is executed each frame
 game.loop = function(){
+
+  canPlaceFacility = true
 
   //Updates monitored variables
   for(var i = 0, l = variablesMonitored.length; i < l; i++){
@@ -763,7 +780,23 @@ game.loop = function(){
     checkFacilityShownResources()
   }
 
-  
+  if(facilitySelected == "one_way_pipe"){
+    if(tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0].slice(-2) == "hh"){
+      if(facilityRotation == 0){
+        facilityRotation = 90
+      }
+      if(facilityRotation == 180){
+        facilityRotation = 270
+      }
+    }else if(tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0].slice(-2) == "vv"){
+      if(facilityRotation == 90){
+        facilityRotation = 180
+      }
+      if(facilityRotation == 270){
+        facilityRotation = 0
+      }
+    }
+  }
 
   //Draws each of the facilities
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
@@ -854,9 +887,14 @@ game.loop = function(){
     var validPlot = true;
 
     for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
-
-      if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
-        validPlot = false;
+      if(facilitySelectedData.pseudoPipe == true){
+        if(!(conduits[0].segments + "-").includes(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer"))){
+          validPlot = false;
+        }
+      }else{
+        if(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer") != "-" || getTile("terrain", getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "baseLayer"))[0].substring(0, 5) != "grass"){
+          validPlot = false;
+        }
       }
     }
 

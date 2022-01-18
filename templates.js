@@ -480,6 +480,14 @@ var facilities = [
         conduit: "pipe",
         gender: ["output", ["null"]],
       },
+
+      {
+        x: 0,
+        y: -1,
+        direction: "center",
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
     ],
   },
 
@@ -508,6 +516,20 @@ var facilities = [
         y: 1,
         conduit: "pipe",
         gender: ["input", ["null"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
       },
     ],
   },
