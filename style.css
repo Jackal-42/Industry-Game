@@ -295,3 +295,9 @@ p{
 .upgradeButton:hover{
   background-color: rgb(180, 180, 200);
 }
+
+#facilityShownWarnings img{
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+}

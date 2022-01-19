@@ -34,6 +34,7 @@ game.addTexture("null", "docs/assets/null.png")
 game.addTexture("pipe_icon", "docs/assets/pipe_icon.png")//R
 game.addTexture("rail_icon", "docs/assets/rail_icon.png")//B
 game.addTexture("erase_icon", "docs/assets/erase_icon.png")
+game.addTexture("warning", "docs/assets/warning.png")
 
 var tileIds = ("X-p&" + "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?").split("")
 
@@ -463,6 +464,7 @@ function Network(name, rotation, points, data, pseudoPipe, index){
   this.points = points;
   this.data = data;
   this.pseudoPipe = pseudoPipe;
+  this.warnings = [];
   this.index = index;
 }
 
@@ -753,7 +755,7 @@ game.window.appendChild(fundsDisplay)
 
 var rotationDisplay = document.createElement('div')
 
-rotationDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; text-align: center; bottom: 0px; left: 16px; user-select: none; color: white;\">R: Rotate Facility</p>`
+rotationDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; text-align: center; bottom: 0px; left: 16px; user-select: none; color: white;\">R/Z: Rotate Facility</p>`
 
 game.window.appendChild(rotationDisplay)
 
@@ -774,6 +776,8 @@ centerDisplay.innerHTML = `
 <p id="facilityShownDescription" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 6vh; color: rgb(69, 69, 69)"></p>
 
 <p id="facilityShownResources" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 1%;"></p>
+
+<p id="facilityShownWarnings" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 1%; color: red"></p>
 
 
 `
@@ -1326,11 +1330,11 @@ function connectPipes(x1, y1, x2, y2){
     var endX = endPoints[0][0]
     var endY = endPoints[0][1]
     var connections = getPipeConnections(endX, endY)
-    if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p")){
+    if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p") || (connections.includes("b") && getMapData(endX, endY + 1) == "p")){
       endX = endPoints[1][0]
       endY = endPoints[1][1]
       connections = getPipeConnections(endX, endY)
-      if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p")){
+      if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p") || (connections.includes("b") && getMapData(endX, endY + 1) == "p")){
         if(addPipeNetwork(endPoints)){
           changeMapData(x1, y1, previousMapData1)
           changeMapData(x2, y2, previousMapData2)
@@ -1797,6 +1801,13 @@ function killNetwork(x, y){
             ll--
           }
         }
+        for(var k = 0, kl = areas[areaIndex].networks.length; k < kl; k++){
+          for(var j = 0, jl = areas[areaIndex].networks[k].warnings.length; j < jl; j++){
+            if(areas[areaIndex].networks[k].warnings[j][1] == areas[areaIndex].networks[i].index){
+              areas[areaIndex].networks[k].warnings.splice(j, 1)
+            }
+          }
+        }
 
         areas[areaIndex].networks.splice(i, 1)
         i--
@@ -1805,6 +1816,12 @@ function killNetwork(x, y){
       }
     }
   }
+}
+
+function checkDuplicate(array, value){
+  return array.some(function(item) {
+    return value == item[0];
+  })
 }
 
 
