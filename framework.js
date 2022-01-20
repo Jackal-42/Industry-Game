@@ -29,6 +29,7 @@ game.getLayer("effects").canvas.addEventListener("mouseup", function(){mouseDown
 
 //KEEP
 game.addTexture("selector", "docs/assets/selector.png")
+game.addTexture("pointer", "docs/assets/pointer.png")
 game.addTexture("null", "docs/assets/null.png")
 
 game.addTexture("pipe_icon", "docs/assets/pipe_icon.png")//R
@@ -495,7 +496,6 @@ function toggleVerticalHotbarMenu(id){
       if(key(16) && document.getElementById(id).children[i].className == "hotbarMenuHorizontal"){
         toggleHorizontalHotbarMenu(document.getElementById(id).children[i].id)
       }
-      document.getElementById("hotbar_erase").style.left = "0em"
     }else{
       if(document.getElementById(id).children[i].className == "hotbarMenuHorizontal"){
         document.getElementById(id).children[i].style.top = "0px";
@@ -525,7 +525,18 @@ function toggleHorizontalHotbarMenu(id){
 //Generates the little bob upon clicking a hotbar button and changes the variables that determine what you draw with the mouse
 
 var canPlaceFacility = true
-function selectPlaceable(id){
+
+var placeableIndex = -1
+var previousPlaceables = []
+
+function checkPlaceableIndex(){
+  if(placeableIndex < 0){placeableIndex = 0}
+  if(placeableIndex > previousPlaceables.length - 1){placeableIndex = previousPlaceables.length - 1}
+}
+
+function selectPlaceable(id, keepOrder){
+  if(keepOrder == undefined){keepOrder = false}
+
   canPlaceFacility = false
   var hotbarButtons = document.getElementsByClassName("hotbarButton")
   var elementID = "hotbar_" + id
@@ -536,6 +547,8 @@ function selectPlaceable(id){
     }
   }
   if(elementIndex == -1){return}
+
+  if(document.getElementById("hotbar_" + id).style.backgroundColor == "rgba(1, 1, 1, 0)"){return}
   
 
   hotbarButtons[elementIndex].childNodes[0].classList.remove('clickityElement'); // reset animation
@@ -544,13 +557,29 @@ function selectPlaceable(id){
 
   if(id.includes("menu")){return}
 
+  if(!keepOrder){
+    if(previousPlaceables.includes(id)){
+      previousPlaceables.splice(previousPlaceables.indexOf(id), 1)
+    }
+    previousPlaceables.push(id)
+
+    placeableIndex = previousPlaceables.length - 1
+  }
+
   for(var i = 0, l = hotbarButtons.length; i < l; i++){
     if(hotbarButtons[i].id == elementID){
-      hotbarButtons[i].style.backgroundColor = "rgb(251, 255, 0)"
+      // hotbarButtons[i].style.backgroundColor = "rgb(251, 255, 0)"
       hotbarButtons[i].style.border = "3px solid yellow"
+
+      if(hotbarButtons[i].style.left == "0px"){ 
+        hotbarButtons[i].style.left = "90px"
+      }
     }else{
-      hotbarButtons[i].style.backgroundColor = "rgb(100, 100, 111)"
-      hotbarButtons[i].style.border = "3px solid black"
+      if(hotbarButtons[i].style.border == "3px solid yellow"){
+        hotbarButtons[i].style.border = "3px solid transparent"
+        // hotbarButtons[i].style.backgroundColor = "rgb(100, 100, 111)"
+        // hotbarButtons[i].style.border = "3px solid black"
+      }
     }
     if(hotbarButtons[i].style.left == "90px" && !(hotbarButtons[i].id == elementID)){hotbarButtons[i].style.left = "0px"}
   }
@@ -570,6 +599,9 @@ function selectPlaceable(id){
   }
   if(id == "erase"){
     conduitSelected = "erase"
+  }
+  if(id == "pointer"){
+    conduitSelected = "pointer"
   }
 }
 
@@ -592,8 +624,18 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_hammer_menu" savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="selectPlaceable('hammer_menu'); toggleVerticalHotbarMenu('hotbarMenuVertical')"><img class="clickityElement" src="docs/assets/hammer.png"></button>
 
+<div class="hotbarMenuHorizontal" savestate="89px" style="top: 89px; z-index: 3;" id="hotbarMenu0">
 
-<div class="hotbarMenuHorizontal" savestate="89px" style="top: 89px; z-index: 3;" id="hotbarMenu1">
+<button id="hotbar_edit_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('edit_menu'); toggleHorizontalHotbarMenu('hotbarMenu0')"><img class="clickityElement" src="docs/assets/null.png"></button>
+
+<button id="hotbar_pointer" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('pointer')"><img class="clickityElement" src="docs/assets/pointer.png"></button>
+
+<button id="hotbar_erase" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
+
+</div>
+
+
+<div class="hotbarMenuHorizontal" savestate="177px" style="top: 177px; z-index: 3;" id="hotbarMenu1">
 
 <button id="hotbar_gear_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('gear_menu'); toggleHorizontalHotbarMenu('hotbarMenu1')"><img class="clickityElement" src="docs/assets/gear.png"></button>
 
@@ -613,7 +655,7 @@ hotbarMenu.innerHTML = `
 
 
 
-<div class="hotbarMenuHorizontal" savestate="177px" style="top: 177px; z-index: 3;" id="hotbarMenu2">
+<div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu2">
 
 <button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 45%;"></button>
 
@@ -627,7 +669,7 @@ hotbarMenu.innerHTML = `
 
 </div>
 
-<div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
+<div class="hotbarMenuHorizontal" savestate="353px" style="top: 353px; z-index: 3;" id="hotbarMenu3">
 
 <button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3')"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
 
@@ -638,18 +680,10 @@ hotbarMenu.innerHTML = `
 </div>
 
 
-<div class="hotbarMenuHorizontal" savestate="353px" style="top: 353px; z-index: 3;" id="hotbarMenu4">
-
-<button id="hotbar_erase" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
-
-</div>
-
-
 
 `
 
 game.window.appendChild(hotbarMenu)
-selectPlaceable('pipe')
 
 var hotbarButtonOver = "none"
 
@@ -658,9 +692,36 @@ function assignHotbarButtonListeners(){
   var hotbarButtonsActive = document.getElementsByClassName("hotbarButton")
   for(var i = 0, l = hotbarButtonsActive.length; i < l; i++){
     eval("$("+hotbarButtonsActive[i].id+").hover(function(){hotbarButtonOver = \""+hotbarButtonsActive[i].id+"\"; checkTemporaryTooltip()}, function(){hotbarButtonOver = \"none\"})")
+    hotbarButtonsActive[i].style.backgroundColor = "rgba(1, 1, 1, 0)"
+    // hotbarButtonsActive[i].style.borderColor = "darkgray"
   }
 }
+
 assignHotbarButtonListeners()
+
+function unlockHotbarButton(id){
+  document.getElementById(id).style.backgroundColor = "transparent"
+  // document.getElementById(id).style.borderColor = "black"
+  document.getElementById(id).style.filter = "grayscale(0)"
+  document.getElementById(id).children[0].style.filter = "blur(0px)"
+}
+unlockHotbarButton("hotbar_hammer_menu")
+unlockHotbarButton("hotbar_edit_menu")
+unlockHotbarButton("hotbar_gear_menu")
+unlockHotbarButton("hotbar_facilities_menu")
+unlockHotbarButton("hotbar_extra_menu")
+unlockHotbarButton("hotbar_pointer")
+unlockHotbarButton("hotbar_erase")
+unlockHotbarButton("hotbar_pipe")
+unlockHotbarButton("hotbar_distiller")
+unlockHotbarButton("hotbar_gas_processor")
+unlockHotbarButton("hotbar_residue_processor")
+unlockHotbarButton("hotbar_hydrotreater")
+unlockHotbarButton("hotbar_crude_source")
+unlockHotbarButton("hotbar_hydrogen_source")
+
+
+selectPlaceable("pointer")
 
 var hotbarOverCheck = "none"
 var mouseOverCheckX = 0
@@ -718,10 +779,10 @@ function createTemporaryTooltip(){
 var rightMenu = document.createElement('div')
 rightMenu.id = "slideMenuRight"
 
-rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'96%\'){document.getElementById(\'slideMenuRight\').style.left = \'70%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'96%\'}\"> <img src=\"docs/assets/pipe_x.png\" style=\"width: 90%;\"> </button>
+rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'96%\'){document.getElementById(\'slideMenuRight\').style.left = \'70%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'96%\'}\"> <img src=\"docs/assets/expand_arrow.png\" style=\"width: 90%; transform: rotate(90deg)\"> </button>
 
 <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 20%; width: 75%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">UPGRADES<br><br>
-<div id="upgrades" style="margin-top: -4%; height: 16vw;">
+<div id="upgrades" style="margin-top: -4%; height: 22vw;">
 
 
 <button class="upgradeButton">test1</button>
@@ -746,6 +807,42 @@ rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 10
 
 game.window.appendChild(rightMenu)
 
+
+var upgradeIndexes = []
+
+function updateUpgrades(){
+  var upgradeDiv = document.getElementById("upgrades")
+  var upgradeButtonIndex = 0
+  upgradeIndexes = []
+  for(var i = 0, l = upgrades.length; i < l; i++){
+    if(!upgrades[i].unlocked){
+      upgradeDiv.children[upgradeButtonIndex].innerHTML = "<p class=\"upgradeTitle\">"+upgrades[i].name+"</p>  <p class=\"upgradeText\">"+upgrades[i].text+"</p> <p class=\"upgradeCost\">$" + upgrades[i].cost + "</p>"
+      eval("upgradeDiv.children[upgradeButtonIndex].onclick = function(){if(funds >= " + upgrades[i].cost + "){funds -= "+ upgrades[i].cost +";" + upgrades[i].unlock + "; upgrades["+i+"].unlocked = true; updateUpgrades();}}")
+      upgradeIndexes.push(i)
+      upgradeButtonIndex++
+    }
+    if(upgradeButtonIndex >= 3){
+      break;
+    }
+  }
+  checkUpgrades()
+}
+
+updateUpgrades()
+
+function checkUpgrades(){
+  var upgradeDiv = document.getElementById("upgrades")
+  for(var i = 0; i < upgradeIndexes.length; i++){
+    if(upgrades[upgradeIndexes[i]].cost > funds){
+      upgradeDiv.children[i].style.filter = "opacity(0.5)"
+    }else{
+      upgradeDiv.children[i].style.filter = "opacity(1)"
+    }
+  }
+}
+
+
+
 var fundsDisplay = document.createElement('div')
 
 fundsDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white;\">Funds: $<span id=\"funds\">0</span> </p>`
@@ -765,7 +862,7 @@ var centerDisplay = document.createElement('div')
 centerDisplay.id = "centerDisplay"
 
 centerDisplay.innerHTML = `
-<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; '><img src='docs/assets/null.png' style='position: absolute; width: 100%; left: 0px; top: 0px;'></button>
+<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; background-color: tan; border: 1px solid black;'><img src='docs/assets/x_button.png' style='position: absolute; width: 100%; left: 0px; top: 0px; image-rendering: auto;'></button>
 
 <div id="facilityShownRange">
 <canvas id="facilityShownCanvas" width="500" height="500" style="width: 30%; border: 1px solid black; position: absolute; top: 6vh; left: 1%; background-color: rgb(100, 100, 133)"></canvas>

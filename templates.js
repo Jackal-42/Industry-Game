@@ -615,6 +615,55 @@ var facilities = [
   },
 ]
 
+
+
+
+var upgrades = [
+  {
+    name: "Storage Tanks",
+    text: "A place to store up to 250 liters of any substance",
+    cost: 1000,
+    unlock: "unlockHotbarButton(\"hotbar_tank\")",
+    unlocked: false,
+    priority: 1,
+  },
+
+  {
+    name: "Valves",
+    text: "They can split and merge pipes for a more efficient factory",
+    cost: 1500,
+    unlock: "unlockHotbarButton(\"hotbar_valve\")",
+    unlocked: false,
+    priority: 2,
+  },
+
+  {
+    name: "Go Public",
+    text: "Become a publibly traded company and purchase stock",
+    cost: 2500,
+    unlock: "",
+    unlocked: false,
+    priority: 3,
+  },
+
+  {
+    name: "E",
+    text: "E",
+    cost: 0,
+    unlock: "",
+    unlocked: false,
+    priority: 4,
+  },
+]
+
+
+
+
+
+
+
+
+
 //The list of tooltip templates
 var tooltips = [
   {

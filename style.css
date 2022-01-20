@@ -115,9 +115,15 @@ p{
   left: 0%;
   right: 0%;
   margin-top: 8px;
-  background-color: rgb(100, 100, 133);
-  border: 3px solid black;
+  background-color: transparent;
+  border: none;
+  background-image: url("docs/assets/button_box.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+  filter: grayscale(1);
   transition: background-color 250ms, border 250ms, top 150ms, left 100ms;
+  cursor: pointer;
 }
 
 
@@ -126,16 +132,16 @@ p{
   -webkit-filter: blur(0.1px); 
   -moz-filter: blur(0.1px); 
   -ms-filter: blur(0.1px);
-  filter: blur(0.1px);
+  filter: blur(4px);
   user-select: none;
   position: absolute;
-  width: 90%;
-  height: 90%;
+  width: 80%;
+  height: 80%;
   left: 0%;
   top: 0%;
   transform: translate(-50%, -50%);
   margin-left: 50%;
-  margin-top: 52%;
+  margin-top: 50%;
   transition: 50ms;
 }
 
@@ -286,14 +292,39 @@ p{
   width: 75%;
   margin-left: 20%;
   margin-top: 0.5%;
-  height: 5vw;
-  background-color: rgb(160, 160, 170);
+  height: 7vw;
+  background-color: rgb(170, 170, 175);
   border: 1px solid black;
   transition: background-color 200ms;
+  cursor: pointer;
 }
 
 .upgradeButton:hover{
   background-color: rgb(180, 180, 200);
+}
+
+.upgradeTitle{
+  font-family: "Pixellari";
+  color: black;
+  font-size: 16pt;
+  margin: 0px;
+  padding: 0px;
+}
+
+.upgradeText{
+  font-family: "Pixellari";
+  color: rgb(69, 69, 69);
+  font-size: 10pt;
+  padding: 0px;
+  margin: 4px;
+}
+
+.upgradeCost{
+  font-family: "Pixellari";
+  color: black;
+  font-size: 12pt;
+  margin: 0px;
+  padding: 0px;
 }
 
 #facilityShownWarnings img{

@@ -13,6 +13,16 @@ document.addEventListener("keydown", function (e) {
     }
     updateFacilitySelected()
   }
+  if(e.keyCode == 188){
+    placeableIndex--
+    checkPlaceableIndex()
+    selectPlaceable(previousPlaceables[placeableIndex], true)
+  }
+  if(e.keyCode == 190){
+    placeableIndex++
+    checkPlaceableIndex()
+    selectPlaceable(previousPlaceables[placeableIndex], true)
+  }
 })
 
 //Checks if the mouse has moved away from the temporary tooltip
@@ -500,7 +510,7 @@ game.loop = function(){
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds or removes pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
-  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility"){
+  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility" && conduitSelected != "pointer"){
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
     var slope = distanceY/distanceX
@@ -533,6 +543,10 @@ game.loop = function(){
 
   if(previousMouseX < 0){previousMouseX = 0}
   if(previousMouseY < 0){previousMouseY = 0}
+
+  if((framesElapsed + 5) % 15 == 1){
+    checkUpgrades()
+  }
 
   //Transfers items along working links. Evaluates 4 times per second.
   if(framesElapsed % 15 == 1){
