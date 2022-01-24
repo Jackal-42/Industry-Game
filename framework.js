@@ -247,6 +247,14 @@ game.addTexture("kerosene_icon", "docs/assets/kerosene_icon.png")
 game.addTexture("any_oil_icon", "docs/assets/any_oil_icon.png")
 game.addTexture("crude_kerosene_icon", "docs/assets/crude_kerosene_icon.png")
 
+// temporary textures for newly added fluids
+game.addTexture("light_oil_icon","docs/assets/crude_oil_icon.png")
+game.addTexture("heavy_oil_icon","docs/assets/crude_oil_icon.png")
+game.addTexture("crude_butane_icon","docs/assets/crude_oil_icon.png")
+game.addTexture("butane_icon","docs/assets/crude_oil_icon.png")
+game.addTexture("crude_propane_icon","docs/assets/crude_oil_icon.png")
+game.addTexture("propane_icon","docs/assets/crude_oil_icon.png")
+
 game.addTexture("naphtha_icon", "docs/assets/naphtha_icon.png")
 game.addTexture("crude_naphtha_icon", "docs/assets/crude_naphtha_icon.png")
 
