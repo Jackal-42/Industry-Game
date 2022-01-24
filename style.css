@@ -64,10 +64,28 @@ img {
   background-color: rgb(145, 145, 145);
 }
 
+#guidebook .selector{
+  background-color: tan;
+  width: 100%;
+  cursor: pointer;
+  transition: background-color 200ms;
+}
+
+#guidebook .selector:hover{
+  background-color: rgb(172, 143, 105);
+}
+
 .menu{
   padding-left: 4%;
   width: 96%;
   background-color: lightgray;
+}
+
+#guidebook .menu{
+  padding-top: 4px;
+  padding-left: 1%;
+  width: 96%;
+  background-color: rgb(236, 210, 175);
 }
 
 .plaintext{
@@ -331,4 +349,17 @@ p{
   width: 16px;
   height: 16px;
   margin-right: 4px;
+}
+
+#fundsWrapper{
+  transition: margin-left 300ms;
+}
+
+#guidebook p{
+  font-family: "Pixellari";
+}
+
+.subtext{
+  color: rgb(69, 69, 69);
+  padding-left: 4px;
 }

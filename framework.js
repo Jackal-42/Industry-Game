@@ -253,6 +253,7 @@ game.addTexture("crude_naphtha_icon", "docs/assets/crude_naphtha_icon.png")
 game.addTexture("hydrogen_icon", "docs/assets/hydrogen_icon.png")
 game.addTexture("residue_icon", "docs/assets/residue_icon.png")
 game.addTexture("facility_arrow", "docs/assets/facility_arrow.png")
+game.addTexture("active_facility_arrow", "docs/assets/active_facility_arrow.png")
 game.addTexture("facility_double_arrow", "docs/assets/facility_double_arrow.png")
 
 //Returns a facility template by name
@@ -779,7 +780,44 @@ function createTemporaryTooltip(){
 var rightMenu = document.createElement('div')
 rightMenu.id = "slideMenuRight"
 
-rightMenu.innerHTML = `<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'96%\'){document.getElementById(\'slideMenuRight\').style.left = \'70%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'96%\'}\"> <img src=\"docs/assets/expand_arrow.png\" style=\"width: 90%; transform: rotate(90deg)\"> </button>
+rightMenu.innerHTML = `
+<div style="position: absolute; left: -61%; width: 60%; top: 2%; background-color: gray; border: 1px solid black; overflow: scroll; max-height: 400px;">
+
+
+  <button id="guidebookExpander" style="position: absolute; right: 3px; top: 3px;" onclick="toggleGuidebook()">-</button>
+
+  <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; width: 100%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">GUIDEBOOK</p>
+
+  <div id="guidebook">
+
+    <p class="selector" onclick="toggleMenu('basics')"><span id="basicsArrow">ᐳ </span>The Basics</p>
+
+    <div id="basics" class="menu" style="display:none;">
+      <p>INVENTORY</p>
+      <p class="subtext">To open your inventory, click the hammer icon in the top left, then click on any of the submenus to expand them. Shift-clicking on the hammer automatically expands all submenus.</p>
+
+      <br>
+
+      <p>FACILITIES</p>
+      <p class="subtext">Hover over the icon of each button in the inventory to read a brief description of them. Find the one labled "Distiller" and click on it. Then, click anywhere on land to place it down. You will need to build up funds to purchase facilities. You may rotate the facility before placing it using Z and X.</p>
+
+      <br>
+
+      <p>PIPES</p>
+      <p class="subtext">Select the cursor tool in the inventory and click on the distiller you have just placed. Notice the diagram that appears and the arrows pointing into or away from each side. Clicking on the black drop of oil at the top left reveals that a pipe connected to the distiller at the location of the arrow will input crude oil into the distiller. No other item will be accepted at that loaction. <br> In order to feed the crude oil input, we need to place down a facility with a crude oil output. Find the oil pump facility in your inventory and place it down near the distiller. Clicking on the oil pump with the cursor reveals that it produces crude oil and outputs it to every side. <br> Select the pipe icon in your inventory. Drag in a line from the oil pump to the part of the distiller that accepts crude oil. You will know that you have connected the pipe in the right location when you look at the distiller's diagram and see that the arrow for that input port has turned green.</p>
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
+
+
+
+<button style=\"position: absolute; left: 0px; height: 100%; border: none; background-color: tan; cursor: pointer; width: 14%;\" onclick=\"if(document.getElementById(\'slideMenuRight\').style.left == \'96%\'){document.getElementById(\'slideMenuRight\').style.left = \'70%\'; document.getElementById(\'fundsWrapper\').style.marginLeft = \'-15%\'}else{document.getElementById(\'slideMenuRight\').style.left = \'96%\'; document.getElementById(\'fundsWrapper\').style.marginLeft = \'0%\'}\"> <img src=\"docs/assets/expand_arrow.png\" style=\"width: 90%; transform: rotate(90deg)\"> </button>
 
 <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 20%; width: 75%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">UPGRADES<br><br>
 <div id="upgrades" style="margin-top: -4%; height: 22vw;">
@@ -845,7 +883,7 @@ function checkUpgrades(){
 
 var fundsDisplay = document.createElement('div')
 
-fundsDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white;\">Funds: $<span id=\"funds\">0</span> </p>`
+fundsDisplay.innerHTML = `<p id="fundsWrapper" style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white; margin-left: -15%;\">Funds: $<span id=\"funds\">0</span> </p>`
 
 game.window.appendChild(fundsDisplay)
 
@@ -2226,6 +2264,10 @@ function createNetwork(x, y, type, modifiers){
       }
       for(var k = 0, kl = facilities[i].storage.length; k < kl; k++){
         eval("facilityData." + facilities[i].storage[k] + " = 0")
+      }
+      facilityData.portsInUse = []
+      for(var k = 0, kl = facilities[i].ports.length; k < kl; k++){
+        facilityData.portsInUse.push(false)
       }
       if(!(facilities[i].data === undefined)){
         for(var k = 0, kl = facilities[i].data.length; k < kl; k++){

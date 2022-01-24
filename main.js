@@ -278,6 +278,18 @@ function toggleDebugMenu(){
 }
 toggleDebugMenu()
 
+function toggleGuidebook(){
+  if(document.getElementById('guidebookExpander').innerHTML == '-'){
+
+    document.getElementById('guidebookExpander').innerHTML = '+'
+    document.getElementById('guidebook').style.display = 'none'
+  }else{
+    
+    document.getElementById('guidebookExpander').innerHTML = '-'
+    document.getElementById('guidebook').style.display = 'block'
+  }
+}
+
 //updates the search bar in the monitor variables tab
 document.getElementById("monitorVariableInput").addEventListener('input', function monitorSearch(){
   document.getElementById("searchResults").innerHTML = ""
@@ -383,7 +395,11 @@ game.loop = function(){
       if(facilityDisplayedData.ports[i].gender[1].length == 1 && facilityDisplayedData.ports[i].gender[0] != "modular"){portTypeImage = facilityDisplayedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
       if(facilityDisplayedData.ports[i].gender[0] == "output" || (facilityDisplayedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
         facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
-        facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
+          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("active_facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        }else{
+          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        }
 
         if(facilityDisplayedData.ports[i].gender[0] == "modular"){
           facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-4.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
@@ -396,7 +412,11 @@ game.loop = function(){
 
         facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
       }else{
-        facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
+          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("active_facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        }else{
+          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        }
 
         facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
 
@@ -553,6 +573,9 @@ game.loop = function(){
     for(var k = 0, lll = areas.length; k < lll; k++){
       for(var i = 0, l = areas[k].networks.length; i < l; i++){
         if(areas[k].networks[i].name == "pipeSegment"){continue}
+        for(var j = 0, jl = areas[k].networks[i].data.portsInUse.length; j < jl; j++){
+          areas[k].networks[i].data.portsInUse[j] = false
+        }
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[k].networks[i].name){
             facilities[j].process(areas[k].networks[i])
@@ -764,6 +787,9 @@ game.loop = function(){
               if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice(); continue}
               invalidInput = false
 
+              facility1.data.portsInUse[areas[k].links[i].facility1[1]] = true
+              facility2.data.portsInUse[areas[k].links[i].facility2[1]] = true
+
               if(eval("facility1.data." + movingItems[j]) >= 1){
                 if(isModular2){facility2.data.storedItem = movingItems[j]}
                 if(eval("facility2.data." + movingItems[j]+ ">=" + facilities[facility2DataIndex].maxItems)){continue}
@@ -832,6 +858,11 @@ game.loop = function(){
               amountTransferred = 1/facility2.data.outputs
             }
             var invalidInput = false
+
+            facility1.data.portsInUse[areas[k].links[i].facility1[1]] = true
+            facility2.data.portsInUse[areas[k].links[i].facility2[1]] = true
+
+
             for(var j = 0, jl = movingItems.length; j < jl; j++){
               var invalidInputType = "";
               var invalidInputPort = "";
@@ -1028,6 +1059,31 @@ game.loop = function(){
   if(conduitSelected == "facility"){
     rotationDisplay.style.display = "block"
     var facilitySelectedData = getFacility(facilitySelected)
+
+
+
+    // var facilityShownWidth = 200
+    // var facilityShownHeight = 200
+    // var arrowWidth = 32
+    // if(facilityDisplayedData.width > facilityDisplayedData.height){
+    //   facilityShownHeight = 200/(facilityDisplayedData.width/facilityDisplayedData.height)
+    //   arrowWidth = facilityShownHeight
+    // }
+    // if(facilityDisplayedData.height > facilityDisplayedData.width){
+    //   facilityShownWidth = 200/(facilityDisplayedData.height/facilityDisplayedData.width)
+    //   arrowWidth = facilityShownWidth
+    // }
+    // if(facilityDisplayedData.width == 2 && facilityDisplayedData.height == 2){arrowWidth = 100}
+
+    // if(facilityShownWidth == 200 && facilityShownWidth == 200 && arrowWidth == 200){
+    //   facilityShownWidth = 120
+    //   facilityShownHeight = 120
+    //   arrowWidth = 120
+    // }
+
+
+
+
     cursorWidth = facilitySelectedData.width*32
     cursorHeight = facilitySelectedData.height*32
     ctx.save()
