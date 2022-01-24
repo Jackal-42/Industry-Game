@@ -1048,7 +1048,7 @@ game.loop = function(){
   ctx = game.getLayer("water").context
   ctx.globalCompositeOperation = "source-over"
 
-  ctx.globalAlpha = (Math.sin(framesElapsed/8) + 2)/4
+  ctx.globalAlpha = (Math.sin(framesElapsed/8) + 1.6)/3
   
   ctx.fillStyle = "yellow"
 
@@ -1060,26 +1060,54 @@ game.loop = function(){
     rotationDisplay.style.display = "block"
     var facilitySelectedData = getFacility(facilitySelected)
 
+    var arrowWidth = 32
+    var facilityShownWidth = 32
+    var facilityShownHeight = 32
+    ctx.imageSmoothingEnabled = false
+    ctx.save()
+    ctx.translate((mouseX*32)-scrollX/4 + 16, (mouseY*32)-scrollY/4 + 16)
+    ctx.rotate(facilityRotation * (Math.PI/180))
 
+    for(var i = 0, l = facilitySelectedData.ports.length; i < l; i++){
+      ctx.save()
+      ctx.translate(((facilityShownWidth/-2)) + arrowWidth*facilitySelectedData.ports[i].x + (arrowWidth/2), ((facilityShownHeight/-2)) + arrowWidth*facilitySelectedData.ports[i].y + (arrowWidth/2))
 
-    // var facilityShownWidth = 200
-    // var facilityShownHeight = 200
-    // var arrowWidth = 32
-    // if(facilityDisplayedData.width > facilityDisplayedData.height){
-    //   facilityShownHeight = 200/(facilityDisplayedData.width/facilityDisplayedData.height)
-    //   arrowWidth = facilityShownHeight
-    // }
-    // if(facilityDisplayedData.height > facilityDisplayedData.width){
-    //   facilityShownWidth = 200/(facilityDisplayedData.height/facilityDisplayedData.width)
-    //   arrowWidth = facilityShownWidth
-    // }
-    // if(facilityDisplayedData.width == 2 && facilityDisplayedData.height == 2){arrowWidth = 100}
+      var arrowRotation = 0;
+      if(facilitySelectedData.ports[i].x == facilitySelectedData.width){arrowRotation = (270*(Math.PI/180))}else if(facilitySelectedData.ports[i].x == -1){arrowRotation = (90*(Math.PI/180))}else if(facilitySelectedData.ports[i].y == -1){arrowRotation = (180*(Math.PI/180))}
 
-    // if(facilityShownWidth == 200 && facilityShownWidth == 200 && arrowWidth == 200){
-    //   facilityShownWidth = 120
-    //   facilityShownHeight = 120
-    //   arrowWidth = 120
-    // }
+      ctx.rotate(arrowRotation)
+
+      var portTypeImage;
+      if(facilitySelectedData.ports[i].gender[1].length == 1 && facilitySelectedData.ports[i].gender[0] != "modular"){portTypeImage = facilitySelectedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
+      if(facilitySelectedData.ports[i].gender[0] == "output" || (facilitySelectedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
+        ctx.rotate(180*(Math.PI/180))
+
+        ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+
+        if(facilitySelectedData.ports[i].gender[0] == "modular"){
+          ctx.translate(0, (arrowWidth/-4.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
+        }else{
+          ctx.translate(0, (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
+        }
+
+        ctx.rotate(arrowRotation*-1)
+        ctx.rotate(180*(Math.PI/180))
+
+        ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+      }else{
+
+        ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+
+        ctx.translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
+
+        ctx.rotate(arrowRotation*-1)
+
+        ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+      }
+      ctx.restore()
+    }
+    ctx.restore()
+
 
 
 
