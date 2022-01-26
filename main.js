@@ -499,6 +499,14 @@ game.loop = function(){
   }
   if(mouseDownPreviously && !mouseDown){
     endMouseHold = true
+    guideArrowsShown = false
+    for(var i = 0, l = activeOverlay.length; i < l; i++){
+      if(activeOverlay[i].type == "arrow"){
+        activeOverlay.splice(i, 1)
+        i--
+        l--
+      }
+    }
   }
   //Connects to the nearest pipe when letting go of the mouse button
   if(endMouseHold && conduitSelected != "facility"){
@@ -563,6 +571,7 @@ game.loop = function(){
 
   if(previousMouseX < 0){previousMouseX = 0}
   if(previousMouseY < 0){previousMouseY = 0}
+  
 
   if((framesElapsed + 5) % 15 == 1){
     checkUpgrades()
@@ -1029,13 +1038,16 @@ game.loop = function(){
     }
   }
   for( var i = 0, l = activeOverlay.length; i < l; i++){
-    if(activeOverlay[i].type == "pipe"){
+    if(activeOverlay[i].type == "pipe" || activeOverlay[i].type == "arrow"){
       ctx.save()
       ctx.globalCompositeOperation = "source-over"
+
       ctx.translate((activeOverlay[i].x*32)-scrollX/4+16, (activeOverlay[i].y*32)-scrollY/4+16)
+
       ctx.rotate(activeOverlay[i].rotation)
+      if(activeOverlay[i].type == "arrow"){ctx.translate(0, Math.sin(framesElapsed/20)*(2))}
       ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16, -16, 32, 32)
-      if(framesElapsed % 4 == 1 && Math.random() < 0.005){
+      if(framesElapsed % 4 == 1 && Math.random() < 0.005 && activeOverlay[i].type == "pipe"){
         activeOverlay.push(new Overlay("ripple", "null", activeOverlay[i].x, activeOverlay[i].y, 0))
       }
       ctx.restore()

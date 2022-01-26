@@ -142,14 +142,12 @@ p{
   filter: grayscale(1);
   transition: background-color 250ms, border 250ms, top 150ms, left 100ms;
   cursor: pointer;
+  overflow: hidden;
 }
 
 
 
 .hotbarButton img{
-  -webkit-filter: blur(0.1px); 
-  -moz-filter: blur(0.1px); 
-  -ms-filter: blur(0.1px);
   filter: blur(4px);
   user-select: none;
   position: absolute;
@@ -184,7 +182,7 @@ p{
 }
 
 .hotbarMenuVertical {
-  width: 80px;
+  width: 60px;
   height: 100%;
   position: absolute;
   top: 2%;
@@ -194,7 +192,7 @@ p{
 
 .hotbarMenuHorizontal{
   position: absolute;
-  height: 80px;
+  height: 60px;
   width: 100%;
   transition: background-color 250ms, top 150ms, left 100ms;
 }

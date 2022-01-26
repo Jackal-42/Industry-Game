@@ -1,6 +1,6 @@
 var game = new Game("game");
 
-var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane"]
+var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane", "gasoline", "diesel", "fuel_oil"]
 
 
 //The list of facility templates
@@ -257,6 +257,140 @@ var facilities = [
         y: 0,
         conduit: "pipe",
         gender: ["input", ["crude_kerosene", "crude_naphtha", "crude_vapor"]],
+      },
+    ],
+  },
+
+  {
+    name: "gasoline_mixer",
+    width: 2,
+    height: 1,
+    maxItems: 2,
+    pseudoPipe: false,
+    storage: ["butane", "naphtha", "light_oil", "fuel_oil", "gasoline"],
+    layout: [[0, 0], [1, 0]],
+    process: function(me){
+      while(true){
+        if(me.data.butane >= 0.25 && me.data.naphtha >= 0.25 && me.data.light_oil >= 0.25 && me.data.fuel_oil >= 0.25){
+          me.data.gasoline += 1
+
+          me.data.butane -= 0.25
+          me.data.naphtha -= 0.25
+          me.data.light_oil -= 0.25
+          me.data.fuel_oil -= 0.25
+          break;
+        }
+        break;
+      }
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["butane"]],
+      },
+
+      {
+        x: 1,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["naphtha"]],
+      },
+
+      {
+        x: 2,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["gasoline"]]
+      },
+
+      {
+        x: 1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["light_oil"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["fuel_oil"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["gasoline"]],
+      },
+    ],
+  },
+
+  {
+    name: "diesel_mixer",
+    width: 2,
+    height: 1,
+    maxItems: 2,
+    pseudoPipe: false,
+    storage: ["kerosene", "heavy_oil", "light_oil", "fuel_oil", "diesel"],
+    layout: [[0, 0], [1, 0]],
+    process: function(me){
+      while(true){
+        if(me.data.kerosene >= 0.25 && me.data.heavy_oil >= 0.25 && me.data.light_oil >= 0.25 && me.data.fuel_oil >= 0.25){
+          me.data.gasoline += 1
+
+          me.data.kerosene -= 0.25
+          me.data.heavy_oil -= 0.25
+          me.data.light_oil -= 0.25
+          me.data.fuel_oil -= 0.25
+          break;
+        }
+        break;
+      }
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["heavy_oil"]],
+      },
+
+      {
+        x: 1,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["kerosene"]],
+      },
+
+      {
+        x: 2,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["diesel"]]
+      },
+
+      {
+        x: 1,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["light_oil"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["fuel_oil"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["diesel"]],
       },
     ],
   },

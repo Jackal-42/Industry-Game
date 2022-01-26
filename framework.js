@@ -238,6 +238,9 @@ game.addTexture("gas_processor", "docs/assets/gas_processor.png")
 game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
+game.addTexture("asphalt_mixer", "docs/assets/asphalt_mixer.png")
+game.addTexture("gasoline_mixer", "docs/assets/gasoline_mixer.png")
+game.addTexture("diesel_mixer", "docs/assets/diesel_mixer.png")
 
 game.addTexture("crude_oil_icon", "docs/assets/crude_oil_icon.png")
 game.addTexture("gasoline_icon", "docs/assets/gasoline_icon.png")
@@ -256,6 +259,12 @@ game.addTexture("crude_butane_icon","docs/assets/crude_butane_icon.png")
 game.addTexture("butane_icon","docs/assets/butane_icon.png")
 game.addTexture("crude_propane_icon","docs/assets/crude_propane_icon.png")
 game.addTexture("propane_icon","docs/assets/propane_icon.png")
+game.addTexture("gasoline_icon", "docs/assets/gasoline_icon.png")
+game.addTexture("crude_gasoline_icon", "docs/assets/crude_gasoline_icon.png")
+game.addTexture("diesel_icon", "docs/assets/diesel_icon.png")
+game.addTexture("crude_diesel_icon", "docs/assets/crude_diesel_icon.png")
+game.addTexture("fuel_oil_icon", "docs/assets/fuel_oil_icon.png")
+game.addTexture("crude_fuel_oil_icon", "docs/assets/crude_fuel_oil_icon.png")
 
 game.addTexture("naphtha_icon", "docs/assets/naphtha_icon.png")
 game.addTexture("crude_naphtha_icon", "docs/assets/crude_naphtha_icon.png")
@@ -519,7 +528,7 @@ function toggleVerticalHotbarMenu(id){
 //Expands and retracts the submenus
 function toggleHorizontalHotbarMenu(id){
   for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
-    if(document.getElementById(id).children[i].style.left == "0px" || document.getElementById(id).children[i].style.left == "90px"){
+    if(document.getElementById(id).children[i].style.left == "0px" || document.getElementById(id).children[i].style.left == "68px"){
       if(document.getElementById(id).style.top == "0px"){return;}
       document.getElementById(id).children[i].style.left = document.getElementById(id).children[i].getAttribute("savestate")
     }else{
@@ -527,7 +536,7 @@ function toggleHorizontalHotbarMenu(id){
       var hotbarButtonName = document.getElementById(id).children[i].id.split("_")
       hotbarButtonName = [hotbarButtonName.shift(), hotbarButtonName.join("_")][1]
       if(hotbarButtonName == conduitSelected || (hotbarButtonName == facilitySelected && conduitSelected == "facility")){
-        document.getElementById(id).children[i].style.left = "90px";
+        document.getElementById(id).children[i].style.left = "68px";
       }
     }
   }
@@ -583,7 +592,7 @@ function selectPlaceable(id, keepOrder){
       hotbarButtons[i].style.border = "3px solid yellow"
 
       if(hotbarButtons[i].style.left == "0px"){ 
-        hotbarButtons[i].style.left = "90px"
+        hotbarButtons[i].style.left = "68px"
       }
     }else{
       if(hotbarButtons[i].style.border == "3px solid yellow"){
@@ -592,7 +601,7 @@ function selectPlaceable(id, keepOrder){
         // hotbarButtons[i].style.border = "3px solid black"
       }
     }
-    if(hotbarButtons[i].style.left == "90px" && !(hotbarButtons[i].id == elementID)){hotbarButtons[i].style.left = "0px"}
+    if(hotbarButtons[i].style.left == "68px" && !(hotbarButtons[i].id == elementID)){hotbarButtons[i].style.left = "0px"}
   }
 
   for(var i = 0, l = conduits.length; i < l; i++){
@@ -635,58 +644,64 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_hammer_menu" savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="selectPlaceable('hammer_menu'); toggleVerticalHotbarMenu('hotbarMenuVertical')"><img class="clickityElement" src="docs/assets/hammer.png"></button>
 
-<div class="hotbarMenuHorizontal" savestate="89px" style="top: 89px; z-index: 3;" id="hotbarMenu0">
+<div class="hotbarMenuHorizontal" savestate="67px" style="top: 67px; z-index: 3;" id="hotbarMenu0">
 
 <button id="hotbar_edit_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('edit_menu'); toggleHorizontalHotbarMenu('hotbarMenu0')"><img class="clickityElement" src="docs/assets/null.png"></button>
 
-<button id="hotbar_pointer" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('pointer')"><img class="clickityElement" src="docs/assets/pointer.png"></button>
+<button id="hotbar_pointer" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pointer')"><img class="clickityElement" src="docs/assets/pointer.png"></button>
 
-<button id="hotbar_erase" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
+<button id="hotbar_erase" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
 
 </div>
 
 
-<div class="hotbarMenuHorizontal" savestate="177px" style="top: 177px; z-index: 3;" id="hotbarMenu1">
+<div class="hotbarMenuHorizontal" savestate="133px" style="top: 133px; z-index: 3;" id="hotbarMenu1">
 
 <button id="hotbar_gear_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('gear_menu'); toggleHorizontalHotbarMenu('hotbarMenu1')"><img class="clickityElement" src="docs/assets/gear.png"></button>
 
-<button id="hotbar_pipe" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('pipe')"><img class="clickityElement" src="docs/assets/pipe_icon.png"></button>
+<button id="hotbar_pipe" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pipe')"><img class="clickityElement" src="docs/assets/pipe_icon.png"></button>
 
-<button id="hotbar_rail" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('rail')"><img class="clickityElement" src="docs/assets/rail_icon.png"></button>
+<button id="hotbar_rail" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('rail')"><img class="clickityElement" src="docs/assets/rail_icon.png"></button>
 
-<button id="hotbar_valve" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('valve')"><img class="clickityElement" src="docs/assets/valve.png"></button>
+<button id="hotbar_valve" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('valve')"><img class="clickityElement" src="docs/assets/valve.png"></button>
 
-<button id="hotbar_tank" savestate="352px" style="left: 352px;" class="hotbarButton" onclick="selectPlaceable('tank')"><img class="clickityElement" src="docs/assets/tank.png"></button>
+<button id="hotbar_tank" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('tank')"><img class="clickityElement" src="docs/assets/tank.png"></button>
 
-<button id="hotbar_t_valve" savestate="440px" style="left: 440px;" class="hotbarButton" onclick="selectPlaceable('t_valve')"><img class="clickityElement" src="docs/assets/t_valve_left.png"></button>
+<button id="hotbar_t_valve" savestate="330px" style="left: 330px;" class="hotbarButton" onclick="selectPlaceable('t_valve')"><img class="clickityElement" src="docs/assets/t_valve_left.png"></button>
 
-<button id="hotbar_one_way_pipe" savestate="528px" style="left: 528px;" class="hotbarButton" onclick="selectPlaceable('one_way_pipe')"><img class="clickityElement" src="docs/assets/one_way_pipe.png"></button>
-
-</div>
-
-
-
-<div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu2">
-
-<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 45%;"></button>
-
-<button id="hotbar_distiller" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('distiller')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 45%;"></button>
-
-<button id="hotbar_residue_processor" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('residue_processor')"><img class="clickityElement" src="docs/assets/residue_processor.png" style="width: 45%;"></button>
-
-<button id="hotbar_gas_processor" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('gas_processor')"><img class="clickityElement" src="docs/assets/gas_processor.png" style="width: 45%;"></button>
-
-<button id="hotbar_hydrotreater" savestate="352px" style="left: 352px;" class="hotbarButton" onclick="selectPlaceable('hydrotreater')"><img class="clickityElement" src="docs/assets/hydrotreater.png" style="height: 45%;"></button>
+<button id="hotbar_one_way_pipe" savestate="396px" style="left: 396px;" class="hotbarButton" onclick="selectPlaceable('one_way_pipe')"><img class="clickityElement" src="docs/assets/one_way_pipe.png"></button>
 
 </div>
 
-<div class="hotbarMenuHorizontal" savestate="353px" style="top: 353px; z-index: 3;" id="hotbarMenu3">
+
+
+<div class="hotbarMenuHorizontal" savestate="199px" style="top: 199px; z-index: 3;" id="hotbarMenu2">
+
+<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
+
+<button id="hotbar_distiller" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('distiller')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
+
+<button id="hotbar_residue_processor" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('residue_processor')"><img class="clickityElement" src="docs/assets/residue_processor.png" style="width: 40%; height: 80%;"></button>
+
+<button id="hotbar_gas_processor" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('gas_processor')"><img class="clickityElement" src="docs/assets/gas_processor.png" style="width: 40%; height: 80%;"></button>
+
+<button id="hotbar_hydrotreater" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('hydrotreater')"><img class="clickityElement" src="docs/assets/hydrotreater.png" style="height: 40%; width: 80%;"></button>
+
+<button id="hotbar_asphalt_mixer" savestate="330px" style="left: 330px;" class="hotbarButton" onclick="selectPlaceable('asphalt_mixer')"><img class="clickityElement" src="docs/assets/asphalt_mixer.png" style=""></button>
+
+<button id="hotbar_gasoline_mixer" savestate="396px" style="left: 396px;" class="hotbarButton" onclick="selectPlaceable('gasoline_mixer')"><img class="clickityElement" src="docs/assets/gasoline_mixer.png" style="height: 40%; width: 80%;"></button>
+
+<button id="hotbar_diesel_mixer" savestate="462px" style="left: 462px;" class="hotbarButton" onclick="selectPlaceable('diesel_mixer')"><img class="clickityElement" src="docs/assets/diesel_mixer.png" style="height: 40%; width: 80%;"></button>
+
+</div>
+
+<div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
 
 <button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3')"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
 
-<button id="hotbar_crude_source" savestate="88px" style="left: 88px;" class="hotbarButton" onclick="selectPlaceable('crude_source')"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
+<button id="hotbar_crude_source" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('crude_source')"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
 
-<button id="hotbar_hydrogen_source" savestate="176px" style="left: 176px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source')"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
+<button id="hotbar_hydrogen_source" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source')"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
 
 </div>
 
@@ -730,6 +745,12 @@ unlockHotbarButton("hotbar_residue_processor")
 unlockHotbarButton("hotbar_hydrotreater")
 unlockHotbarButton("hotbar_crude_source")
 unlockHotbarButton("hotbar_hydrogen_source")
+
+
+
+unlockHotbarButton("hotbar_asphalt_mixer")
+unlockHotbarButton("hotbar_gasoline_mixer")
+unlockHotbarButton("hotbar_diesel_mixer")
 
 
 selectPlaceable("pointer")
@@ -791,7 +812,7 @@ var rightMenu = document.createElement('div')
 rightMenu.id = "slideMenuRight"
 
 rightMenu.innerHTML = `
-<div style="position: absolute; left: -61%; width: 60%; top: 2%; background-color: gray; border: 1px solid black; overflow: scroll; max-height: 400px;">
+<div style="position: absolute; left: -61%; width: 50%; top: 2%; background-color: gray; border: 1px solid black; overflow: scroll; max-height: 400px;">
 
 
   <button id="guidebookExpander" style="position: absolute; right: 3px; top: 3px;" onclick="toggleGuidebook()">-</button>
@@ -1226,6 +1247,8 @@ function createPipeOverlay(x1, y1, x2, y2){
   }catch{}
 }
 
+var guideArrowsShown = false
+
 //Creates a connection between two adjacent pipes
 function connectPipes(x1, y1, x2, y2){
   var conduitIndex = getConduitIndex(conduitSelected)
@@ -1464,7 +1487,108 @@ function connectPipes(x1, y1, x2, y2){
     }
     
     if(debugging){updateNetworkLog()}
-    // }
+  }
+  
+  if(!guideArrowsShown){
+    guideArrowsShown = true
+    var endPoints = updateNetwork(x1, y1)
+    var endPoint1Connections = getPipeConnections(endPoints[0][0], endPoints[0][1])
+    var endPoint2Connections = getPipeConnections(endPoints[1][0], endPoints[1][1])
+
+
+    var checkFacility1 = false;
+    var facility1X = endPoints[0][0]
+    var facility1Y = endPoints[0][1]
+    if(endPoint1Connections.includes("l")){
+      if(getMapData(endPoints[0][0] - 1, endPoints[0][1]) == "p"){
+        checkFacility1 = true;
+        facility1X = endPoints[0][0] - 1
+      }
+    }
+    if(endPoint1Connections.includes("r")){
+      if(getMapData(endPoints[0][0] + 1, endPoints[0][1]) == "p"){
+        checkFacility1 = true;
+        facility1X = endPoints[0][0] + 1
+      }
+    }
+    if(endPoint1Connections.includes("t")){
+      if(getMapData(endPoints[0][0], endPoints[0][1] - 1) == "p"){
+        checkFacility1 = true;
+        facility1Y = endPoints[0][1] - 1
+      }
+    }
+    if(endPoint1Connections.includes("b")){
+      if(getMapData(endPoints[0][0], endPoints[0][1] + 1) == "p"){
+        checkFacility1 = true;
+        facility1Y = endPoints[0][1] + 1
+      }
+    }
+
+
+
+    var checkFacility2 = false;
+    var facility2X = endPoints[1][0]
+    var facility2Y = endPoints[1][1]
+    if(endPoint2Connections.includes("l")){
+      if(getMapData(endPoints[1][0] - 1, endPoints[1][1]) == "p"){
+        checkFacility2 = true;
+        facility2X = endPoints[1][0] - 1
+      }
+    }
+    if(endPoint2Connections.includes("r")){
+      if(getMapData(endPoints[1][0] + 1, endPoints[1][1]) == "p"){
+        checkFacility2 = true;
+        facility2X = endPoints[1][0] + 1
+      }
+    }
+    if(endPoint2Connections.includes("t")){
+      if(getMapData(endPoints[1][0], endPoints[1][1] - 1) == "p"){
+        checkFacility2 = true;
+        facility2Y = endPoints[1][1] - 1
+      }
+    }
+    if(endPoint2Connections.includes("b")){
+      if(getMapData(endPoints[1][0], endPoints[1][1] + 1) == "p"){
+        checkFacility2 = true;
+        facility2Y = endPoints[1][1] + 1
+      }
+    }
+
+    if(JSON.stringify(endPoints[0]) == JSON.stringify(endPoints[1])){
+      checkFacility2 = false
+    }
+
+    if(!(checkFacility1 && checkFacility2)){
+      var pipeSourceIndex = 0;
+      if(checkFacility1){
+        var pipeSourceCoords = JSON.stringify([facility1X, facility1Y])
+        for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+          if(areas[areaIndex].networks[i].name == "pipeSegment"){continue}
+          if(JSON.stringify(areas[areaIndex].networks[i].points).includes(pipeSourceCoords)){
+            pipeSourceIndex = i
+            break;
+          }
+        }
+      }
+
+      if(checkFacility2){
+        var pipeSourceCoords = JSON.stringify([facility2X, facility2Y])
+        for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+          if(areas[areaIndex].networks[i].name == "pipeSegment"){continue}
+          if(JSON.stringify(areas[areaIndex].networks[i].points).includes(pipeSourceCoords)){
+            pipeSourceIndex = i
+            break;
+          }
+        }
+      }
+
+      if(checkFacility1){
+        generateArrowOverlay(pipeSourceIndex, [endPoints[0][0], endPoints[0][1]])
+      }
+      if(checkFacility2){
+        generateArrowOverlay(pipeSourceIndex, [endPoints[1][0], endPoints[1][1]])
+      }
+    }
   }
 
   //If both ends of pipe connect to facilities, create a new network and links.
@@ -1488,6 +1612,71 @@ function connectPipes(x1, y1, x2, y2){
     }
   }
   
+}
+
+function generateArrowOverlay(index, coords){
+  var facilityTemplateID = 0
+  for(var i = 0, l = facilities.length; i < l; i++){
+    if(facilities[i].name == areas[areaIndex].networks[index].name){
+      facilityTemplateID = i
+    }
+  }
+
+  var rotatedPorts = []
+
+  for(var c = 0, cl = facilities[facilityTemplateID].ports.length; c < cl; c++){
+    rotatedPorts.push(rotate(0, 0, facilities[facilityTemplateID].ports[c].x, facilities[facilityTemplateID].ports[c].y, areas[areaIndex].networks[index].rotation * -1))
+  }
+
+  var differenceX = coords[0] - areas[areaIndex].networks[index].points[0][0]
+  var differenceY = coords[1] - areas[areaIndex].networks[index].points[0][1]
+
+  var portIndex = 0;
+  for(var i = 0, l = rotatedPorts.length; i < l; i++){
+    if(rotatedPorts[i][0] == differenceX && rotatedPorts[i][1] == differenceY){
+      portIndex = i
+    }
+  }
+  var outputtedItems = facilities[facilityTemplateID].ports[portIndex].gender[1]
+  var outputtedGender = facilities[facilityTemplateID].ports[portIndex].gender[0]
+
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name == "pipeSegment"){continue}
+    var facilityTemplate = getFacility(areas[areaIndex].networks[i].name)
+    for(var k = 0, kl = facilityTemplate.ports.length; k < kl; k++){
+      if(facilityTemplate.ports[k].gender[0] == outputtedGender && outputtedGender != "modular"){continue}
+      for(var j = 0, jl = outputtedItems.length; j < jl; j++){
+        if(facilityTemplate.ports[k].gender[1].includes(outputtedItems[j])){
+          var rotatedPort = rotate(0, 0, facilityTemplate.ports[k].x, facilityTemplate.ports[k].y, areas[areaIndex].networks[i].rotation * -1)
+          if(getMapData(areas[areaIndex].networks[i].points[0][0] + rotatedPort[0], areas[areaIndex].networks[i].points[0][1] + rotatedPort[1]) != "-"){continue}
+          var arrowRotation = 0
+          if(rotatedPort[1] < 0){
+            arrowRotation = 180
+          }
+          if(areas[areaIndex].networks[i].rotation == 180 || (areas[areaIndex].networks[i].rotation == 90 && getFacility(areas[areaIndex].networks[i].name).height > 1)){
+            if(rotatedPort[0] > 0){
+              arrowRotation = 90
+            }
+          }else{
+            if(rotatedPort[0] < 0){
+              arrowRotation = 90
+            }
+          }
+          if(areas[areaIndex].networks[i].rotation == 90 || areas[areaIndex].networks[i].rotation == 270){
+            if(rotatedPort[0] >= getFacility(areas[areaIndex].networks[i].name).height){
+              arrowRotation = 270
+            }
+          }else{
+            if(rotatedPort[0] >= getFacility(areas[areaIndex].networks[i].name).width){
+              arrowRotation = 270
+            }
+          }
+          if(outputtedGender == "input"){arrowRotation += 180}
+          activeOverlay.push(new Overlay("arrow", "active_facility_arrow", areas[areaIndex].networks[i].points[0][0] + rotatedPort[0], areas[areaIndex].networks[i].points[0][1] + rotatedPort[1], arrowRotation))
+        }
+      }
+    }
+  }
 }
 
 //Creates a new pipe network and links from a set of coordinates (anywhere on the target pipe)
