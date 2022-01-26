@@ -396,6 +396,57 @@ var facilities = [
   },
 
   {
+    name: "fuel_oil_mixer",
+    width: 1,
+    height: 1,
+    maxItems: 2,
+    pseudoPipe: false,
+    storage: ["propane", "heavy_oil", "fuel_oil"],
+    layout: [[0, 0]],
+    process: function(me){
+      while(true){
+        if(me.data.propane >= 0.5 && me.data.heavy_oil >= 1){
+          me.data.fuel_oil += 1
+
+          me.data.propane -= 0.5
+          me.data.heavy_oil -= 1
+          break;
+        }
+        break;
+      }
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["heavy_oil"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["fuel_oil"]]
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["heavy_oil"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["propane"]],
+      },
+    ],
+  },
+
+  {
     name: "ship",
     width: 2,
     height: 4,
@@ -744,6 +795,47 @@ var facilities = [
         y: 0,
         conduit: "pipe",
         gender: ["output", ["hydrogen"]],
+      },
+    ],
+  },
+
+  {
+    name: "any_source",
+    width: 1,
+    height: 1,
+    maxItems: 4,
+    pseudoPipe: false,
+    storage: fluids.slice(),
+    data: [["sourceType", "\"crude_oil\""]],
+    layout: [[0, 0]],
+    process: function(me){eval("me.data." + me.data.sourceType + " = 4")},
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["output", ["null"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["null"]],
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["output", ["null"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["null"]],
       },
     ],
   },

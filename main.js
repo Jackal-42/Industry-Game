@@ -251,6 +251,10 @@ game.window.addEventListener("click", function (e) {
     }
   }
 
+  if(areas[areaIndex].networks[facilityID].name == "any_source"){
+    document.getElementById('facilityShownDescription').innerHTML = "<input id=\"anySourceTypeSet\" type=\"text\" value=\""+areas[areaIndex].networks[facilityID].data.sourceType+"\"><br><button onclick=\"areas[areaIndex].networks["+facilityID+"].data.sourceType = document.getElementById(\'anySourceTypeSet\').value\">Set Type</button>"
+  }
+
 
   document.getElementById('centerDisplay').style.display = "block"
   
@@ -392,7 +396,7 @@ game.loop = function(){
       facilityShownCanvas.getContext("2d").rotate(arrowRotation)
 
       var portTypeImage;
-      if(facilityDisplayedData.ports[i].gender[1].length == 1 && facilityDisplayedData.ports[i].gender[0] != "modular"){portTypeImage = facilityDisplayedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
+      if(facilityDisplayedData.ports[i].gender[1].length == 1 && facilityDisplayedData.ports[i].gender[1][0] != "null"){portTypeImage = facilityDisplayedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
       if(facilityDisplayedData.ports[i].gender[0] == "output" || (facilityDisplayedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
         facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
         if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
@@ -810,6 +814,7 @@ game.loop = function(){
 
           facility1.warnings = []
           if(invalidInput){
+            if(facility1.name == "any_source"){continue}
             var errorName = invalidInputType.split("_")
 
             for(var b = 0, bl = errorName.length; b < bl; b++){
@@ -895,6 +900,7 @@ game.loop = function(){
 
           facility2.warnings = []
           if(invalidInput){
+            if(facility2.name == "any_source"){continue}
             var errorName = invalidInputType.split("_")
 
             for(var b = 0, bl = errorName.length; b < bl; b++){
@@ -1090,7 +1096,7 @@ game.loop = function(){
       ctx.rotate(arrowRotation)
 
       var portTypeImage;
-      if(facilitySelectedData.ports[i].gender[1].length == 1 && facilitySelectedData.ports[i].gender[0] != "modular"){portTypeImage = facilitySelectedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
+      if(facilitySelectedData.ports[i].gender[1].length == 1 && facilitySelectedData.ports[i].gender[1][0] != "null"){portTypeImage = facilitySelectedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
       if(facilitySelectedData.ports[i].gender[0] == "output" || (facilitySelectedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
         ctx.rotate(180*(Math.PI/180))
 

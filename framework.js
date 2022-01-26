@@ -237,10 +237,12 @@ game.addTexture("residue_processor", "docs/assets/residue_processor.png")
 game.addTexture("gas_processor", "docs/assets/gas_processor.png")
 game.addTexture("hydrotreater", "docs/assets/hydrotreater.png")
 game.addTexture("crude_source", "docs/assets/crude_source.png")
+game.addTexture("any_source", "docs/assets/any_source.png")
 game.addTexture("hydrogen_source", "docs/assets/hydrogen_source.png")
 game.addTexture("asphalt_mixer", "docs/assets/asphalt_mixer.png")
 game.addTexture("gasoline_mixer", "docs/assets/gasoline_mixer.png")
 game.addTexture("diesel_mixer", "docs/assets/diesel_mixer.png")
+game.addTexture("fuel_oil_mixer", "docs/assets/fuel_oil_mixer.png")
 
 game.addTexture("crude_oil_icon", "docs/assets/crude_oil_icon.png")
 game.addTexture("gasoline_icon", "docs/assets/gasoline_icon.png")
@@ -693,6 +695,8 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_diesel_mixer" savestate="462px" style="left: 462px;" class="hotbarButton" onclick="selectPlaceable('diesel_mixer')"><img class="clickityElement" src="docs/assets/diesel_mixer.png" style="height: 40%; width: 80%;"></button>
 
+<button id="hotbar_fuel_oil_mixer" savestate="528px" style="left: 528px;" class="hotbarButton" onclick="selectPlaceable('fuel_oil_mixer')"><img class="clickityElement" src="docs/assets/fuel_oil_mixer.png" style=""></button>
+
 </div>
 
 <div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
@@ -702,6 +706,8 @@ hotbarMenu.innerHTML = `
 <button id="hotbar_crude_source" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('crude_source')"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
 
 <button id="hotbar_hydrogen_source" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source')"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
+
+<button id="hotbar_any_source" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('any_source')"><img class="clickityElement" src="docs/assets/any_source.png"></button>
 
 </div>
 
@@ -744,6 +750,7 @@ unlockHotbarButton("hotbar_gas_processor")
 unlockHotbarButton("hotbar_residue_processor")
 unlockHotbarButton("hotbar_hydrotreater")
 unlockHotbarButton("hotbar_crude_source")
+unlockHotbarButton("hotbar_any_source")
 unlockHotbarButton("hotbar_hydrogen_source")
 
 
@@ -751,6 +758,7 @@ unlockHotbarButton("hotbar_hydrogen_source")
 unlockHotbarButton("hotbar_asphalt_mixer")
 unlockHotbarButton("hotbar_gasoline_mixer")
 unlockHotbarButton("hotbar_diesel_mixer")
+unlockHotbarButton("hotbar_fuel_oil_mixer")
 
 
 selectPlaceable("pointer")
