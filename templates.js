@@ -1,6 +1,6 @@
 var game = new Game("game");
 
-var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane", "gasoline", "diesel", "fuel_oil"]
+var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane", "gasoline", "diesel", "fuel_oil", "asphalt"]
 
 
 //The list of facility templates
@@ -187,7 +187,7 @@ var facilities = [
     height: 1,
     maxItems: 1,
     pseudoPipe: false,
-    storage: ["hydrogen", "crude_vapor", "crude_kerosene", "crude_naphtha", "vapor", "kerosene", "naphtha"],
+    storage: ["hydrogen", "crude_kerosene", "crude_naphtha", "crude_propane", "crude_butane", "kerosene", "naphtha", "propane", "butane"],
     layout: [[0, 0], [1, 0]],
     process: function(me){
       while(true){
@@ -198,16 +198,22 @@ var facilities = [
             me.data.kerosene += 1;
             continue;
           }
-          if(me.data.crude_vapor >= 1){
-            me.data.hydrogen -= 1;
-            me.data.crude_vapor -= 1;
-            me.data.vapor += 1;
-            continue;
-          }
           if(me.data.crude_naphtha >= 1){
             me.data.hydrogen -= 1;
             me.data.crude_naphtha -= 1;
             me.data.naphtha += 1;
+            continue;
+          }
+          if(me.data.crude_propane >= 1){
+            me.data.hydrogen -= 1;
+            me.data.crude_propane -= 1;
+            me.data.propane += 1;
+            continue;
+          }
+          if(me.data.crude_butane >= 1){
+            me.data.hydrogen -= 1;
+            me.data.crude_butane -= 1;
+            me.data.butane += 1;
             continue;
           }
           break;
@@ -234,7 +240,7 @@ var facilities = [
         x: 2,
         y: 0,
         conduit: "pipe",
-        gender: ["output", ["kerosene", "naphtha", "vapor"]]
+        gender: ["output", ["kerosene", "naphtha", "propane", "butane"]]
       },
 
       {
@@ -256,7 +262,7 @@ var facilities = [
         x: -1,
         y: 0,
         conduit: "pipe",
-        gender: ["input", ["crude_kerosene", "crude_naphtha", "crude_vapor"]],
+        gender: ["input", ["crude_kerosene", "crude_naphtha", "crude_propane", "crude_butane"]],
       },
     ],
   },
@@ -442,6 +448,57 @@ var facilities = [
         y: 0,
         conduit: "pipe",
         gender: ["input", ["propane"]],
+      },
+    ],
+  },
+
+  {
+    name: "asphalt_mixer",
+    width: 1,
+    height: 1,
+    maxItems: 2,
+    pseudoPipe: false,
+    storage: ["hydrogen", "heavy_oil", "asphalt"],
+    layout: [[0, 0]],
+    process: function(me){
+      while(true){
+        if(me.data.hydrogen >= 0.5 && me.data.heavy_oil >= 1){
+          me.data.asphalt += 1
+
+          me.data.hydrogen -= 0.5
+          me.data.heavy_oil -= 1
+          break;
+        }
+        break;
+      }
+    },
+    ports: [
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["input", ["heavy_oil"]],
+      },
+
+      {
+        x: 1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["output", ["asphalt"]]
+      },
+
+      {
+        x: 0,
+        y: 1,
+        conduit: "pipe",
+        gender: ["input", ["heavy_oil"]],
+      },
+
+      {
+        x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["input", ["hydrogen"]],
       },
     ],
   },
@@ -864,12 +921,66 @@ var upgrades = [
   },
 
   {
-    name: "Go Public",
-    text: "Become a publibly traded company and purchase stock",
+    name: "Advocacy",
+    text: "Hire advocates for your company to lobby for political issues",
     cost: 2500,
     unlock: "",
     unlocked: false,
     priority: 3,
+  },
+
+  {
+    name: "Fuel Oil Mixer",
+    text: "Extracts a valuable, high energy fuel from heavy oil",
+    cost: 3000,
+    unlock: "unlockHotbarButton(\"hotbar_fuel_oil_mixer\")",
+    unlocked: false,
+    priority: 4,
+  },
+
+  {
+    name: "Gasoline Mixer",
+    text: "Mixes several different products to create the most sought-after fuel on the market",
+    cost: 5000,
+    unlock: "unlockHotbarButton(\"hotbar_gasoline_mixer\")",
+    unlocked: false,
+    priority: 5,
+  },
+
+  {
+    name: "T-Valves",
+    text: "They can change the direction items flow at the flip of an arrow",
+    cost: 2000,
+    unlock: "unlockHotbarButton(\"hotbar_t_valve\")",
+    unlocked: false,
+    priority: 2,
+  },
+
+  {
+    name: "Asphalt Mixer",
+    text: "While it does not sell for a high price, asphalt is useful for deals and contracts that increase your repuation",
+    cost: 7500,
+    unlock: "unlockHotbarButton(\"hotbar_asphalt_mixer\")",
+    unlocked: false,
+    priority: 6,
+  },
+
+  {
+    name: "Diesel Mixer",
+    text: "Mixes several different products to create a heavy-duty fuel that fetches a high price",
+    cost: 10000,
+    unlock: "unlockHotbarButton(\"hotbar_diesel_mixer\")",
+    unlocked: false,
+    priority: 7,
+  },
+
+  {
+    name: "One-Way Pump",
+    text: "It can limit item flow to only one direction along a pipe",
+    cost: 2400,
+    unlock: "unlockHotbarButton(\"hotbar_one_way_pipe\")",
+    unlocked: false,
+    priority: 2,
   },
 
   {
@@ -967,13 +1078,13 @@ var tooltips = [
   {
     name: "hotbar_gas_processor",
     title: "Vapor Processor",
-    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_vapor\')\">crude vapor</span> into crude propane and butane"
+    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_vapor\')\">crude vapor</span> into crude <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_propane\')\">propane</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_butane\')\">butane</span>"
   },
 
   {
     name: "hotbar_residue_processor",
     title: "Residue Processor",
-    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'residue\')\">residue</span> into light oil and heavy oil"
+    text: "Processes <span class=\"tooltipLink\" onclick=\"createTooltip(\'residue\')\">residue</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'light_oil\')\">light oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span>"
   },
 
   {
@@ -995,21 +1106,117 @@ var tooltips = [
   },
 
   {
+    name: "kerosene",
+    title: "<img src=\"docs/assets/kerosene_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Kerosene</span>",
+    text: "This flammable oil is commonly used for heating, but is also used to make <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+  },
+
+  {
     name: "crude_naphtha",
     title: "<img src=\"docs/assets/crude_naphtha_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Naphtha</span>",
-    text: "This oil is one of the most important ingredients in gasoline, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+    text: "This oil is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+  },
+
+  {
+    name: "naphtha",
+    title: "<img src=\"docs/assets/naphtha_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Naphtha</span>",
+    text: "This oil is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but it also can be sold for a decent price."
+  },
+
+  {
+    name: "hotbar_fuel_oil_mixer",
+    title: "Fuel Oil Mixer",
+    text: "Converts <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'propane\')\">propane</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span>"
+  },
+
+  {
+    name: "hotbar_asphalt_mixer",
+    title: "Asphalt Mixer",
+    text: "Converts <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'hydrogen\')\">hydrogen</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'asphalt\')\">asphalt</span>"
+  },
+
+  {
+    name: "hotbar_gasoline_mixer",
+    title: "Gasoline Mixer",
+    text: "Converts <span class=\"tooltipLink\" onclick=\"createTooltip(\'butane\')\">butane</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'naphtha\')\">naphtha</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'light_oil\')\">light oil</span>, and <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>"
+  },
+
+  {
+    name: "hotbar_diesel_mixer",
+    title: "Diesel Mixer",
+    text: "Converts <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'kerosene\')\">kerosene</span>, <span class=\"tooltipLink\" onclick=\"createTooltip(\'light_oil\')\">light oil</span>, and <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+  },
+
+  {
+    name: "asphalt",
+    title: "<img src=\"docs/assets/asphalt_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Asphalt</span>",
+    text: "While this viscous black material doesn\'t sell for a lot, it is useful for developing a good reputation with governments. It can be created at an <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_asphalt_mixer\')\">asphalt mixer</span>"
+  },
+
+  {
+    name: "gasoline",
+    title: "<img src=\"docs/assets/gasoline_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Gasoline</span>",
+    text: "Gasoline is a desirable and versatile fuel created at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gasoline_mixer\')\">gasoline mixer</span>"
+  },
+
+  {
+    name: "diesel",
+    title: "<img src=\"docs/assets/diesel_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Diesel</span>",
+    text: "Diesel is a heavy-duty and pricey fuel created at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_diesel_mixer\')\">diesel mixer</span>"
+  },
+
+  {
+    name: "fuel_oil",
+    title: "<img src=\"docs/assets/fuel_oil_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Fuel Oil</span>",
+    text: "This energy-dense fuel is a key ingredient in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+  },
+
+  {
+    name: "light_oil",
+    title: "<img src=\"docs/assets/light_oil_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Light Oil</span>",
+    text: "Despite its name, light oil is one of the densest and heaviest products of <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_oil\')\">crude oil</span>. It can be converted into <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+  },
+
+  {
+    name: "heavy_oil",
+    title: "<img src=\"docs/assets/heavy_oil_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Heavy Oil</span>",
+    text: "One of the most versatile oil products, heavy oil is used to make <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'asphalt\')\">asphalt</span>"
+  },
+
+  {
+    name: "crude_propane",
+    title: "<img src=\"docs/assets/crude_propane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Propane</span>",
+    text: "This gas can be sold is used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+  },
+
+  {
+    name: "propane",
+    title: "<img src=\"docs/assets/propane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Propane</span>",
+    text: "This gas, commonly used for gas stoves, can be sold and is also used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_fuel_oil_mixer\')\">fuel oil mixer</span>."
+  },
+
+  {
+    name: "crude_butane",
+    title: "<img src=\"docs/assets/crude_butane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Butane</span>",
+    text: "This gas can be sold is used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+  },
+
+  {
+    name: "butane",
+    title: "<img src=\"docs/assets/butane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Butane</span>",
+    text: "This gas can be sold and is also used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gasoline_mixer\')\">gasoline mixer</span>"
   },
 
   {
     name: "crude_vapor",
     title: "<img src=\"docs/assets/crude_vapor_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Vapor</span>",
-    text: "This mixture of gases can be seperated into crude propane and butane at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>"
+    text: "This mixture of gases can be seperated into crude <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_propane\')\">propane</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_butane\')\">butane</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>"
   },
 
   {
     name: "residue",
     title: "<img src=\"docs/assets/residue_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Residue</span>",
-    text: "This mixture of solids can be seperated into light oil and heavy oil at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span>"
+    text: "This mixture of solids can be seperated into <span class=\"tooltipLink\" onclick=\"createTooltip(\'light_oil\')\">light oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span>"
   },
 
   {
@@ -1017,6 +1224,7 @@ var tooltips = [
     title: "<img src=\"docs/assets/hydrogen_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Hydrogen</span>",
     text: "This gas is used by the <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> to bring the impurities out of other oils and gases"
   },
+
   
 ]
 
@@ -1068,7 +1276,8 @@ game.addTemplate("terrain", [
   ["mapData", [
     
   ]],
-  ["role", `
+  ["role", function(myIndex){
+    var self = game.objects[myIndex]
     
 
     var mapTargetX = scrollX
@@ -1093,7 +1302,7 @@ game.addTemplate("terrain", [
         if(j < 0 || j > 39){
           continue;
         }
-        var row = this.objects[i].mapData[j].split("");
+        var row = game.objects[myIndex].mapData[j].split("");
         for(var k = Math.floor(mapTargetX/128)-1, lll = Math.floor(mapTargetX/128)+mapWidth; k < lll; k++){
           if(k < 0 || k > row.length){
             continue;
@@ -1107,75 +1316,84 @@ game.addTemplate("terrain", [
             yModifier = 0;
             while(getMapData(k, j - 1 + yModifier) == "X"){yModifier--}
 
-            var conduitTextureX = "null"
-            var conduitTextureY = "null"
+            // var conduitTextureX = "null"
+            // var conduitTextureY = "null"
 
-            if(getMapData(k - 1, j) == "p"){
+            // if(getMapData(k - 1, j) == "p"){
 
-              var coordString = JSON.stringify([k - 1, j])
+            //   var coordString = JSON.stringify([k - 1, j])
 
-              for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
-                if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
-                  for(var b = 0, lllll = facilities.length; b < lllll; b++){
-                    if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
-                      for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
-                        if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
-                          conduitTextureX = facilities[b].ports[c].conduit
-                          break;
-                        }
-                      }
-                    }
-                  }
-                  break;
-                }
-              }
-            }
+            //   for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
+            //     if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
+            //       for(var b = 0, lllll = facilities.length; b < lllll; b++){
+            //         if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
+            //           for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
+            //             if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
+            //               conduitTextureX = facilities[b].ports[c].conduit
+            //               break;
+            //             }
+            //           }
+            //         }
+            //       }
+            //       break;
+            //     }
+            //   }
+            // }
 
-            if(getMapData(k, j - 1) == "p"){
-              var coordString = JSON.stringify([k, j - 1])
+            // if(getMapData(k, j - 1) == "p"){
+            //   var coordString = JSON.stringify([k, j - 1])
 
-              for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
-                if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
-                  for(var b = 0, lllll = facilities.length; b < lllll; b++){
-                    if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
-                      for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
-                        if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
-                          conduitTextureY = facilities[b].ports[c].conduit
-                          break;
-                        }
-                      }
-                    }
-                  }
-                  break;
-                }
-              }
-            }
+            //   for(var a = 0, llll = areas[areaIndex].networks.length; a < llll; a++){
+            //     if(JSON.stringify(areas[areaIndex].networks[a].points).includes(coordString)){
+            //       for(var b = 0, lllll = facilities.length; b < lllll; b++){
+            //         if(facilities[b].name.includes(areas[areaIndex].networks[a].name)){
+            //           for(var c = 0, cl = facilities[b].ports.length; c < cl; c++){
+            //             if(areas[areaIndex].networks[a].points[0][0] + facilities[b].ports[c].x == k && areas[areaIndex].networks[a].points[0][1] + facilities[b].ports[c].y == j){
+            //               conduitTextureY = facilities[b].ports[c].conduit
+            //               break;
+            //             }
+            //           }
+            //         }
+            //       }
+            //       break;
+            //     }
+            //   }
+            // }
 
-            if(conduitTextureX == "null"){
-              conduitTextureX = getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0]
-            }
+            // if(conduitTextureX == "null"){
+            //   conduitTextureX = getTile("tiles", getMapData(k - 1 + xModifier, j))[0].split("_")[0]
+            // }
 
-            if(conduitTextureY == "null"){
-              conduitTextureY = getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0]
-            }
+            // if(conduitTextureY == "null"){
+            //   conduitTextureY = getTile("tiles", getMapData(k, j - 1 + yModifier))[0].split("_")[0]
+            // }
 
+            var conduitTextureX = "pipe"
+            var conduitTextureY = "pipe"
+            var image;
             if(intersectors.includes(conduitTextureX)){
+              image = game.getTexture(conduitTextureY + "_vv")
 
-              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              image = game.getTexture(conduitTextureX + "_hh")
+
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
             }else{
+              image = game.getTexture(conduitTextureX + "_hh")
 
-              ctx.drawImage(this.getTexture(conduitTextureX + "_hh"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
 
-              ctx.drawImage(this.getTexture(conduitTextureY + "_vv"), ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              image = game.getTexture(conduitTextureY + "_vv")
+
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
             }
             continue;
           }
           if(self.id == "baseLayer" || self.id == "waterLayer"){
-            var image = this.getTexture(getTile("terrain", row[k])[0])
+            var image = game.getTexture(getTile("terrain", row[k])[0])
           }else{
-            var image = this.getTexture(getTile("tile", row[k])[0])
+            var image = game.getTexture(getTile("tile", row[k])[0])
           }
           ctx.drawImage(image, ((k*16)-mapTargetX/8) * 2, ((j*16)-mapTargetY/8) * 2, 32, 32)
         }
@@ -1187,124 +1405,12 @@ game.addTemplate("terrain", [
   
   
   
-  `],
+  }],
   ["layer", "terrain"],
   ["zindex", 1],
   ["alpha", 1],
 ]);
-game.addTemplate("selector", [
-  ["x", 0],
-  ["y", 0],
-  ["id", "selector"],
-  ["momentumX", 0],
-  ["momentumY", 0],
-  ["width", 32],
-  ["height", 32],
-  ["spriteWidth", 32],
-  ["spriteHeight", 32],
-  ["spriteOffsetX", 0],
-  ["spriteOffsetY", 0],
-  ["rotation", 0],
-  ["movementDelay", 0],
-  ["acceleration", 0],
-  ["controls", "mouse"],
-  ["role", `
-    this.objects[i].movementDelay--
-    if(this.objects[i].movementDelay < -2){
-      this.objects[i].acceleration = 0;
-    }
-    framesElapsed++
-    this.objects[i].alpha = (Math.sin(framesElapsed/8) + 2)/4;
-    if(this.objects[i].controls == "keyboard"){
-      if(key("down") && key("left") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y += 32
-        this.objects[i].x -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("down") && key("right") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y += 32
-        this.objects[i].x += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("up") && key("left") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y -= 32
-        this.objects[i].x -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("up") && key("right") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y -= 32
-        this.objects[i].x += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("down") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("up") && this.objects[i].movementDelay <= 0){
-        this.objects[i].y -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("left") && this.objects[i].movementDelay <= 0){
-        this.objects[i].x -= 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-      if(key("right") && this.objects[i].movementDelay <= 0){
-        this.objects[i].x += 32
-        this.objects[i].movementDelay = 10 - this.objects[i].acceleration
-        if(this.objects[i].acceleration < 5){  
-          this.objects[i].acceleration += 1
-        }
-      }
-    }else if(self.controls == "mouse"){
-      // self.x = (Math.floor(((this.mouseX/windowScale))/(16))*16) - (scrollX % 16)
-      // self.y = (Math.floor(((this.mouseY/windowScale))/(16))*16) - (scrollY % 16)
-    }
-    if(this.objects[i].x < 0){
-      this.objects[i].x = 0
-    }
-    if(this.objects[i].y < 0){
-      this.objects[i].y = 0
-    }
-    if(this.objects[i].x > 988){
-      this.objects[i].x = 992
-    }
-    if(this.objects[i].y > 608){
-      this.objects[i].y = 608
-    }
-    if(conduitSelected == "facility"){
 
-    }else{
-      self.width = 32
-      self.height = 32
-    }
-    
-  `],
-  ["layer", "main"],
-  ["texture", "selector"],
-  ["zindex", 1],
-  ["alpha", 1],
-]);
 game.window.style.backgroundColor = "aqua"
 game.addTemplate("dynamicOil", [
   ["x", 0],
@@ -1322,7 +1428,8 @@ game.addTemplate("dynamicOil", [
   ["addDroplet", function(x, y){
     this.droplets.push([x, y, 8, 1]);
   }],
-  ["role", `
+  ["role", function(myIndex){
+    var self = game.objects[myIndex]
     if(framesElapsed % 10 == 1){
       if(framesElapsed % 60 == 1){
         game.getObject("dynamicOil").addDroplet(20 + (Math.random()-0.5)*20, 280 + (Math.random()-0.5)*20)
@@ -1344,5 +1451,5 @@ game.addTemplate("dynamicOil", [
         }
       }
     }
-  `]
+  }]
 ]);

@@ -251,6 +251,7 @@ game.addTexture("crude_vapor_icon", "docs/assets/crude_vapor_icon.png")
 game.addTexture("kerosene_icon", "docs/assets/kerosene_icon.png")
 game.addTexture("any_oil_icon", "docs/assets/any_oil_icon.png")
 game.addTexture("crude_kerosene_icon", "docs/assets/crude_kerosene_icon.png")
+game.addTexture("asphalt_icon", "docs/assets/asphalt_icon.png")
 
 // temporary textures for newly added fluids
 game.addTexture("light_oil_icon","docs/assets/light_oil_icon.png")
@@ -689,13 +690,13 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_hydrotreater" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('hydrotreater')"><img class="clickityElement" src="docs/assets/hydrotreater.png" style="height: 40%; width: 80%;"></button>
 
-<button id="hotbar_asphalt_mixer" savestate="330px" style="left: 330px;" class="hotbarButton" onclick="selectPlaceable('asphalt_mixer')"><img class="clickityElement" src="docs/assets/asphalt_mixer.png" style=""></button>
+<button id="hotbar_fuel_oil_mixer" savestate="330px" style="left: 330px;" class="hotbarButton" onclick="selectPlaceable('fuel_oil_mixer')"><img class="clickityElement" src="docs/assets/fuel_oil_mixer.png" style=""></button>
 
 <button id="hotbar_gasoline_mixer" savestate="396px" style="left: 396px;" class="hotbarButton" onclick="selectPlaceable('gasoline_mixer')"><img class="clickityElement" src="docs/assets/gasoline_mixer.png" style="height: 40%; width: 80%;"></button>
 
-<button id="hotbar_diesel_mixer" savestate="462px" style="left: 462px;" class="hotbarButton" onclick="selectPlaceable('diesel_mixer')"><img class="clickityElement" src="docs/assets/diesel_mixer.png" style="height: 40%; width: 80%;"></button>
+<button id="hotbar_asphalt_mixer" savestate="462px" style="left: 462px;" class="hotbarButton" onclick="selectPlaceable('asphalt_mixer')"><img class="clickityElement" src="docs/assets/asphalt_mixer.png" style=""></button>
 
-<button id="hotbar_fuel_oil_mixer" savestate="528px" style="left: 528px;" class="hotbarButton" onclick="selectPlaceable('fuel_oil_mixer')"><img class="clickityElement" src="docs/assets/fuel_oil_mixer.png" style=""></button>
+<button id="hotbar_diesel_mixer" savestate="528px" style="left: 528px;" class="hotbarButton" onclick="selectPlaceable('diesel_mixer')"><img class="clickityElement" src="docs/assets/diesel_mixer.png" style="height: 40%; width: 80%;"></button>
 
 </div>
 
@@ -755,10 +756,10 @@ unlockHotbarButton("hotbar_hydrogen_source")
 
 
 
-unlockHotbarButton("hotbar_asphalt_mixer")
-unlockHotbarButton("hotbar_gasoline_mixer")
-unlockHotbarButton("hotbar_diesel_mixer")
-unlockHotbarButton("hotbar_fuel_oil_mixer")
+// unlockHotbarButton("hotbar_asphalt_mixer")
+// unlockHotbarButton("hotbar_gasoline_mixer")
+// unlockHotbarButton("hotbar_diesel_mixer")
+// unlockHotbarButton("hotbar_fuel_oil_mixer")
 
 
 selectPlaceable("pointer")
@@ -2076,7 +2077,7 @@ function updatePipe(x, y, sourceX, sourceY){
 
   if(mapData == "X"){
     if(updateDirection == "x" || updateDirection == ""){
-      if((conduits[conduitIndex].top + conduits[conduitIndex].v + conduits[conduitIndex].tl + conduits[conduitIndex].tr).includes(getMapData(x, y-1)) && (conduits[conduitIndex].bottom + conduits[conduitIndex].v + conduits[conduitIndex].bl + conduits[conduitIndex].br).includes(getMapData(x, y+1))){
+      if((conduits[conduitIndex].top + conduits[conduitIndex].v + conduits[conduitIndex].tl + conduits[conduitIndex].tr + "p").includes(getMapData(x, y-1)) && (conduits[conduitIndex].bottom + conduits[conduitIndex].v + conduits[conduitIndex].bl + conduits[conduitIndex].br + "p").includes(getMapData(x, y+1))){
         changeMapData(x, y, conduits[conduitIndex].v)
         updateDirection = "x"
         updatePipe(x-1, y)
@@ -2085,7 +2086,7 @@ function updatePipe(x, y, sourceX, sourceY){
     }
 
     if(updateDirection == "y" || updateDirection == ""){
-      if((conduits[conduitIndex].left + conduits[conduitIndex].h + conduits[conduitIndex].tl + conduits[conduitIndex].bl).includes(getMapData(x-1, y)) && (conduits[conduitIndex].right + conduits[conduitIndex].h + conduits[conduitIndex].tr + conduits[conduitIndex].br).includes(getMapData(x+1, y))){
+      if((conduits[conduitIndex].left + conduits[conduitIndex].h + conduits[conduitIndex].tl + conduits[conduitIndex].bl + "p").includes(getMapData(x-1, y)) && (conduits[conduitIndex].right + conduits[conduitIndex].h + conduits[conduitIndex].tr + conduits[conduitIndex].br + "p").includes(getMapData(x+1, y))){
         changeMapData(x, y, conduits[conduitIndex].h)
         updateDirection = "y"
         updatePipe(x, y-1)

@@ -149,4 +149,3 @@ loadArea("shore")
 createNetwork(51, 17, "ship")
 
 
-// game.addObject("selector")

@@ -4,6 +4,10 @@ var facilityDisplayed = 0;
 var mouseDownX = 0;
 var mouseDownY = 0;
 
+window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+  console.log(errorObj)
+}
+
 //Rotates the facility placement cursor when tapping R or Z
 document.addEventListener("keydown", function (e) {
   if(e.keyCode == 82 || e.keyCode == 90){
@@ -350,6 +354,7 @@ document.getElementById('centerDisplay').style.display = 'none'
 
 //The code that is executed each frame
 game.loop = function(){
+  
 
   canPlaceFacility = true
 
@@ -513,7 +518,7 @@ game.loop = function(){
     }
   }
   //Connects to the nearest pipe when letting go of the mouse button
-  if(endMouseHold && conduitSelected != "facility"){
+  if(endMouseHold && conduitSelected != "facility" && conduitSelected != "pointer"){
     mouseX = Math.floor((game.mouseX + scrollX/4)/(32))
     mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
     addPipe(mouseX, mouseY)
@@ -1199,6 +1204,7 @@ game.loop = function(){
   mouseDownPreviously = false;
   if(mouseDown){mouseDownPreviously = true;}
   framesElapsed++
+  
   requestAnimationFrame(game.loop)
 }
 game.loop()

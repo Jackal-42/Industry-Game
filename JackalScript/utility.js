@@ -162,12 +162,12 @@ function Game(id){
       }
     }
   }
-  this.getRole = function(id){
+  this.getRole = function(id, index){
     for(var i = 0, l = this.templates.length; i < l; i++){
       if(this.templates[i].id == id){
         for(var k = 0, ll = this.templates[i].data.length; k < ll; k++){
           if(this.templates[i].data[k][0] == "role"){
-            return this.templates[i].data[k][1]
+            this.templates[i].data[k][1](index)
           }
         }
       }
@@ -181,9 +181,9 @@ function Game(id){
       var self = this.objects[i]
       if(!(this.objects[i].role === undefined)){
         if(this.objects[i].role == "#default"){
-          eval(this.getRole(this.objects[i].type))
+          try{this.getRole(this.objects[i].type, i)}catch(err){throw new Error(err)}
         }else{
-          eval(this.objects[i].role)
+          this.objects[i].role(i)
         }
       }
     }
