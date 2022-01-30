@@ -802,7 +802,7 @@ game.loop = function(){
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
                 continue;
               }
-              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice(); continue}
+              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
               invalidInput = false
 
               facility1.data.portsInUse[areas[k].links[i].facility1[1]] = true
@@ -889,7 +889,7 @@ game.loop = function(){
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
               }
-              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice(); continue}
+              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
 
               invalidInput = false
               

@@ -1498,7 +1498,7 @@ function connectPipes(x1, y1, x2, y2){
     if(debugging){updateNetworkLog()}
   }
   
-  if(!guideArrowsShown){
+  if(!guideArrowsShown && !endMouseHold){
     guideArrowsShown = true
     var endPoints = updateNetwork(x1, y1)
     var endPoint1Connections = getPipeConnections(endPoints[0][0], endPoints[0][1])
@@ -1648,6 +1648,20 @@ function generateArrowOverlay(index, coords){
   }
   var outputtedItems = facilities[facilityTemplateID].ports[portIndex].gender[1]
   var outputtedGender = facilities[facilityTemplateID].ports[portIndex].gender[0]
+  
+  if(outputtedGender == "output"){
+    
+    for(var i = 0, l = outputtedItems.length; i < l; i++){
+      try{
+        if(eval("areas[areaIndex].networks[index].data." + outputtedItems[i]) >= 1 || eval("areas[areaIndex].networks[index].data.crude_" + outputtedItems[i]) >= 1){
+          outputtedItems = [outputtedItems[i]]
+        }
+      }catch{}
+    }
+    if(outputtedItems.length > 1){
+      outputtedItems = []
+    }
+  }
 
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name == "pipeSegment"){continue}
@@ -1655,7 +1669,7 @@ function generateArrowOverlay(index, coords){
     for(var k = 0, kl = facilityTemplate.ports.length; k < kl; k++){
       if(facilityTemplate.ports[k].gender[0] == outputtedGender && outputtedGender != "modular"){continue}
       for(var j = 0, jl = outputtedItems.length; j < jl; j++){
-        if(facilityTemplate.ports[k].gender[1].includes(outputtedItems[j])){
+        if(facilityTemplate.ports[k].gender[1].includes(outputtedItems[j]) && ((eval("areas[areaIndex].networks[i].data." + outputtedItems[j]) >= 1) || facilityTemplate.ports[k].gender[0] != "output")){
           var rotatedPort = rotate(0, 0, facilityTemplate.ports[k].x, facilityTemplate.ports[k].y, areas[areaIndex].networks[i].rotation * -1)
           if(getMapData(areas[areaIndex].networks[i].points[0][0] + rotatedPort[0], areas[areaIndex].networks[i].points[0][1] + rotatedPort[1]) != "-"){continue}
           var arrowRotation = 0
@@ -2077,7 +2091,7 @@ function updatePipe(x, y, sourceX, sourceY){
 
   if(mapData == "X"){
     if(updateDirection == "x" || updateDirection == ""){
-      if((conduits[conduitIndex].top + conduits[conduitIndex].v + conduits[conduitIndex].tl + conduits[conduitIndex].tr + "p").includes(getMapData(x, y-1)) && (conduits[conduitIndex].bottom + conduits[conduitIndex].v + conduits[conduitIndex].bl + conduits[conduitIndex].br + "p").includes(getMapData(x, y+1))){
+      if((conduits[conduitIndex].top + conduits[conduitIndex].v + conduits[conduitIndex].tl + conduits[conduitIndex].tr + "pX").includes(getMapData(x, y-1)) && (conduits[conduitIndex].bottom + conduits[conduitIndex].v + conduits[conduitIndex].bl + conduits[conduitIndex].br + "pX").includes(getMapData(x, y+1))){
         changeMapData(x, y, conduits[conduitIndex].v)
         updateDirection = "x"
         updatePipe(x-1, y)
@@ -2086,7 +2100,7 @@ function updatePipe(x, y, sourceX, sourceY){
     }
 
     if(updateDirection == "y" || updateDirection == ""){
-      if((conduits[conduitIndex].left + conduits[conduitIndex].h + conduits[conduitIndex].tl + conduits[conduitIndex].bl + "p").includes(getMapData(x-1, y)) && (conduits[conduitIndex].right + conduits[conduitIndex].h + conduits[conduitIndex].tr + conduits[conduitIndex].br + "p").includes(getMapData(x+1, y))){
+      if((conduits[conduitIndex].left + conduits[conduitIndex].h + conduits[conduitIndex].tl + conduits[conduitIndex].bl + "pX").includes(getMapData(x-1, y)) && (conduits[conduitIndex].right + conduits[conduitIndex].h + conduits[conduitIndex].tr + conduits[conduitIndex].br + "pX").includes(getMapData(x+1, y))){
         changeMapData(x, y, conduits[conduitIndex].h)
         updateDirection = "y"
         updatePipe(x, y-1)
@@ -2133,6 +2147,7 @@ function updatePipe(x, y, sourceX, sourceY){
 
 //Removes a network from the network array based on coordinates, and any links which rely on it
 function killNetwork(x, y){
+  lg(x + ", " + y)
   var stringified = JSON.stringify([x, y])
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name == "pipeSegment"){
