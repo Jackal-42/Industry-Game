@@ -797,14 +797,13 @@ game.loop = function(){
               amountTransferred = 1/facility1.data.outputs
             }
             var invalidInput = false
+            var invalidInputType = ""
+            var invalidInputPort = ""
             for(var j = 0, jl = movingItems.length; j < jl; j++){
-              var invalidInputType = ""
-              var invalidInputPort = ""
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
                 continue;
               }
               if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
-              invalidInput = false
 
               facility1.data.portsInUse[areas[k].links[i].facility1[1]] = true
               facility2.data.portsInUse[areas[k].links[i].facility2[1]] = true
@@ -818,7 +817,7 @@ game.loop = function(){
             }
           }catch(err){console.log(err)}
 
-          facility1.warnings = []
+          facility2.warnings = []
           if(invalidInput){
             if(facility1.name == "any_source"){continue}
             var errorName = invalidInputType.split("_")
@@ -882,17 +881,15 @@ game.loop = function(){
             facility1.data.portsInUse[areas[k].links[i].facility1[1]] = true
             facility2.data.portsInUse[areas[k].links[i].facility2[1]] = true
 
-
+            var invalidInputType = "";
+            var invalidInputPort = "";
             for(var j = 0, jl = movingItems.length; j < jl; j++){
-              var invalidInputType = "";
-              var invalidInputPort = "";
 
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
               }
               if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
 
-              invalidInput = false
               
               if(eval("facility2.data." + movingItems[j]) >= 1){
 
@@ -904,7 +901,7 @@ game.loop = function(){
             }
           }catch(err){console.log(err)}
 
-          facility2.warnings = []
+          facility1.warnings = []
           if(invalidInput){
             if(facility2.name == "any_source"){continue}
             var errorName = invalidInputType.split("_")

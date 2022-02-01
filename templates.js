@@ -196,24 +196,36 @@ var facilities = [
             me.data.hydrogen -= 1;
             me.data.crude_kerosene -= 1;
             me.data.kerosene += 1;
+            me.data.naphtha = 0;
+            me.data.propane = 0;
+            me.data.butane = 0;
             continue;
           }
           if(me.data.crude_naphtha >= 1){
             me.data.hydrogen -= 1;
             me.data.crude_naphtha -= 1;
             me.data.naphtha += 1;
+            me.data.kerosene = 0;
+            me.data.propane = 0;
+            me.data.butane = 0;
             continue;
           }
           if(me.data.crude_propane >= 1){
             me.data.hydrogen -= 1;
             me.data.crude_propane -= 1;
             me.data.propane += 1;
+            me.data.naphtha = 0;
+            me.data.kerosene = 0;
+            me.data.butane = 0;
             continue;
           }
           if(me.data.crude_butane >= 1){
             me.data.hydrogen -= 1;
             me.data.crude_butane -= 1;
             me.data.butane += 1;
+            me.data.naphtha = 0;
+            me.data.kerosene = 0;
+            me.data.propane = 0;
             continue;
           }
           break;
