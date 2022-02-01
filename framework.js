@@ -1707,6 +1707,11 @@ function addPipeNetwork(endPoints){
   var endX = endPoints[0][0]
   var endY = endPoints[0][1]
   var connections = getPipeConnections(endX, endY)
+  if(JSON.stringify(endPoints[0]) == JSON.stringify(endPoints[1])){
+    if(connections.length == 1 || connections.length == 0){
+      return;
+    }
+  }
   var facility1X = 0;
   var facility1Y = 0;
   var facility2X = 0;
@@ -1826,6 +1831,7 @@ function addPipeNetwork(endPoints){
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
     areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
+    document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
   }
 
   if(facilityIDs[1] == undefined){facilityIDs[1] = facilityIDs[0]}
@@ -1982,6 +1988,7 @@ function addGhostNetwork(endPoints, connectionPoints){
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
     areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
+    document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
   }
 
   updateNetworkLog()
@@ -2147,13 +2154,13 @@ function updatePipe(x, y, sourceX, sourceY){
 
 //Removes a network from the network array based on coordinates, and any links which rely on it
 function killNetwork(x, y){
-  lg(x + ", " + y)
   var stringified = JSON.stringify([x, y])
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name == "pipeSegment"){
       if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringified || JSON.stringify(areas[areaIndex].networks[i].points[1]) == stringified){
         for(var k = 0, ll = areas[areaIndex].links.length; k < ll; k++){
           if(areas[areaIndex].links[k].supportingConduit == areas[areaIndex].networks[i].index){
+            document.getElementById("pipeLog").innerHTML += ("Killed pipe connecting " + areas[areaIndex].networks[i].data.connectedFacilities[0] + " and " + areas[areaIndex].networks[i].data.connectedFacilities[1] + "<br>")
             areas[areaIndex].links.splice(k, 1)
             k--
             ll--
@@ -2294,7 +2301,7 @@ function addPipe(x, y, mode){
       }
       endPoints = JSON.stringify(endPoints)
       if(directionals.includes("t")){
-        if((conduits[conduitIndex].segments + "X").includes(getMapData(x, y-1))){
+        if((conduits[conduitIndex].segments).includes(getMapData(x, y-1)) && getMapData(x, y-1) != "~"){
           armEndPoints = updateNetwork(x, y-1)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -2306,7 +2313,7 @@ function addPipe(x, y, mode){
         }
       }
       if(directionals.includes("b")){
-        if((conduits[conduitIndex].segments + "X").includes(getMapData(x, y+1))){
+        if((conduits[conduitIndex].segments).includes(getMapData(x, y+1)) && getMapData(x, y+1) != "~"){
           armEndPoints = updateNetwork(x, y+1)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -2317,7 +2324,7 @@ function addPipe(x, y, mode){
         }
       }
       if(directionals.includes("l")){
-        if((conduits[conduitIndex].segments + "X").includes(getMapData(x-1, y))){
+        if((conduits[conduitIndex].segments).includes(getMapData(x-1, y)) && getMapData(x-1, y) != "1"){
           armEndPoints = updateNetwork(x-1, y)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -2328,7 +2335,7 @@ function addPipe(x, y, mode){
         }
       }
       if(directionals.includes("r")){
-        if((conduits[conduitIndex].segments + "X").includes(getMapData(x+1, y))){
+        if((conduits[conduitIndex].segments).includes(getMapData(x+1, y)) && getMapData(x+1, y) != "1"){
           armEndPoints = updateNetwork(x+1, y)
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
@@ -2524,7 +2531,7 @@ function createNetwork(x, y, type, modifiers){
 
       for(var k = 0, kl = rotatedPorts.length; k < kl; k++){
         if(getTile("tiles", getMapData(rotatedPorts[k][0][0], rotatedPorts[k][0][1]))[0] == "connector"){
-          addGhostNetwork([[rotatedPorts[k][0][0] + rotatedPorts[k][1][0] - x, rotatedPorts[k][0][1] + rotatedPorts[k][1][1] - y], [rotatedPorts[k][0][0], rotatedPorts[k][0][1]]], [[rotatedPorts[k][0][0] - x, rotatedPorts[k][0][1] - y], [0,  0]])
+          addGhostNetwork([[rotatedPorts[k][0][0] + rotatedPorts[k][1][0] - x, rotatedPorts[k][0][1] + rotatedPorts[k][1][1] - y], [rotatedPorts[k][0][0] - (rotatedPorts[k][0][0] - x), rotatedPorts[k][0][1] - (rotatedPorts[k][0][1] - y)]], [[rotatedPorts[k][0][0] - x, rotatedPorts[k][0][1] - y], [0,  0]])
         }else if(conduits[0].endPoints.includes(getMapData(rotatedPorts[k][0][0], rotatedPorts[k][0][1]))){
           if(facilities[i].ports[k].gender[0] != "breaker"){
             connectPipes(rotatedPorts[k][0][0], rotatedPorts[k][0][1], rotatedPorts[k][1][0], rotatedPorts[k][1][1])

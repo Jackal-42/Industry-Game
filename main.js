@@ -6,6 +6,7 @@ var mouseDownY = 0;
 
 window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
   console.log(errorObj)
+  game.loop()
 }
 
 //Rotates the facility placement cursor when tapping R or Z

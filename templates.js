@@ -345,7 +345,7 @@ var facilities = [
     process: function(me){
       while(true){
         if(me.data.kerosene >= 0.25 && me.data.heavy_oil >= 0.25 && me.data.light_oil >= 0.25 && me.data.fuel_oil >= 0.25){
-          me.data.gasoline += 1
+          me.data.diesel += 1
 
           me.data.kerosene -= 0.25
           me.data.heavy_oil -= 0.25
