@@ -1287,46 +1287,46 @@ function connectPipes(x1, y1, x2, y2){
       endPoints.push(areas[areaIndex].networks[i].points[0])
       endPoints.push(areas[areaIndex].networks[i].points[1])
       
-      var stringArray2 = JSON.stringify([x2, y2])
-      if(JSON.stringify(areas[areaIndex].networks[i].points).includes(stringArray2)){
-        if(JSON.stringify(endPoints).includes(JSON.stringify([x1, y1]))){
-          var stringArray1 = JSON.stringify([x1, y1])
-          for(var j = 0; j < l; j++){
-            if(JSON.stringify(areas[areaIndex].networks[j].points[0]) == stringArray1){
+      // var stringArray2 = JSON.stringify([x2, y2])
+      // if(JSON.stringify(areas[areaIndex].networks[i].points).includes(stringArray2)){
+      //   if(JSON.stringify(endPoints).includes(JSON.stringify([x1, y1]))){
+      //     var stringArray1 = JSON.stringify([x1, y1])
+      //     for(var j = 0; j < l; j++){
+      //       if(JSON.stringify(areas[areaIndex].networks[j].points[0]) == stringArray1){
               
-              if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
-                areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[1]
-              }else{
-                areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[0]
-              }
-              areas[areaIndex].networks.splice(i, 1)
-              i--
-              l--
-            }else if(JSON.stringify(areas[areaIndex].networks[j].points[1]) == stringArray1){
+      //         if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
+      //           areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[1]
+      //         }else{
+      //           areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[0]
+      //         }
+      //         areas[areaIndex].networks.splice(i, 1)
+      //         i--
+      //         l--
+      //       }else if(JSON.stringify(areas[areaIndex].networks[j].points[1]) == stringArray1){
              
-              if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
-                areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[1]
-              }else{
-                areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[0]
-              }
-              areas[areaIndex].networks.splice(i, 1)
-              i--
-              l--
-            }
-          }
-        }else{
-          for(var j = 0; j < 2; j++){
-            if(JSON.stringify(areas[areaIndex].networks[i].points[j]) == stringArray2){
-              areas[areaIndex].networks[i].points[j] = [x1, y1]
-              break;
-            }
-          }
-          break;
-        }
+      //         if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
+      //           areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[1]
+      //         }else{
+      //           areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[0]
+      //         }
+      //         areas[areaIndex].networks.splice(i, 1)
+      //         i--
+      //         l--
+      //       }
+      //     }
+      //   }else{
+      //     for(var j = 0; j < 2; j++){
+      //       if(JSON.stringify(areas[areaIndex].networks[i].points[j]) == stringArray2){
+      //         areas[areaIndex].networks[i].points[j] = [x1, y1]
+      //         break;
+      //       }
+      //     }
+      //     break;
+      //   }
 
 
 
-      }
+      // }
     }
   }
   var pipesToReplace = [];
@@ -1479,9 +1479,9 @@ function connectPipes(x1, y1, x2, y2){
 
   if(getMapData(x2, y2) == "p" || getMapData(x1, y1) == "p"){
     if(getMapData(x1, y1) == "p"){
-      var endPoints = updateNetwork(x2, y2)
+      var endPoints = updateNetwork(x2, y2, true)[1]
     }else{
-      var endPoints = updateNetwork(x1, y1)
+      var endPoints = updateNetwork(x1, y1, true)[1]
     }
     
     var pos = 0;
@@ -1489,10 +1489,102 @@ function connectPipes(x1, y1, x2, y2){
       pos = 1;
     }
     // if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0], endPoints[pos][1] + 1) == "p"){
-
     if(addPipeNetwork(endPoints)){
       changeMapData(x1, y1, previousMapData1)
       changeMapData(x2, y2, previousMapData2)
+    }
+    if(getMapData(x2, y2) == "p" && getMapData(x1, y1) == "p"){
+      if(Math.abs(x1-x2) > 1 || Math.abs(y1-y2) > 1){
+
+        if(x1 > x2){
+          var endPoints = [[x1-1, y1], [x2+1, y2]]
+        }
+        if(x2 > x1){
+          var endPoints = [[x1+1, y1], [x2-1, y2]]
+        }
+        if(y1 > y2){
+          var endPoints = [[x1, y1-1], [x2, y2+1]]
+        }
+        if(y2 > y1){
+          var endPoints = [[x1, y1+1], [x2, y2-1]]
+        }
+
+        var facilityIDs = []
+        var facility1String = JSON.stringify([x1, y1])
+        var facility2String = JSON.stringify([x2, y2])
+        for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+          if(areas[areaIndex].networks[i].name != "pipeSegment"){
+            var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
+            if(areaString.includes(facility1String)){
+              facilityIDs.push(areas[areaIndex].networks[i].index)
+            }
+          }
+        }
+
+
+        for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+          if(areas[areaIndex].networks[i].name != "pipeSegment"){
+            var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
+            if(areaString.includes(facility2String)){
+              facilityIDs.push(areas[areaIndex].networks[i].index)
+            }
+          }
+        }
+
+        var facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
+        var facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
+        var facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
+        var facility2Y = getNetwork(areaIndex, facilityIDs[1]).points[0][1]
+
+        networkTotal++
+
+        var facility1PortIndex = 0;
+        var facility2PortIndex = 0;
+        var facility1TemplateID = 0;
+        var facility2TemplateID = 0;
+        
+        for(var i = 0, l = facilities.length; i < l; i++){
+          if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
+            facility1TemplateID = i
+          }
+
+          if(facilities[i].name == getNetwork(areaIndex, facilityIDs[1]).name){
+            facility2TemplateID = i
+          }
+        }
+
+        var rotatedEndPoints = [rotate(facility1X, facility1Y, endPoints[0][0], endPoints[0][1], getNetwork(areaIndex, facilityIDs[0]).rotation), rotate(facility2X, facility2Y, endPoints[1][0], endPoints[1][1], getNetwork(areaIndex, facilityIDs[1]).rotation)]
+
+        var rotatedPorts = []
+
+        for(var c = 0, cl = facilities[facility1TemplateID].ports.length; c < cl; c++){
+          rotatedPorts.push(rotate(0, 0, facilities[facility1TemplateID].ports[c].x, facilities[facility1TemplateID].ports[c].y, 0))
+        }
+
+        for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+
+          if(getNetwork(areaIndex, facilityIDs[0]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[0][0] && getNetwork(areaIndex, facilityIDs[0]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[0][1]){
+            facility1PortIndex = c
+          }
+        }
+
+        var rotatedPorts = []
+
+        for(var c = 0, cl = facilities[facility2TemplateID].ports.length; c < cl; c++){
+          rotatedPorts.push(rotate(0, 0, facilities[facility2TemplateID].ports[c].x, facilities[facility2TemplateID].ports[c].y, 0))
+        }
+
+        for(var c = 0, cl = rotatedPorts.length; c < cl; c++){
+          if(getNetwork(areaIndex, facilityIDs[1]).points[0][0] + rotatedPorts[c][0] == rotatedEndPoints[1][0] && getNetwork(areaIndex, facilityIDs[1]).points[0][1] + rotatedPorts[c][1] == rotatedEndPoints[1][1]){
+            facility2PortIndex = c
+          }
+        }
+
+        areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
+
+        areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
+        document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
+      }
     }
     
     if(debugging){updateNetworkLog()}
@@ -1500,7 +1592,7 @@ function connectPipes(x1, y1, x2, y2){
   
   if(!guideArrowsShown && !endMouseHold){
     guideArrowsShown = true
-    var endPoints = updateNetwork(x1, y1)
+    var endPoints = updateNetwork(x1, y1)[1]
     var endPoint1Connections = getPipeConnections(endPoints[0][0], endPoints[0][1])
     var endPoint2Connections = getPipeConnections(endPoints[1][0], endPoints[1][1])
 
@@ -1604,7 +1696,7 @@ function connectPipes(x1, y1, x2, y2){
   if(joinEmptyNetwork){
     var previousMapData1 = getMapData(x1, y1)
     var previousMapData2 = getMapData(x2, y2)
-    var endPoints = updateNetwork(x1, y1)
+    var endPoints = updateNetwork(x1, y1)[1]
     var endX = endPoints[0][0]
     var endY = endPoints[0][1]
     var connections = getPipeConnections(endX, endY)
@@ -1703,7 +1795,10 @@ function generateArrowOverlay(index, coords){
 }
 
 //Creates a new pipe network and links from a set of coordinates (anywhere on the target pipe)
-function addPipeNetwork(endPoints){
+function addPipeNetwork(endPoints, useTrueCoords){
+  if(useTrueCoords == undefined){
+    useTrueCoords = false
+  }
   var endX = endPoints[0][0]
   var endY = endPoints[0][1]
   var connections = getPipeConnections(endX, endY)
@@ -1712,42 +1807,48 @@ function addPipeNetwork(endPoints){
       return;
     }
   }
-  var facility1X = 0;
-  var facility1Y = 0;
-  var facility2X = 0;
-  var facility2Y = 0;
-  if((connections.includes("t") && getMapData(endX, endY-1) == "p")){
-    facility1X = endX
-    facility1Y = endY - 1
-  }else if((connections.includes("l") && getMapData(endX-1, endY) == "p")){
-    facility1X = endX - 1
-    facility1Y = endY
-  }else if((connections.includes("r") && getMapData(endX+1, endY) == "p")){
-    facility1X = endX + 1
-    facility1Y = endY
-  }
-  else if((connections.includes("b") && getMapData(endX, endY+1) == "p")){
-    facility1X = endX
-    facility1Y = endY + 1
-  }
+  if(useTrueCoords){
+    var facility1X = endPoints[0][0]
+    var facility1Y = endPoints[0][1]
+    var facility2X = endPoints[1][0]
+    var facility2Y = endPoints[1][1]
+  }else{
+    var facility1X = 0;
+    var facility1Y = 0;
+    var facility2X = 0;
+    var facility2Y = 0;
+    if((connections.includes("t") && getMapData(endX, endY-1) == "p")){
+      facility1X = endX
+      facility1Y = endY - 1
+    }else if((connections.includes("l") && getMapData(endX-1, endY) == "p")){
+      facility1X = endX - 1
+      facility1Y = endY
+    }else if((connections.includes("r") && getMapData(endX+1, endY) == "p")){
+      facility1X = endX + 1
+      facility1Y = endY
+    }
+    else if((connections.includes("b") && getMapData(endX, endY+1) == "p")){
+      facility1X = endX
+      facility1Y = endY + 1
+    }
 
-  endX = endPoints[1][0]
-  endY = endPoints[1][1]
-  connections = getPipeConnections(endX, endY)
-  if((connections.includes("t") && getMapData(endX, endY-1) == "p") && !((endY - 1 == facility1Y) && (endX == facility1X))){
-    facility2X = endX
-    facility2Y = endY - 1
-  }else if((connections.includes("l") && getMapData(endX-1, endY) == "p") && !((endY == facility1Y) && (endX - 1 == facility1X))){
-    facility2X = endX - 1
-    facility2Y = endY
-  }else if((connections.includes("r") && getMapData(endX+1, endY) == "p") && !((endY == facility1Y) && (endX + 1 == facility1X))){
-    facility2X = endX + 1
-    facility2Y = endY
-  }else if((connections.includes("b") && getMapData(endX, endY+1) == "p") && !((endY + 1 == facility1Y) && (endX == facility1X))){
-    facility2X = endX
-    facility2Y = endY + 1
+    endX = endPoints[1][0]
+    endY = endPoints[1][1]
+    connections = getPipeConnections(endX, endY)
+    if((connections.includes("t") && getMapData(endX, endY-1) == "p") && !((endY - 1 == facility1Y) && (endX == facility1X))){
+      facility2X = endX
+      facility2Y = endY - 1
+    }else if((connections.includes("l") && getMapData(endX-1, endY) == "p") && !((endY == facility1Y) && (endX - 1 == facility1X))){
+      facility2X = endX - 1
+      facility2Y = endY
+    }else if((connections.includes("r") && getMapData(endX+1, endY) == "p") && !((endY == facility1Y) && (endX + 1 == facility1X))){
+      facility2X = endX + 1
+      facility2Y = endY
+    }else if((connections.includes("b") && getMapData(endX, endY+1) == "p") && !((endY + 1 == facility1Y) && (endX == facility1X))){
+      facility2X = endX
+      facility2Y = endY + 1
+    }
   }
-
   var facility1String = JSON.stringify([facility1X, facility1Y])
   var facility2String = JSON.stringify([facility2X, facility2Y])
   var facilityIDs = [];
@@ -1773,7 +1874,8 @@ function addPipeNetwork(endPoints){
     }
   }
 
-  
+  if(facilityIDs.length == 0){return false}
+
 
   if(facilityIDs[1] != undefined){
     facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
@@ -2173,7 +2275,6 @@ function killNetwork(x, y){
             }
           }
         }
-
         areas[areaIndex].networks.splice(i, 1)
         i--
         l--
@@ -2283,6 +2384,9 @@ function addPipe(x, y, mode){
       //   directionals = "tl"
       // }
 
+
+      killNetwork(x, y)
+
       updateDirection = "";
 
       changeMapData(x, y, "-")
@@ -2302,7 +2406,7 @@ function addPipe(x, y, mode){
       endPoints = JSON.stringify(endPoints)
       if(directionals.includes("t")){
         if((conduits[conduitIndex].segments).includes(getMapData(x, y-1)) && getMapData(x, y-1) != "~"){
-          armEndPoints = updateNetwork(x, y-1)
+          armEndPoints = updateNetwork(x, y-1)[1]
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
           }
@@ -2314,7 +2418,7 @@ function addPipe(x, y, mode){
       }
       if(directionals.includes("b")){
         if((conduits[conduitIndex].segments).includes(getMapData(x, y+1)) && getMapData(x, y+1) != "~"){
-          armEndPoints = updateNetwork(x, y+1)
+          armEndPoints = updateNetwork(x, y+1)[1]
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
           }
@@ -2325,7 +2429,7 @@ function addPipe(x, y, mode){
       }
       if(directionals.includes("l")){
         if((conduits[conduitIndex].segments).includes(getMapData(x-1, y)) && getMapData(x-1, y) != "1"){
-          armEndPoints = updateNetwork(x-1, y)
+          armEndPoints = updateNetwork(x-1, y)[1]
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
           }
@@ -2336,7 +2440,7 @@ function addPipe(x, y, mode){
       }
       if(directionals.includes("r")){
         if((conduits[conduitIndex].segments).includes(getMapData(x+1, y)) && getMapData(x+1, y) != "1"){
-          armEndPoints = updateNetwork(x+1, y)
+          armEndPoints = updateNetwork(x+1, y)[1]
           if(endPoints.includes(JSON.stringify(armEndPoints[0]))){
             killNetwork(armEndPoints[0][0], armEndPoints[0][1])
           }
@@ -2351,7 +2455,6 @@ function addPipe(x, y, mode){
     
   }else{
     crossingPipe = false;
-
     if(beginMouseHold){
       previousPipeX = x;
       previousPipeY = y;
@@ -2363,8 +2466,8 @@ function addPipe(x, y, mode){
       crossingPipe = true
     }
     
-    if(getMapData(x, y) == "-"){
-      changeMapData(x, y, conduits[conduitIndex].stub)
+    if("-p".includes(getMapData(x, y))){
+      if(getMapData(x, y) == "-"){changeMapData(x, y, conduits[conduitIndex].stub)}
       if(!beginMouseHold){
         if((conduits[conduitIndex].endPoints + conduits[conduitIndex].stub + "p-").includes(getMapData(previousPipeX, previousPipeY))){
           connectPipes(x, y, previousPipeX, previousPipeY)
@@ -2559,7 +2662,10 @@ function updateNetworkLog(){
 }
 
 //Returns endpoints for a pipe segment network, given coordinates. I have no idea why I named it updateNetwork because it certainly does not
-function updateNetwork(x, y){
+function updateNetwork(x, y, giveTrueCoords){
+  if(giveTrueCoords == undefined){
+    giveTrueCoords = true
+  }
   conduitIndex = getConduitIndex(conduitSelected)
   if(conduitSelected == "erase"){conduitIndex = 0}
   var targetX = x;
@@ -2613,10 +2719,26 @@ function updateNetwork(x, y){
   var endPoints = [[x, y],[0, 0]]
   var counter = 0;
 
-  var validConduitSegments = (conduits[conduitIndex].segments + "X")
+  
 
+  if(giveTrueCoords){
+    var validConduitSegments = (conduits[conduitIndex].segments + "Xp")
+  }else{
+    var validConduitSegments = (conduits[conduitIndex].segments + "X")
+  }
+
+  var currentTargets = [[x, y], [x, y]]
+  var previousTargets = [[x, y], [x, y]]
   while(counter < 10000){
     counter++
+    if(secondSide){
+      previousTargets[1] = currentTargets[1].slice()
+      currentTargets[1] = [targetX, targetY]
+    }else{
+      previousTargets[0] = currentTargets[0].slice()
+      currentTargets[0] = [targetX, targetY]
+    }
+
     var connections = getPipeConnections(targetX, targetY)
     if(getMapData(targetX, targetY) == "X"){
       targetX += xMotion;
@@ -2674,8 +2796,7 @@ function updateNetwork(x, y){
     endPoints[1][1] = targetY;
   }
   
-
-  return endPoints;
+  return [endPoints, previousTargets];
 }
 
 var framesElapsed = 0;
