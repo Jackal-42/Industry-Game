@@ -2089,7 +2089,7 @@ function addGhostNetwork(endPoints, connectionPoints){
 
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
-    areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
+    areas[areaIndex].networks.push(new Network("pipeSegment", 0, [endPoints[0], endPoints[0]], {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
     document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
   }
 
@@ -2323,8 +2323,9 @@ function addPipe(x, y, mode){
             if(areas[areaIndex].networks[k].name == "pipeSegment"){
               if(areas[areaIndex].networks[k].data.connectedFacilities[0] == areas[areaIndex].networks[i].index || areas[areaIndex].networks[k].data.connectedFacilities[1] == areas[areaIndex].networks[i].index){
                 killNetwork(areas[areaIndex].networks[k].points[0][0], areas[areaIndex].networks[k].points[0][1])
-                k--
-                ll--
+                var difference = ll-k
+                ll = areas[areaIndex].networks.length
+                k = ll-difference
               }
             }
           }
@@ -2474,7 +2475,7 @@ function addPipe(x, y, mode){
         }
       }
       
-      if(beginMouseHold){
+      if(beginMouseHold && getMapData(x, y) == "-"){
         if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1))){
           connectPipes(x, y, x, y-1)
           previousPipeX = x;

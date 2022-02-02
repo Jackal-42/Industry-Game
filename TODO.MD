@@ -27,8 +27,7 @@
 
 NOTE TO FUTURE SELF
 To Do for today/tomorrow
-* Custom tooltips based on which items a facility can take
-* Add a catchall tooltip for modular facilities
-* Comment code
-* Move long definitions (tooltip/texture/facility) to a different file to improve load times
-* 
+* Fix duplicate deletion (when deleting one facility deletes several more) MAYBE FIXED?
+* Fix unwanted pipe connections on drag from facility
+* Fix connection removal on a 1-wide X segment
+
