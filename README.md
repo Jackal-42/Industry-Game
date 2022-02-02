@@ -3,6 +3,9 @@
 
 [Go to GH Pages](https://jackal-42.github.io/Industry-Game/)
 
+
+![Screenshot from dev build, not representitive of final product](https://github.com/Jackal-42/Industry-Game/raw/industrial/docs/Screenshot%202022-02-01%202.22.07%20PM.png)
+
 Areas<br><br>
 name: The area's ID<br>
 activeLayer: The layer with pipes & facilities<br>
