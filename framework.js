@@ -2328,6 +2328,7 @@ function addPipe(x, y, mode){
   }
   var conduitIndex = getConduitIndex(conduitSelected)
   if(key(16) || conduitSelected == "erase" || mode == "erase"){
+    if(doingTutorial){return}
     conduitIndex = 0;
     var mapData = getMapData(x, y)
 

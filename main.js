@@ -449,12 +449,12 @@ var tutorial = [
       document.getElementById("tutorialDisplay").style.top = "120%"
       mouseDown = false
       setTimeout(function(){
-        trueIndicatorBoxX = 0
-        trueIndicatorBoxY = 0
-        trueIndicatorBoxWidth = window.innerWidth
-        trueIndicatorBoxHeight = window.innerHeight
-        shownIndicatorBoxWidth = window.innerWidth
-        shownIndicatorBoxHeight = window.innerHeight
+        trueIndicatorBoxX = -20
+        trueIndicatorBoxY = -20
+        trueIndicatorBoxWidth = window.innerWidth - 20
+        trueIndicatorBoxHeight = window.innerHeight - 20
+        shownIndicatorBoxWidth = window.innerWidth + 40
+        shownIndicatorBoxHeight = window.innerHeight + 40
         doingTutorial = false
         mouseDown = false
       }, 1000)
@@ -1549,6 +1549,9 @@ game.loop = function(){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
       ctx.save()
       ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
+      if(areas[areaIndex].networks[i].name == "ship"){
+        ctx.translate(0, -32)
+      }
       ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
       var facilityTextureName = areas[areaIndex].networks[i].name
       if(areas[areaIndex].networks[i].name == "t_valve"){
