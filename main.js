@@ -451,8 +451,8 @@ var tutorial = [
       setTimeout(function(){
         trueIndicatorBoxX = -20
         trueIndicatorBoxY = -20
-        trueIndicatorBoxWidth = window.innerWidth - 20
-        trueIndicatorBoxHeight = window.innerHeight - 20
+        trueIndicatorBoxWidth = window.innerWidth + 40
+        trueIndicatorBoxHeight = window.innerHeight + 40
         shownIndicatorBoxWidth = window.innerWidth + 40
         shownIndicatorBoxHeight = window.innerHeight + 40
         doingTutorial = false
