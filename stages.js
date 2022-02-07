@@ -146,6 +146,6 @@ tempMap.water, emptyLayer.slice(), [], [], []));
 tempMap = undefined;
 loadArea("shore")
 
-createNetwork(51, 17, "ship")
+createNetwork(37, 8, "ship")
 
 

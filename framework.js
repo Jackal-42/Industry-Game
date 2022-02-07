@@ -24,7 +24,13 @@ game.getLayer("effects").canvas.style.zIndex = 1
 game.getLayer("effects").canvas.addEventListener("mousedown", function(){mouseDown = true;})
 game.getLayer("effects").canvas.addEventListener("mouseup", function(){mouseDown = false;})
 
+game.addLayer("tutorial")
+game.getLayer("tutorial").canvas.style.zIndex = 5
+game.getLayer("tutorial").canvas.style.pointerEvents = "none"
 
+var doingTutorial = true;
+var lockIndicatorBox = false;
+var drawIndicatorLine = true;
 
 
 //KEEP
@@ -392,6 +398,7 @@ function loadArea(id){
 
 //Only used in the debug menu
 function toggleMenu(menu){
+  if(lockIndicatorBox){return}
   if(document.getElementById(menu).style.display == "none"){
     document.getElementById(menu).style.display = "block"
     document.getElementById(menu + "Arrow").innerHTML = "ᐯ "
@@ -513,6 +520,7 @@ game.window.style.overflow = "hidden"
 
 //Used for extending and retracting the hammer hotbar menu
 function toggleVerticalHotbarMenu(id){
+  if(lockIndicatorBox){return}
   for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
     if(document.getElementById(id).children[i].style.top == "0px"){
       document.getElementById(id).children[i].style.top = document.getElementById(id).children[i].getAttribute("savestate")
@@ -530,6 +538,7 @@ function toggleVerticalHotbarMenu(id){
 
 //Expands and retracts the submenus
 function toggleHorizontalHotbarMenu(id){
+  if(lockIndicatorBox){return}
   for(var i = 0, l = document.getElementById(id).children.length; i < l; i++){
     if(document.getElementById(id).children[i].style.left == "0px" || document.getElementById(id).children[i].style.left == "68px"){
       if(document.getElementById(id).style.top == "0px"){return;}
@@ -558,6 +567,7 @@ function checkPlaceableIndex(){
 }
 
 function selectPlaceable(id, keepOrder){
+  if(lockIndicatorBox){return}
   if(keepOrder == undefined){keepOrder = false}
 
   canPlaceFacility = false
@@ -645,13 +655,13 @@ hotbarMenu.className = "hotbarMenuVertical"
 
 hotbarMenu.innerHTML = `
 
-<button id="hotbar_hammer_menu" savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="selectPlaceable('hammer_menu'); toggleVerticalHotbarMenu('hotbarMenuVertical')"><img class="clickityElement" src="docs/assets/hammer.png"></button>
+<button id="hotbar_hammer_menu" savestate="1px" style="top: 1px; z-index: 4;" class="hotbarButton" onclick="selectPlaceable('hammer_menu'); toggleVerticalHotbarMenu('hotbarMenuVertical'); if(tutorialIndex == 1){tutorialNext()}"><img class="clickityElement" src="docs/assets/hammer.png"></button>
 
 <div class="hotbarMenuHorizontal" savestate="67px" style="top: 67px; z-index: 3;" id="hotbarMenu0">
 
-<button id="hotbar_edit_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('edit_menu'); toggleHorizontalHotbarMenu('hotbarMenu0')"><img class="clickityElement" src="docs/assets/null.png"></button>
+<button id="hotbar_edit_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('edit_menu'); toggleHorizontalHotbarMenu('hotbarMenu0'); if(tutorialIndex == 5){tutorialNext()}"><img class="clickityElement" src="docs/assets/null.png"></button>
 
-<button id="hotbar_pointer" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pointer')"><img class="clickityElement" src="docs/assets/pointer.png"></button>
+<button id="hotbar_pointer" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pointer'); if(tutorialIndex == 6){tutorialNext()}"><img class="clickityElement" src="docs/assets/pointer.png"></button>
 
 <button id="hotbar_erase" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
 
@@ -660,9 +670,9 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="133px" style="top: 133px; z-index: 3;" id="hotbarMenu1">
 
-<button id="hotbar_gear_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('gear_menu'); toggleHorizontalHotbarMenu('hotbarMenu1')"><img class="clickityElement" src="docs/assets/gear.png"></button>
+<button id="hotbar_gear_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('gear_menu'); toggleHorizontalHotbarMenu('hotbarMenu1'); if(tutorialIndex == 14){tutorialNext()}"><img class="clickityElement" src="docs/assets/gear.png"></button>
 
-<button id="hotbar_pipe" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pipe')"><img class="clickityElement" src="docs/assets/pipe_icon.png"></button>
+<button id="hotbar_pipe" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pipe'); if(tutorialIndex == 15 || tutorialIndex == 25){tutorialNext()}"><img class="clickityElement" src="docs/assets/pipe_icon.png"></button>
 
 <button id="hotbar_rail" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('rail')"><img class="clickityElement" src="docs/assets/rail_icon.png"></button>
 
@@ -680,15 +690,15 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="199px" style="top: 199px; z-index: 3;" id="hotbarMenu2">
 
-<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
+<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2'); if(tutorialIndex == 2){tutorialNext()}"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
 
-<button id="hotbar_distiller" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('distiller')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
+<button id="hotbar_distiller" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('distiller'); if(tutorialIndex == 3){tutorialNext()}"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
 
 <button id="hotbar_residue_processor" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('residue_processor')"><img class="clickityElement" src="docs/assets/residue_processor.png" style="width: 40%; height: 80%;"></button>
 
 <button id="hotbar_gas_processor" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('gas_processor')"><img class="clickityElement" src="docs/assets/gas_processor.png" style="width: 40%; height: 80%;"></button>
 
-<button id="hotbar_hydrotreater" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('hydrotreater')"><img class="clickityElement" src="docs/assets/hydrotreater.png" style="height: 40%; width: 80%;"></button>
+<button id="hotbar_hydrotreater" savestate="264px" style="left: 264px;" class="hotbarButton" onclick="selectPlaceable('hydrotreater'); if(tutorialIndex == 21){tutorialNext()}"><img class="clickityElement" src="docs/assets/hydrotreater.png" style="height: 40%; width: 80%;"></button>
 
 <button id="hotbar_fuel_oil_mixer" savestate="330px" style="left: 330px;" class="hotbarButton" onclick="selectPlaceable('fuel_oil_mixer')"><img class="clickityElement" src="docs/assets/fuel_oil_mixer.png" style=""></button>
 
@@ -702,11 +712,11 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
 
-<button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3')"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
+<button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3'); if(tutorialIndex == 11){tutorialNext()}"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
 
-<button id="hotbar_crude_source" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('crude_source')"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
+<button id="hotbar_crude_source" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('crude_source'); if(tutorialIndex == 12){tutorialNext()}"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
 
-<button id="hotbar_hydrogen_source" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source')"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
+<button id="hotbar_hydrogen_source" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source'); if(tutorialIndex == 23){tutorialNext()}"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
 
 <button id="hotbar_any_source" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('any_source')"><img class="clickityElement" src="docs/assets/any_source.png"></button>
 
@@ -717,6 +727,8 @@ hotbarMenu.innerHTML = `
 `
 
 game.window.appendChild(hotbarMenu)
+
+toggleVerticalHotbarMenu('hotbarMenuVertical')
 
 var hotbarButtonOver = "none"
 
@@ -780,6 +792,7 @@ var temporaryTooltips = []
 
 //Just like a normal tooltip except it despawns when the mouse moves too far away instead of on click
 function createTemporaryTooltip(){
+  if(doingTutorial){return}
   if(document.getElementsByClassName("tooltip").length != 0){return}
   if(hotbarOverCheck == hotbarButtonOver){
     if(mouseOverCheckX == game.mouseX && mouseOverCheckY == game.mouseY){
@@ -829,6 +842,21 @@ rightMenu.innerHTML = `
   <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; width: 100%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">GUIDEBOOK</p>
 
   <div id="guidebook">
+
+    <p class="selector" onclick="toggleMenu('tutorial')"><span id="tutorialArrow">ᐳ </span>Tutorial</p>
+
+    <div id="tutorial" class="menu" style="display:none;">
+      Complete each step before reading the next.
+      <br>
+      <p>1. Click on the hammer icon in the top left</p>
+      <p>2. Click on the icon below the gear</p>
+      <p>3. Hover over the first button that pops out to see a description of it</p>
+      <p>4. Click on this button and then on the center of the island. Use the arrow keys to scroll.</p>
+      <p>5. Select the cursor tool found by clicking on the \"checkerboard\" icon, then click on the distiller you just placed.</p>
+      <p>6. The infographic that is shown depicts what types of materials this facility can input or output, indicated by the arrow direction. Click on the oil drop icons for more information.</p>
+      <p>7. Find a crude source facility that produces crude oil, found under the plus icon. Place it down a few tiles away from the left edge of the distiller, and then select the pipe tool. Drag from the oil pump to the distiller to connect.</p>
+      <p>8. Continue to use tooltips to guide you. Your goal is to refine the crude naphtha outputted by the distiller, and then transport the refined naphtha into the ship on the right side of the map. You know that your factory works when you begin to recieve money from selling the oil.</p>
+    </div>
 
     <p class="selector" onclick="toggleMenu('basics')"><span id="basicsArrow">ᐳ </span>The Basics</p>
 
@@ -923,7 +951,7 @@ function checkUpgrades(){
 
 var fundsDisplay = document.createElement('div')
 
-fundsDisplay.innerHTML = `<p id="fundsWrapper" style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white; margin-left: -15%;\">Funds: $<span id=\"funds\">0</span> </p>`
+fundsDisplay.innerHTML = `<p id="fundsWrapper" style=\"font-family: \'Pixellari\'; font-size: 48px; font-smooth: never; position: absolute; width: 100%;  text-align: center; margin-top: 16px; user-select: none; color: white; margin-left: 0%;\">Funds: $<span id=\"funds\">0</span> </p>`
 
 game.window.appendChild(fundsDisplay)
 
@@ -940,7 +968,7 @@ var centerDisplay = document.createElement('div')
 centerDisplay.id = "centerDisplay"
 
 centerDisplay.innerHTML = `
-<button onclick="document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; background-color: tan; border: 1px solid black;'><img src='docs/assets/x_button.png' style='position: absolute; width: 100%; left: 0px; top: 0px; image-rendering: auto;'></button>
+<button id="closeCenterDisplay" onclick="if(!doingTutorial || tutorialIndex == 10 || tutorialIndex == 20){if(tutorialIndex == 10 || tutorialIndex == 20){tutorialNext()};document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)}" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; background-color: tan; border: 1px solid black; cursor: pointer;'><img src='docs/assets/x_button.png' style='position: absolute; width: 100%; left: 0px; top: 0px; image-rendering: auto;'></button>
 
 <div id="facilityShownRange">
 <canvas id="facilityShownCanvas" width="500" height="500" style="width: 30%; border: 1px solid black; position: absolute; top: 6vh; left: 1%; background-color: rgb(100, 100, 133)"></canvas>
@@ -2468,14 +2496,15 @@ function addPipe(x, y, mode){
     }
     
     if("-p".includes(getMapData(x, y))){
-      if(getMapData(x, y) == "-"){changeMapData(x, y, conduits[conduitIndex].stub)}
       if(!beginMouseHold){
+        if(getMapData(x, y) == "-"){changeMapData(x, y, conduits[conduitIndex].stub)}
         if((conduits[conduitIndex].endPoints + conduits[conduitIndex].stub + "p-").includes(getMapData(previousPipeX, previousPipeY))){
           connectPipes(x, y, previousPipeX, previousPipeY)
         }
       }
       
       if(beginMouseHold && getMapData(x, y) == "-"){
+        changeMapData(x, y, conduits[conduitIndex].stub)
         if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1))){
           connectPipes(x, y, x, y-1)
           previousPipeX = x;

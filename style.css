@@ -8,6 +8,7 @@
 body {
   background-color: #424242;
   user-select: none;
+  overflow: hidden;
 }
 
 button {
@@ -120,7 +121,7 @@ p{
 #slideMenuRight{
   position: absolute;
   width: 30%;
-  left: 70%;
+  left: 96%;
   height: 102%;
   top: -1%;
   background-color: rgb(243, 205, 155);
@@ -201,6 +202,48 @@ p{
   transition: background-color 250ms, top 150ms, left 100ms;
 }
 
+#tutorialDisplay{
+  display: block;
+  left: 32.5%;
+  top: 80%;
+  width: 35%;
+  height: 15%;
+  position: absolute;
+  background-color: rgb(255, 227, 193);
+  border: 2px solid rgb(88, 36, 6);
+  /* box-shadow: 0px 0px 0px 600px rgba(0, 0, 0, 0.6); */
+  overflow: hidden;
+  transition: top 200ms;
+  z-index: 6;
+}
+
+#tutorialDisplay p{
+  font-family: "Pixellari";
+  text-align: center;
+  width: 96%;
+  padding-left: 2%;
+  padding-right: 2%;
+  color: rgb(69, 69, 69);
+}
+
+#tutorialDisplay button{
+  width: 20%;
+  left: 40%;
+  bottom: 2%;
+  font-family: "Pixellari";
+  border: 1px solid black;
+  position: absolute;
+  cursor: pointer;
+}
+
+.interactBlockBox{
+  background-color: rgba(0, 0, 0, 0);
+  width: 100vw;
+  height: 100vw;
+  position: absolute;
+  z-index: 5;
+}
+
 #centerDisplay{
   display: none;
   left: 30%;
@@ -214,7 +257,7 @@ p{
   box-shadow: 0px 0px 0px 600px rgba(0, 0, 0, 0.6);
   transition: top 250ms, opacity 200ms;
   overflow: scroll;
-  z-index: 2;
+  z-index: 4;
 }
 /* 
 #centerDisplay::after{

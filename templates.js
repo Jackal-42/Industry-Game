@@ -522,7 +522,7 @@ var facilities = [
     maxItems: 256,
     pseudoPipe: false,
     storage: ["vapor", "kerosene", "naphtha"],
-    layout: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2]],
+    layout: [[0, 1], [0, 2], [0, 3], [1, 1], [1, 2], [1, 3]],
     process: function(me){
       funds += me.data.vapor * 20
       funds += me.data.kerosene * 10
@@ -534,13 +534,6 @@ var facilities = [
     ports: [
       {
         x: -1,
-        y: 0,
-        conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
-      },
-
-      {
-        x: -1,
         y: 1,
         conduit: "pipe",
         gender: ["input", ["kerosene", "naphtha", "vapor"]],
@@ -554,8 +547,8 @@ var facilities = [
       },
 
       {
-        x: 2,
-        y: 0,
+        x: -1,
+        y: 3,
         conduit: "pipe",
         gender: ["input", ["kerosene", "naphtha", "vapor"]],
       },
@@ -570,6 +563,13 @@ var facilities = [
       {
         x: 2,
         y: 2,
+        conduit: "pipe",
+        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+      },
+
+      {
+        x: 2,
+        y: 3,
         conduit: "pipe",
         gender: ["input", ["kerosene", "naphtha", "vapor"]],
       },      
@@ -1025,6 +1025,18 @@ var tooltips = [
     name: "stop",
     title: "Stop",
     text: "Just what do you think you\'re doing?"
+  },
+
+  {
+    name: "hotbar_crude_source",
+    title: "Crude Source",
+    text: "Produces crude oil. Temporary"
+  },
+
+  {
+    name: "hotbar_hydrogen_source",
+    title: "Hydrogen Source",
+    text: "Produces hydrogen. Temporary"
   },
 
   {

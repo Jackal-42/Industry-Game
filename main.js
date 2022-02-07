@@ -4,6 +4,480 @@ var facilityDisplayed = 0;
 var mouseDownX = 0;
 var mouseDownY = 0;
 
+
+var indicatorBoxX = window.innerWidth * 0.5;
+var indicatorBoxY = window.innerHeight * 0.875;
+var indicatorBoxWidth = 0;
+var indicatorBoxHeight = 0;
+var trueIndicatorBoxX = window.innerWidth * 0.5;
+var trueIndicatorBoxY = window.innerHeight * 0.875;
+var trueIndicatorBoxWidth = 0;
+var trueIndicatorBoxHeight = 0;
+var shownIndicatorBoxWidth = 0;
+var shownIndicatorBoxHeight = 0;
+
+var indicatorBoxXDifference = 0;
+var indicatorBoxYDifference = 0;
+var indicatorBoxWidthDifference = 0;
+var indicatorBoxHeightDifference = 0;
+var indicatorBoxTransitionTimer = 0;
+
+var lockedIndicatorBoxX = 0;
+var lockedIndicatorBoxY = 0;
+
+var interactBlockBoxLeft = document.createElement("div")
+var interactBlockBoxRight = document.createElement("div")
+var interactBlockBoxTop = document.createElement("div")
+var interactBlockBoxBottom = document.createElement("div")
+
+interactBlockBoxLeft.innerHTML = "&nbsp;"
+interactBlockBoxRight.innerHTML = "&nbsp;"
+interactBlockBoxTop.innerHTML = "&nbsp;"
+interactBlockBoxBottom.innerHTML = "&nbsp;"
+
+interactBlockBoxLeft.className = "interactBlockBox"
+interactBlockBoxRight.className = "interactBlockBox"
+interactBlockBoxTop.className = "interactBlockBox"
+interactBlockBoxBottom.className = "interactBlockBox"
+
+document.body.appendChild(interactBlockBoxLeft)
+document.body.appendChild(interactBlockBoxRight)
+document.body.appendChild(interactBlockBoxTop)
+document.body.appendChild(interactBlockBoxBottom)
+
+var tutorial = [
+  {
+    text: "<p>Welcome to INSERTNAME, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //0
+      trueIndicatorBoxX = (window.innerWidth/50) + 1
+      trueIndicatorBoxY = (window.innerHeight/50) + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Click on the hammer icon to open the Build Menu.</p>",
+    //1
+    action: function(){
+      trueIndicatorBoxX = (window.innerWidth/50) + 1
+      trueIndicatorBoxY = (window.innerHeight/50) + 199 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Then, expand the Facilities sub-menu.</p>",
+    action: function(){
+      //2
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 66
+      trueIndicatorBoxY = (window.innerHeight/50) + 199 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Click this button to select the Distiller facility. It processes crude oil into many products.</p>",
+    action: function(){
+      //3
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 26
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>Place the distiller down by clicking on the map. Use arrow keys to scroll.</p>",
+    action: function(){
+      //4
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 1
+      trueIndicatorBoxY = (window.innerHeight/50) + 67 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Next, navigate to the cursor tool.</p>",
+    action: function(){
+      //5
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 66 + 1
+      trueIndicatorBoxY = (window.innerHeight/50) + 67 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Next, navigate to the cursor tool.</p>",
+    action: function(){
+      //6
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 26
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 64
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 64
+    },
+  },
+
+  {
+    text: "<p>Click on the placed distiller to see its properties</p>",
+    action: function(){
+      //7
+      lockIndicatorBox = false
+      trueIndicatorBoxX = window.innerWidth * 0.3 + 4;
+      trueIndicatorBoxY = window.innerHeight * 0.3 + 4;
+      trueIndicatorBoxWidth = window.innerWidth * 0.4 - 4;
+      trueIndicatorBoxHeight = window.innerHeight * 0.4 - 4;
+      shownIndicatorBoxWidth = window.innerWidth * 0.4 - 4;
+      shownIndicatorBoxHeight = window.innerHeight * 0.4 - 4;
+    },
+  },
+
+  {
+    text: "<p>This is the Distiller's Infographic. Each of the arrows corresponds to either an input or an output port. Click on each of the oil drop icons to see what resources they input or output.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //8
+      
+    },
+  },
+
+  {
+    text: "<p>You can see that because the only arrows that point into the distiller show crude oil, the distiller needs a crude oil input to work.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //9
+      var rect = document.getElementById("closeCenterDisplay").getBoundingClientRect()
+      trueIndicatorBoxX = rect.left;
+      trueIndicatorBoxY = rect.top;
+      trueIndicatorBoxWidth = window.innerHeight * 0.04
+      trueIndicatorBoxHeight = window.innerHeight * 0.04
+      shownIndicatorBoxWidth = window.innerHeight * 0.04
+      shownIndicatorBoxHeight = window.innerHeight * 0.04
+    },
+  },
+
+  {
+    text: "<p>Navigate to the Oil Pump</p>",
+    action: function(){
+      //10
+      trueIndicatorBoxX = (window.innerWidth/50) + 1
+      trueIndicatorBoxY = (window.innerHeight/50) + 265 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Navigate to the Oil Pump</p>",
+    action: function(){
+      //11
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 66
+      trueIndicatorBoxY = (window.innerHeight/50) + 265 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Navigate to the Oil Pump</p>",
+    action: function(){
+      //12
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 22
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>Place it near the distiller.</p>",
+    action: function(){
+      //13
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 1
+      trueIndicatorBoxY = (window.innerHeight/50) + 133 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Select the Pipe Tool</p>",
+    action: function(){
+      //14
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 66
+      trueIndicatorBoxY = (window.innerHeight/50) + 133 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Select the Pipe Tool</p>",
+    action: function(){
+      //15
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 22
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 160
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 160
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>And drag between the two to link them up!</p>",
+    action: function(){
+      //16
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 26
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 64
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 64
+    },
+  },
+
+  {
+    text: "<p>Let's check on the infographic. (Clicking on it with the pipe tool works just like the cursor)</p>",
+    action: function(){
+      //17
+      lockIndicatorBox = false
+      trueIndicatorBoxX = window.innerWidth * 0.3 + 4;
+      trueIndicatorBoxY = window.innerHeight * 0.3 + 4;
+      trueIndicatorBoxWidth = window.innerWidth * 0.4 - 4;
+      trueIndicatorBoxHeight = window.innerHeight * 0.4 - 4;
+      shownIndicatorBoxWidth = window.innerWidth * 0.4 - 4;
+      shownIndicatorBoxHeight = window.innerHeight * 0.4 - 4;
+    },
+  },
+
+  {
+    text: "<p>The arrow we linked the pipe to turned green! That's a good sign. Click on the red drop of oil to see more information about that.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //18
+    },
+  },
+
+  {
+    text: "<p>We need to refine that naphtha before we can sell it and make money.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //19
+      var rect = document.getElementById("closeCenterDisplay").getBoundingClientRect()
+      trueIndicatorBoxX = rect.left;
+      trueIndicatorBoxY = rect.top;
+      trueIndicatorBoxWidth = window.innerHeight * 0.04
+      trueIndicatorBoxHeight = window.innerHeight * 0.04
+      shownIndicatorBoxWidth = window.innerHeight * 0.04
+      shownIndicatorBoxHeight = window.innerHeight * 0.04
+    },
+  },
+
+  {
+    text: "<p>Grab a hydrotreater</p>",
+    action: function(){
+      //20
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 264
+      trueIndicatorBoxY = (window.innerHeight/50) + 9 + 199
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Grab a hydrotreater</p>",
+    action: function(){
+      //21
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 29
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>Grab a hydrotreater</p>",
+    action: function(){
+      //22
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 132
+      trueIndicatorBoxY = (window.innerHeight/50) + 265 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>And a hydrogen pump</p>",
+    action: function(){
+      //23
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 29
+      lockedIndicatorBoxY = 8
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>And a hydrogen pump</p>",
+    action: function(){
+      //24
+      lockIndicatorBox = false
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 66
+      trueIndicatorBoxY = (window.innerHeight/50) + 133 + 9
+      trueIndicatorBoxWidth = 60
+      trueIndicatorBoxHeight = 60
+      shownIndicatorBoxWidth = 60
+      shownIndicatorBoxHeight = 60
+    },
+  },
+
+  {
+    text: "<p>Finally, connect them all together.</p>",
+    action: function(){
+      //25
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 29
+      lockedIndicatorBoxY = 8
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 128
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 128
+    },
+  },
+
+  {
+    text: "<p>Finally, connect them all together.</p>",
+    action: function(){
+      //26
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 26
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 128
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 128
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>Finally, connect them all together.</p>",
+    action: function(){
+      //27
+      lockIndicatorBox = true
+      lockedIndicatorBoxX = 30
+      lockedIndicatorBoxY = 11
+      trueIndicatorBoxWidth = 256
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 256
+      shownIndicatorBoxHeight = 32
+    },
+  },
+
+  {
+    text: "<p>Finally, connect them all together.</p>",
+    action: function(){
+      //28
+      lockIndicatorBox = false
+      trueIndicatorBoxX = window.innerWidth * 0.5;
+      trueIndicatorBoxY = window.innerHeight * 0.875;
+      trueIndicatorBoxWidth = 0
+      trueIndicatorBoxHeight = 0
+      shownIndicatorBoxWidth = 0
+      shownIndicatorBoxHeight = 0
+    },
+  },
+
+  {
+    text: "<p>And that's it! Keep checking the tooltips and the guidebook if you need help.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //29
+      lockIndicatorBox = false
+      drawIndicatorLine = false
+      trueIndicatorBoxX = 16 + window.innerWidth * 0.5;
+      trueIndicatorBoxY = 16 + window.innerHeight * 0.5;
+      trueIndicatorBoxWidth = 32
+      trueIndicatorBoxHeight = 32
+      shownIndicatorBoxWidth = 32
+      shownIndicatorBoxHeight = 32
+      document.getElementById("tutorialDisplay").style.top = "120%"
+      mouseDown = false
+      setTimeout(function(){
+        trueIndicatorBoxX = 0
+        trueIndicatorBoxY = 0
+        trueIndicatorBoxWidth = window.innerWidth
+        trueIndicatorBoxHeight = window.innerHeight
+        shownIndicatorBoxWidth = window.innerWidth
+        shownIndicatorBoxHeight = window.innerHeight
+        doingTutorial = false
+        mouseDown = false
+      }, 1000)
+      
+    },
+  },
+
+  {
+    text: "<p>toodles</p>",
+    action: function(){
+      //28
+    },
+  },
+]
+
+var tutorialIndex = -1;
+function tutorialNext(){
+  tutorialIndex++
+  document.getElementById("tutorialContent").innerHTML = tutorial[tutorialIndex].text
+  try{tutorial[tutorialIndex-1].action()}catch{}
+}
+tutorialNext()
+
 window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
   console.log(errorObj)
   game.loop()
@@ -11,6 +485,7 @@ window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
 
 //Rotates the facility placement cursor when tapping R or Z
 document.addEventListener("keydown", function (e) {
+  if(doingTutorial){return}
   if(e.keyCode == 82 || e.keyCode == 90){
     facilityRotation += 90
     if(facilityRotation > 270){
@@ -51,6 +526,9 @@ var facilityDisplayedIndex;
 
 //Checks for a couple things, listed below
 game.window.addEventListener("click", function (e) {
+  if(tutorialIndex == 16 || tutorialIndex == 26 || tutorialIndex == 27 || tutorialIndex == 28){
+    return;
+  }
   try{
   var tooltipsActive = document.getElementsByClassName("tooltip")
   //Deletes all tooltips if they are clicked off of
@@ -74,6 +552,7 @@ game.window.addEventListener("click", function (e) {
 
   //Tries to place a facility on the map
   if(conduitSelected == "facility" && canPlaceFacility){
+    if(tutorialIndex == 4 || tutorialIndex == 13 || tutorialIndex == 22 || tutorialIndex == 24){tutorialNext()}
         
     var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
     var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
@@ -260,6 +739,7 @@ game.window.addEventListener("click", function (e) {
     document.getElementById('facilityShownDescription').innerHTML = "<input id=\"anySourceTypeSet\" type=\"text\" value=\""+areas[areaIndex].networks[facilityID].data.sourceType+"\"><br><button onclick=\"areas[areaIndex].networks["+facilityID+"].data.sourceType = document.getElementById(\'anySourceTypeSet\').value\">Set Type</button>"
   }
 
+  if(tutorialIndex == 7 || tutorialIndex == 17){tutorialNext()}
 
   document.getElementById('centerDisplay').style.display = "block"
   
@@ -288,6 +768,7 @@ function toggleDebugMenu(){
 toggleDebugMenu()
 
 function toggleGuidebook(){
+  if(lockIndicatorBox){return}
   if(document.getElementById('guidebookExpander').innerHTML == '-'){
 
     document.getElementById('guidebookExpander').innerHTML = '+'
@@ -355,7 +836,27 @@ document.getElementById('centerDisplay').style.display = 'none'
 
 //The code that is executed each frame
 game.loop = function(){
-  
+
+  if(tutorialIndex == 16){
+    if(getMapData(23, 11) == "~" && getMapData(24, 11) == "~" && getMapData(25, 11) == "~"){
+      tutorialNext()
+    }
+  }
+  if(tutorialIndex == 26){
+    if(getMapData(29, 9) == "1" && getMapData(29, 10) == "1"){
+      tutorialNext()
+    }
+  }
+  if(tutorialIndex == 27){
+    if(getMapData(27, 11) == "~" && getMapData(28, 11) == "~"){
+      tutorialNext()
+    }
+  }
+  if(tutorialIndex == 28){
+    if(getMapData(31, 11) == "~" && getMapData(32, 11) == "~" && getMapData(33, 11) == "~" && getMapData(34, 11) == "~" && getMapData(35, 11) == "~" && getMapData(36, 11) == "~"){
+      tutorialNext()
+    }
+  }
 
   canPlaceFacility = true
 
@@ -453,20 +954,24 @@ game.loop = function(){
 
   //Scrolling on the map
   if(key("left")){
+    if(lockIndicatorBox){mouseDown = false}
     if(scrollX > 0){
       scrollX += -23
       if(scrollX < 0){scrollX = 0}
     }
   }
   if(key("right")){
+    if(lockIndicatorBox){mouseDown = false}
     scrollX += 23
     if(scrollX/4 > 2048 - offsetWidth){scrollX = (2048 - offsetWidth)*4}
   }
   if(key("up")){
+    if(lockIndicatorBox){mouseDown = false}
     scrollY += -23
     if(scrollY < 0){scrollY = 0}
   }
   if(key("down")){
+    if(lockIndicatorBox){mouseDown = false}
     scrollY += 23
     if(scrollY/4 > 1280 - offsetHeight){scrollY = (1280 - offsetHeight)*4}
   }
@@ -488,6 +993,63 @@ game.loop = function(){
       game.layers[i].clear();
     }
   }
+
+  if(lockIndicatorBox){
+    trueIndicatorBoxX = (lockedIndicatorBoxX*32)-scrollX/4
+    trueIndicatorBoxY = (lockedIndicatorBoxY*32)-scrollY/4
+  }
+
+  if(indicatorBoxX != trueIndicatorBoxX || indicatorBoxY != trueIndicatorBoxY){
+    indicatorBoxXDifference = trueIndicatorBoxX - indicatorBoxX
+    indicatorBoxYDifference = trueIndicatorBoxY - indicatorBoxY
+    if(indicatorBoxXDifference < 10 && indicatorBoxYDifference < 10 && lockIndicatorBox){
+      indicatorBoxX = trueIndicatorBoxX
+      indicatorBoxY = trueIndicatorBoxY
+      indicatorBoxWidth = shownIndicatorBoxWidth
+      indicatorBoxHeight = shownIndicatorBoxHeight
+    }else{
+      indicatorBoxWidthDifference = shownIndicatorBoxWidth - indicatorBoxWidth
+      indicatorBoxHeightDifference = shownIndicatorBoxHeight - indicatorBoxHeight
+      indicatorBoxTransitionTimer = 4
+    }
+  }
+  if(indicatorBoxTransitionTimer > 0){
+    indicatorBoxTransitionTimer--
+    indicatorBoxX += indicatorBoxXDifference/4
+    indicatorBoxY += indicatorBoxYDifference/4
+    indicatorBoxWidth += indicatorBoxWidthDifference/4
+    indicatorBoxHeight += indicatorBoxHeightDifference/4
+  }else{
+    indicatorBoxX = trueIndicatorBoxX
+    indicatorBoxY = trueIndicatorBoxY
+    indicatorBoxWidth = shownIndicatorBoxWidth
+    indicatorBoxHeight = shownIndicatorBoxHeight
+  }
+
+  interactBlockBoxLeft.style.left = trueIndicatorBoxX - window.innerWidth + "px"
+  interactBlockBoxRight.style.left = trueIndicatorBoxX + trueIndicatorBoxWidth + "px"
+  interactBlockBoxTop.style.top = trueIndicatorBoxY - window.innerWidth + "px"
+  interactBlockBoxBottom.style.top = trueIndicatorBoxY + trueIndicatorBoxHeight + "px"
+
+
+  ctx = game.getLayer("tutorial").context
+  ctx.globalAlpha = 0.75
+  ctx.fillStyle="black"
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
+  ctx.globalAlpha = 1
+  ctx.fillStyle = "rgb(255, 255, "+(Math.sin(framesElapsed/10)*60)+")"
+  ctx.strokeStyle = ctx.fillStyle
+  ctx.imageSmoothingEnabled = true;
+
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(window.innerWidth * 0.5, window.innerHeight * 0.875)
+  ctx.lineTo(indicatorBoxX + indicatorBoxWidth/2, indicatorBoxY + indicatorBoxHeight/2)
+  if(drawIndicatorLine){ctx.stroke()}
+
+  ctx.fillRect(indicatorBoxX - Math.sin(framesElapsed/10) - 4, indicatorBoxY - Math.sin(framesElapsed/10) - 4, indicatorBoxWidth + Math.sin(framesElapsed/10)*2 + 8, indicatorBoxHeight + Math.sin(framesElapsed/10)*2 + 8)
+  ctx.clearRect(indicatorBoxX - Math.sin(framesElapsed/10), indicatorBoxY - Math.sin(framesElapsed/10), indicatorBoxWidth + Math.sin(framesElapsed/10)*2, indicatorBoxHeight + Math.sin(framesElapsed/10)*2)
+
 
   ctx = game.getLayer("terrain").context
   
@@ -591,6 +1153,7 @@ game.loop = function(){
   if(framesElapsed % 15 == 1){
     for(var k = 0, lll = areas.length; k < lll; k++){
       for(var i = 0, l = areas[k].networks.length; i < l; i++){
+        areas[areaIndex].networks[i].warnings = []
         if(areas[k].networks[i].name == "pipeSegment"){continue}
         for(var j = 0, jl = areas[k].networks[i].data.portsInUse.length; j < jl; j++){
           areas[k].networks[i].data.portsInUse[j] = false
@@ -779,6 +1342,8 @@ game.loop = function(){
 
         if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output" || genderResolve == "output"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
+            facility1.warnings = [];
+            facility1.warnings.push(["An output port is connected to another facility\'s output port. Instead connect it to an input port.", areas[k].links[i].facility1[1]])
             break;
           }
           try{
@@ -858,6 +1423,8 @@ game.loop = function(){
           }
         }else if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "input" || genderResolve == "input"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
+            facility1.warnings = [];
+            facility1.warnings.push(["An input port is connected to another facility\'s input port. Instead connect it to an output port.", areas[k].links[i].facility1[1]])
             break;
           }
           try{
