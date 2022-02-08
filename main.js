@@ -629,7 +629,7 @@ game.window.addEventListener("click", function (e) {
     }
     return;
   }
-  if(areas[areaIndex].networks[facilityID].name == "one_way_pipe"){
+  if(areas[areaIndex].networks[facilityID].name == "one_way_pipe" || areas[areaIndex].networks[facilityID].name == "ship"){
     return;
   }
 
