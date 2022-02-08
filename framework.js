@@ -297,7 +297,7 @@ function getFacility(name){
 var activeOverlay = [];
 
 //Creates either a submerging pipe or a ripple
-function Overlay(type, texture, x, y, rotation){
+function Overlay(type, texture, x, y, rotation, data){
   this.texture = texture;
   this.x = x;
   this.y = y;
@@ -351,9 +351,13 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = true;
+var debugging = false;
 var logPipes = false;
 var windowScale = 1;
+
+if(!debugging){
+  document.getElementById("debug").style.display = "none"
+}
 
 var funds = 0;
 
@@ -589,6 +593,8 @@ function selectPlaceable(id, keepOrder){
   hotbarButtons[elementIndex].childNodes[0].classList.add('clickityElement'); // start animation
 
   if(id.includes("menu")){return}
+
+  facilityRotation = 0
 
   if(!keepOrder){
     if(previousPlaceables.includes(id)){
@@ -843,36 +849,17 @@ rightMenu.innerHTML = `
 
   <div id="guidebook">
 
-    <p class="selector" onclick="toggleMenu('tutorial')"><span id="tutorialArrow">ᐳ </span>Tutorial</p>
-
-    <div id="tutorial" class="menu" style="display:none;">
-      Complete each step before reading the next.
-      <br>
-      <p>1. Click on the hammer icon in the top left</p>
-      <p>2. Click on the icon below the gear</p>
-      <p>3. Hover over the first button that pops out to see a description of it</p>
-      <p>4. Click on this button and then on the center of the island. Use the arrow keys to scroll.</p>
-      <p>5. Select the cursor tool found by clicking on the \"checkerboard\" icon, then click on the distiller you just placed.</p>
-      <p>6. The infographic that is shown depicts what types of materials this facility can input or output, indicated by the arrow direction. Click on the oil drop icons for more information.</p>
-      <p>7. Find a crude source facility that produces crude oil, found under the plus icon. Place it down a few tiles away from the left edge of the distiller, and then select the pipe tool. Drag from the oil pump to the distiller to connect.</p>
-      <p>8. Continue to use tooltips to guide you. Your goal is to refine the crude naphtha outputted by the distiller, and then transport the refined naphtha into the ship on the right side of the map. You know that your factory works when you begin to recieve money from selling the oil.</p>
-    </div>
 
     <p class="selector" onclick="toggleMenu('basics')"><span id="basicsArrow">ᐳ </span>The Basics</p>
 
     <div id="basics" class="menu" style="display:none;">
-      <p>INVENTORY</p>
-      <p class="subtext">To open your inventory, click the hammer icon in the top left, then click on any of the submenus to expand them. Shift-clicking on the hammer automatically expands all submenus.</p>
-
-      <br>
-
       <p>FACILITIES</p>
-      <p class="subtext">Hover over the icon of each button in the inventory to read a brief description of them. Find the one labled "Distiller" and click on it. Then, click anywhere on land to place it down. You will need to build up funds to purchase facilities. You may rotate the facility before placing it using Z and X.</p>
+      <p class="subtext">Hover over the icon of each button in the inventory to read a brief description of them. You may rotate the facilities before placing it using Z or R. The side of the facility that you connect a pipe to matters. Make sure to utilize every output of your facilities! Use the < and > keys to navigate between recently used facilities.</p>
 
       <br>
 
       <p>PIPES</p>
-      <p class="subtext">Select the cursor tool in the inventory and click on the distiller you have just placed. Notice the diagram that appears and the arrows pointing into or away from each side. Clicking on the black drop of oil at the top left reveals that a pipe connected to the distiller at the location of the arrow will input crude oil into the distiller. No other item will be accepted at that loaction. <br> In order to feed the crude oil input, we need to place down a facility with a crude oil output. Find the oil pump facility in your inventory and place it down near the distiller. Clicking on the oil pump with the cursor reveals that it produces crude oil and outputs it to every side. <br> Select the pipe icon in your inventory. Drag in a line from the oil pump to the part of the distiller that accepts crude oil. You will know that you have connected the pipe in the right location when you look at the distiller's diagram and see that the arrow for that input port has turned green.</p>
+      <p class="subtext">You may intersect pipes by dragging straight over a segment. Connect your pipes to the ship to sell your items. Items flow along pipes instantaneously to the next facility at a constant rate, but the facilities take a moment to process them. Pipes may go under the water but facilities cannot.</p>
     </div>
 
 
@@ -912,6 +899,8 @@ rightMenu.innerHTML = `
 `
 
 game.window.appendChild(rightMenu)
+
+document.getElementById('slideMenuRight').style.left = '96%'
 
 
 var upgradeIndexes = []
@@ -1306,7 +1295,7 @@ function connectPipes(x1, y1, x2, y2){
     return;
   }
 
-  createPipeOverlay(x1, y1, x2, y2)
+  if(!(getMapData(x1, y1) == "p" || getMapData(x2, y2) == "p")){createPipeOverlay(x1, y1, x2, y2)}
   
   var endPoints = [];
   
@@ -2490,16 +2479,17 @@ function addPipe(x, y, mode){
       previousPipeY = y;
     }
 
-    if((previousPipeX != x || previousPipeY != y) && conduits[conduitIndex].segments.includes(getMapData(x, y))){
+    if((previousPipeX != x || previousPipeY != y) && (conduits[conduitIndex].corners + conduits[conduitIndex].v + conduits[conduitIndex].h).includes(getMapData(x, y))){
       beginMouseHold = true
         
       crossingPipe = true
     }
     
-    if("-p".includes(getMapData(x, y))){
+    if(("-p" + conduits[conduitIndex].endPoints).includes(getMapData(x, y))){
       if(!beginMouseHold){
         if(getMapData(x, y) == "-"){changeMapData(x, y, conduits[conduitIndex].stub)}
         if((conduits[conduitIndex].endPoints + conduits[conduitIndex].stub + "p-").includes(getMapData(previousPipeX, previousPipeY))){
+          if(x > previousPipeX + 1){console.log("bridge")}
           connectPipes(x, y, previousPipeX, previousPipeY)
         }
       }

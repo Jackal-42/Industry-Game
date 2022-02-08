@@ -435,7 +435,15 @@ var tutorial = [
   },
 
   {
-    text: "<p>And that's it! Keep checking the tooltips and the guidebook if you need help.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>You've just connected a pipe up to the tanker ship, where the naphtha you produced is being sold for a profit. You can pump oil into the six ports on either side of the ship.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    action: function(){
+      //29
+      
+    },
+  },
+
+  {
+    text: "<p>The distiller produces more than just naphtha. Make sure to fully utilize all of its outputs, and make the most of tooltips and the infigraphic menus. That's all for the tutorial. Have fun!</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //29
       lockIndicatorBox = false
@@ -481,6 +489,16 @@ tutorialNext()
 window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
   console.log(errorObj)
   game.loop()
+}
+
+function debug(){
+  if(debugging){
+    debugging = false
+    document.getElementById("debug").style.display = "none"
+  }else{
+    debugging = true
+    document.getElementById("debug").style.display = "block"
+  }
 }
 
 //Rotates the facility placement cursor when tapping R or Z
@@ -1102,10 +1120,11 @@ game.loop = function(){
     document.getElementById("dataAtCursor").innerHTML = tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0]
   }
   
+  //All righty-o, it seems that the code in this block actually prevents the game from functioning properly, so the variable updates have been commented out but I am keeping it just in case. Maybe a code remnant
   if(conduitSelected != "erase" && conduitSelected != "facility"){
     if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
-      previousPipeX = mouseX;
-      previousPipeY = mouseY;
+      // previousPipeX = mouseX;
+      // previousPipeY = mouseY;
     }
   }
 
@@ -1547,6 +1566,9 @@ game.loop = function(){
   //Draws each of the facilities
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
+      if(areas[areaIndex].networks[i].name == "ship"){
+        continue;
+      }
       ctx.save()
       ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
       if(areas[areaIndex].networks[i].name == "ship"){
@@ -1605,9 +1627,18 @@ game.loop = function(){
       ctx.strokeStyle = "rgb(200, 200, 255)"
       ctx.globalAlpha = (2-(activeOverlay[i].data.age/100))
       ctx.beginPath()
-      ctx.arc((activeOverlay[i].x*32)-scrollX/4 + 16, (activeOverlay[i].y*32)-scrollY/4 + 16, 1 + activeOverlay[i].data.age/8, 0, 2 * Math.PI);
+      if(activeOverlay[i].rotation !== 0){
+        ctx.arc((activeOverlay[i].x*32)-scrollX/4 + 16, (activeOverlay[i].y*32)-scrollY/4 + 16, (1 + activeOverlay[i].data.age/8)*4, 0, 2 * Math.PI);
+      }else{
+        ctx.arc((activeOverlay[i].x*32)-scrollX/4 + 16, (activeOverlay[i].y*32)-scrollY/4 + 16, 1 + activeOverlay[i].data.age/8, 0, 2 * Math.PI);
+      }
       ctx.stroke()
-      activeOverlay[i].data.age++
+      if(activeOverlay[i].rotation !== 0){
+        activeOverlay[i].data.age += 0.4
+      }else{ 
+        activeOverlay[i].data.age += 0.6
+      }
+      
       if(activeOverlay[i].data.age > 200){
         activeOverlay.splice(i, 1)
         i--
@@ -1616,6 +1647,57 @@ game.loop = function(){
       ctx.globalAlpha = 1;
     }
   }
+
+  ctx.globalCompositeOperation = "source-over"
+  for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+    if(areas[areaIndex].networks[i].name != "pipeSegment"){
+      if(areas[areaIndex].networks[i].name != "ship"){
+        continue;
+      }
+      ctx.save()
+      ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
+      if(areas[areaIndex].networks[i].name == "ship"){
+        ctx.translate(0, -32)
+      }
+      ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
+      var facilityTextureName = areas[areaIndex].networks[i].name
+      if(areas[areaIndex].networks[i].name == "t_valve"){
+        if(areas[areaIndex].networks[i].data.direction == "left"){
+          facilityTextureName = "t_valve_left"
+        }else{
+          facilityTextureName = "t_valve_right"
+        }
+      }
+      var facilityTexture = game.getTexture(facilityTextureName)
+      ctx.drawImage(facilityTexture, -16, -16, facilityTexture.width * 2, facilityTexture.height * 2)
+      ctx.restore()
+      if(framesElapsed % 4 == 1 && Math.random() < 0.015){
+        activeOverlay.push(new Overlay("ripple", "null", areas[areaIndex].networks[i].points[0][0] + 0.5, areas[areaIndex].networks[i].points[0][1] + 0.5, 1))
+      }
+      ctx.save()
+      if(areas[areaIndex].networks[i].warnings.length >= 1){
+        ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
+        for(var j = 0, jl = facilities.length; j < jl; j++){
+          if(facilities[j].name == areas[areaIndex].networks[i].name){
+            if(areas[areaIndex].networks[i].rotation == 0){  
+              ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].width*32, -8, 16, 16)
+            }
+            if(areas[areaIndex].networks[i].rotation == 90){  
+              ctx.drawImage(game.getTexture("warning"), 24, -8, 16, 16)
+            }
+            if(areas[areaIndex].networks[i].rotation == 180){  
+              ctx.drawImage(game.getTexture("warning"), 24, 24 - facilities[j].height*32, 16, 16)
+            }
+            if(areas[areaIndex].networks[i].rotation == 270){  
+              ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
+            }
+          }
+        }
+      }
+      ctx.restore()
+    }
+  }
+
   for( var i = 0, l = activeOverlay.length; i < l; i++){
     if(activeOverlay[i].type == "pipe" || activeOverlay[i].type == "arrow"){
       ctx.save()
