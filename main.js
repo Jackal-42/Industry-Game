@@ -515,8 +515,19 @@ document.addEventListener("keydown", function (e) {
     }
     updateFacilitySelected()
   }
+  if(e.keyCode == 88 || (e.keyCode == 82 && key(16))){
+    facilityRotation -= 90
+    if(facilityRotation < 0){
+      facilityRotation = 270
+    }
+    updateFacilitySelected()
+  }
   if(e.keyCode == 80){
     selectPlaceable('pipe')
+  }
+  if(e.keyCode == 69){
+    //nice
+    toggleVerticalHotbarMenu('hotbarMenuVertical')
   }
   if(e.keyCode == 188){
     placeableIndex--
@@ -1412,11 +1423,14 @@ game.loop = function(){
             var invalidInput = false
             var invalidInputType = ""
             var invalidInputPort = ""
+
             for(var j = 0, jl = movingItems.length; j < jl; j++){
+      
+              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
+
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
                 continue;
               }
-              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
 
               facility1.data.portsInUse[areas[k].links[i].facility1[1]] = true
               facility2.data.portsInUse[areas[k].links[i].facility2[1]] = true
@@ -1500,11 +1514,12 @@ game.loop = function(){
             var invalidInputPort = "";
             for(var j = 0, jl = movingItems.length; j < jl; j++){
 
+              
+              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
+
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
               }
-              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
-
               
               if(eval("facility2.data." + movingItems[j]) >= 1){
 

@@ -850,11 +850,24 @@ rightMenu.innerHTML = `
   <div id="guidebook">
 
 
+    <p class="selector" onclick="toggleMenu('controls')"><span id="controlsArrow">ᐳ </span>Controls</p>
+
+    <div id="controls" class="menu" style="display:none;">
+      <p>Arrow Keys: Move</p>
+      <p>Z/R: Rotate Clockwise</p>
+      <p>X/Shift+R: Rotate Counterclockwise</p>
+      <p>E: Toggle Inventory</p>
+      <p>Shift+E: Toggle Full Inventory</p>
+      <p>>/<: Recently Used Items</p>
+      <p>P: Pipe Tool</p>
+      <p>Shift+Click (With Pipe Tool): Erase</p>
+    </div>
+
     <p class="selector" onclick="toggleMenu('basics')"><span id="basicsArrow">ᐳ </span>The Basics</p>
 
     <div id="basics" class="menu" style="display:none;">
       <p>FACILITIES</p>
-      <p class="subtext">Hover over the icon of each button in the inventory to read a brief description of them. You may rotate the facilities before placing it using Z or R. The side of the facility that you connect a pipe to matters. Make sure to utilize every output of your facilities! Use the < and > keys to navigate between recently used facilities.</p>
+      <p class="subtext">Hover over the icon of each button in the inventory to read a brief description of them. You may rotate the facilities before placing it using Z or R. The side of the facility that you connect a pipe to matters. Make sure to utilize every output of your facilities!</p>
 
       <br>
 
@@ -2359,6 +2372,9 @@ function addPipe(x, y, mode){
       var facilityIndex = -1;
       for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
         if(JSON.stringify(areas[areaIndex].networks[i].points).includes(coordString)){
+          if(areas[areaIndex].networks[i].name == "ship"){
+            return
+          }
           facilityIndex = i;
           x = areas[areaIndex].networks[i].points[0][0]
           y = areas[areaIndex].networks[i].points[0][1]
