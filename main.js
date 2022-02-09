@@ -463,7 +463,11 @@ var tutorial = [
         trueIndicatorBoxHeight = window.innerHeight + 40
         shownIndicatorBoxWidth = window.innerWidth + 40
         shownIndicatorBoxHeight = window.innerHeight + 40
-        doingTutorial = false
+        setTimeout(function(){doingTutorial = false; interactBlockBoxBottom.remove(); interactBlockBoxTop.remove();interactBlockBoxLeft.remove();interactBlockBoxRight.remove();
+        setTimeout(function(){
+          game.getLayer("tutorial").clearFrames = false;
+        }, 100)}
+        , 1000)
         mouseDown = false
       }, 1000)
       
@@ -510,6 +514,9 @@ document.addEventListener("keydown", function (e) {
       facilityRotation = 0
     }
     updateFacilitySelected()
+  }
+  if(e.keyCode == 80){
+    selectPlaceable('pipe')
   }
   if(e.keyCode == 188){
     placeableIndex--
@@ -629,7 +636,7 @@ game.window.addEventListener("click", function (e) {
     }
     return;
   }
-  if(areas[areaIndex].networks[facilityID].name == "one_way_pipe" || areas[areaIndex].networks[facilityID].name == "ship"){
+  if(areas[areaIndex].networks[facilityID].name == "one_way_pipe"){
     return;
   }
 
@@ -681,15 +688,23 @@ game.window.addEventListener("click", function (e) {
     facilityShownHeight = rangeSubHeight*0.6
     arrowWidth = rangeSubHeight*0.6
   }
+  console.log(facilityDisplayedData.height)
+  if(facilityDisplayedData.height == 4){
+    arrowWidth /= 2
+  }
 
   var newTooltipRange;
   for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
+    if(facilityDisplayedData.ports[i].gender[0] == "breaker"){continue}
     newTooltipRange = document.createElement("button")
     newTooltipRange.classList.add("tooltipRange")
 
     newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) + "px"
 
     newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 + "px"
+    if(facilityDisplayedData.height == 4){
+      newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 + 4 + "px"
+    }
 
     newTooltipRange.style.height = arrowWidth + "px"
     newTooltipRange.style.width = arrowWidth + "px"
@@ -702,15 +717,20 @@ game.window.addEventListener("click", function (e) {
     }else if(facilityDisplayedData.ports[i].y == -1){
       newTooltipRange.style.height = arrowWidth*1.5 + "px"
       newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + ((window.innerHeight*0.9)/100)*6 + "px"
+      if(facilityDisplayedData.height == 4){
+        newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + ((window.innerHeight*0.9)/100)*6 + 4 + "px"
+      }
     }else{
       newTooltipRange.style.height = arrowWidth*1.5 + "px"
     }
 
     if(facilityDisplayedData.ports[i].gender[1].length == 1){
       if(facilityDisplayedData.ports[i].gender[1][0] == "null"){
-        var genderString = ""
-        if(facilityDisplayedData.ports[i].gender[0] == "output"){genderString = "output"}else if(facilityDisplayedData.ports[i].gender[0] == "input"){genderString = "receive"}else if(facilityDisplayedData.ports[i].gender[0] == "modular"){genderString = "output OR receive"}
-        eval("newTooltipRange.onclick = function(){createCustomTooltip(\"<p style=\\\"margin-left: 3px; font-family: \\\'Pixellari\\\'; color: rgb(69, 69, 69);\\\">This port can "+genderString+" any item</p>\")}")
+        if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
+          var genderString = ""
+          if(facilityDisplayedData.ports[i].gender[0] == "output"){genderString = "output"}else if(facilityDisplayedData.ports[i].gender[0] == "input"){genderString = "receive"}else if(facilityDisplayedData.ports[i].gender[0] == "modular"){genderString = "output OR receive"}
+          eval("newTooltipRange.onclick = function(){createCustomTooltip(\"<p style=\\\"margin-left: 3px; font-family: \\\'Pixellari\\\'; color: rgb(69, 69, 69);\\\">This port can "+genderString+" any item</p>\")}")
+        }
       }else{
         eval("newTooltipRange.onclick = function(){createTooltip(\"" + facilityDisplayedData.ports[i].gender[1][0] + "\")}")
       }
@@ -904,6 +924,9 @@ game.loop = function(){
       facilityShownHeight = 120
       arrowWidth = 120
     }
+    if(facilityDisplayedData.height == 4){
+      arrowWidth /= 2
+    }
     facilityShownCanvas.getContext("2d").imageSmoothingEnabled = false
     facilityShownCanvas.getContext("2d").save()
     facilityShownCanvas.getContext("2d").translate(250, 250)
@@ -924,10 +947,12 @@ game.loop = function(){
       if(facilityDisplayedData.ports[i].gender[1].length == 1 && facilityDisplayedData.ports[i].gender[1][0] != "null"){portTypeImage = facilityDisplayedData.ports[i].gender[1][0] + "_icon"}else{portTypeImage = "any_oil_icon"}
       if(facilityDisplayedData.ports[i].gender[0] == "output" || (facilityDisplayedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
         facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
-        if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
-          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("active_facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
-        }else{
-          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
+          if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
+            facilityShownCanvas.getContext("2d").drawImage(game.getTexture("active_facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+          }else{
+            facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+          }
         }
 
         if(facilityDisplayedData.ports[i].gender[0] == "modular"){
@@ -939,19 +964,23 @@ game.loop = function(){
         facilityShownCanvas.getContext("2d").rotate(arrowRotation*-1)
         facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
 
-        facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+        if(facilityDisplayedData.ports[i].gender[0] != "breaker"){facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)}
       }else{
-        if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
-          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("active_facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
-        }else{
-          facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
+          if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
+            facilityShownCanvas.getContext("2d").drawImage(game.getTexture("active_facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+          }else{
+            facilityShownCanvas.getContext("2d").drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+          }
         }
 
         facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
 
         facilityShownCanvas.getContext("2d").rotate(arrowRotation*-1)
 
-        facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+        if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
+          facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+        }
       }
       facilityShownCanvas.getContext("2d").restore()
     }
@@ -1049,26 +1078,26 @@ game.loop = function(){
   interactBlockBoxTop.style.top = trueIndicatorBoxY - window.innerWidth + "px"
   interactBlockBoxBottom.style.top = trueIndicatorBoxY + trueIndicatorBoxHeight + "px"
 
+  if(doingTutorial){
+    ctx = game.getLayer("tutorial").context
+    ctx.globalAlpha = 0.75
+    ctx.fillStyle="black"
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
+    ctx.globalAlpha = 1
+    ctx.fillStyle = "rgb(255, 255, "+(Math.sin(framesElapsed/10)*60)+")"
+    ctx.strokeStyle = ctx.fillStyle
+    ctx.imageSmoothingEnabled = true;
 
-  ctx = game.getLayer("tutorial").context
-  ctx.globalAlpha = 0.75
-  ctx.fillStyle="black"
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
-  ctx.globalAlpha = 1
-  ctx.fillStyle = "rgb(255, 255, "+(Math.sin(framesElapsed/10)*60)+")"
-  ctx.strokeStyle = ctx.fillStyle
-  ctx.imageSmoothingEnabled = true;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(window.innerWidth * 0.5, window.innerHeight * 0.875)
+    ctx.lineTo(indicatorBoxX + indicatorBoxWidth/2, indicatorBoxY + indicatorBoxHeight/2)
+    if(drawIndicatorLine){ctx.stroke()}
 
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  ctx.moveTo(window.innerWidth * 0.5, window.innerHeight * 0.875)
-  ctx.lineTo(indicatorBoxX + indicatorBoxWidth/2, indicatorBoxY + indicatorBoxHeight/2)
-  if(drawIndicatorLine){ctx.stroke()}
+    ctx.fillRect(indicatorBoxX - Math.sin(framesElapsed/10) - 4, indicatorBoxY - Math.sin(framesElapsed/10) - 4, indicatorBoxWidth + Math.sin(framesElapsed/10)*2 + 8, indicatorBoxHeight + Math.sin(framesElapsed/10)*2 + 8)
+    ctx.clearRect(indicatorBoxX - Math.sin(framesElapsed/10), indicatorBoxY - Math.sin(framesElapsed/10), indicatorBoxWidth + Math.sin(framesElapsed/10)*2, indicatorBoxHeight + Math.sin(framesElapsed/10)*2)
 
-  ctx.fillRect(indicatorBoxX - Math.sin(framesElapsed/10) - 4, indicatorBoxY - Math.sin(framesElapsed/10) - 4, indicatorBoxWidth + Math.sin(framesElapsed/10)*2 + 8, indicatorBoxHeight + Math.sin(framesElapsed/10)*2 + 8)
-  ctx.clearRect(indicatorBoxX - Math.sin(framesElapsed/10), indicatorBoxY - Math.sin(framesElapsed/10), indicatorBoxWidth + Math.sin(framesElapsed/10)*2, indicatorBoxHeight + Math.sin(framesElapsed/10)*2)
-
-
+  }
   ctx = game.getLayer("terrain").context
   
 
@@ -1362,7 +1391,7 @@ game.loop = function(){
         if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output" || genderResolve == "output"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
             facility1.warnings = [];
-            facility1.warnings.push(["An output port is connected to another facility\'s output port. Instead connect it to an input port.", areas[k].links[i].facility1[1]])
+            facility1.warnings.push(["An output port is connected to another output port. Instead connect it to an input port.", areas[k].links[i].facility1[1]])
             break;
           }
           try{
@@ -1443,7 +1472,7 @@ game.loop = function(){
         }else if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "input" || genderResolve == "input"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
             facility1.warnings = [];
-            facility1.warnings.push(["An input port is connected to another facility\'s input port. Instead connect it to an output port.", areas[k].links[i].facility1[1]])
+            facility1.warnings.push(["An input port is connected to another input port. Instead connect it to an output port.", areas[k].links[i].facility1[1]])
             break;
           }
           try{
@@ -1571,9 +1600,6 @@ game.loop = function(){
       }
       ctx.save()
       ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
-      if(areas[areaIndex].networks[i].name == "ship"){
-        ctx.translate(0, -32)
-      }
       ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
       var facilityTextureName = areas[areaIndex].networks[i].name
       if(areas[areaIndex].networks[i].name == "t_valve"){
@@ -1656,9 +1682,7 @@ game.loop = function(){
       }
       ctx.save()
       ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
-      if(areas[areaIndex].networks[i].name == "ship"){
-        ctx.translate(0, -32)
-      }
+
       ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
       var facilityTextureName = areas[areaIndex].networks[i].name
       if(areas[areaIndex].networks[i].name == "t_valve"){
@@ -1671,8 +1695,8 @@ game.loop = function(){
       var facilityTexture = game.getTexture(facilityTextureName)
       ctx.drawImage(facilityTexture, -16, -16, facilityTexture.width * 2, facilityTexture.height * 2)
       ctx.restore()
-      if(framesElapsed % 4 == 1 && Math.random() < 0.015){
-        activeOverlay.push(new Overlay("ripple", "null", areas[areaIndex].networks[i].points[0][0] + 0.5, areas[areaIndex].networks[i].points[0][1] + 0.5, 1))
+      if(framesElapsed % 4 == 1 && Math.random() < 0.012){
+        activeOverlay.push(new Overlay("ripple", "null", areas[areaIndex].networks[i].points[0][0] + 0.5, areas[areaIndex].networks[i].points[0][1] + 1.5, 1))
       }
       ctx.save()
       if(areas[areaIndex].networks[i].warnings.length >= 1){

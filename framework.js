@@ -1295,7 +1295,21 @@ function connectPipes(x1, y1, x2, y2){
     return;
   }
 
-  if(!(getMapData(x1, y1) == "p" || getMapData(x2, y2) == "p")){createPipeOverlay(x1, y1, x2, y2)}
+  var waterX = x1
+  var waterY = y1
+  var landX = x2
+  var landY = y2
+
+  if(getTile("terrain", getMapData(x2, y2, "waterLayer"))[0].substring(0, 6) == "water_"){
+    var waterX = x2
+    var waterY = y2
+    var landX = x1
+    var landY = y1
+  }
+
+  if((Math.abs(waterX - landX) <= 1 && Math.abs(waterY - landY) == 0) || (Math.abs(waterY - landY) <= 1 && Math.abs(waterX - landX) == 0)){
+    if(getMapData(waterX, waterY) != "p" && (conduits[conduitIndex].endPoints.includes(getMapData(landX, landY)))){createPipeOverlay(x1, y1, x2, y2)}
+  }
   
   var endPoints = [];
   
@@ -1348,6 +1362,14 @@ function connectPipes(x1, y1, x2, y2){
   }
   var pipesToReplace = [];
 
+  var intersectString = "_hh"
+  var intersectId = conduits[getConduitIndex(intersectors[j])].h
+
+  if(y1 == y2){
+    intersectString = "_vv"
+    intersectId = conduits[getConduitIndex(intersectors[j])].v
+  }
+
   if(x1 > x2 && y1 == y2){
     
     pipesToReplace = [];
@@ -1355,7 +1377,7 @@ function connectPipes(x1, y1, x2, y2){
       var crossingMidsection = true;
       for(var i = x1-1; i > x2; i--){
         for(var j = 0, ll = intersectors.length; j < ll; j++){
-          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(i, y1)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_vv")))){
+          if(intersectId.includes(getMapData(i, y1)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(i, y1))[0].slice(-3) == intersectString)))){
             pipesToReplace.push([i, y1])
             if(x1-x2 == pipesToReplace.length +1){
               for(var i = 0, l = pipesToReplace.length; i<l; i++){
@@ -1387,7 +1409,7 @@ function connectPipes(x1, y1, x2, y2){
       var crossingMidsection = true;
       for(var i = x1+1; i < x2; i++){
         for(var j = 0, ll = intersectors.length; j < ll; j++){
-          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(i, y1)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(i, y1))[0].slice(-3) == "_vv")))){
+          if(intersectId.includes(getMapData(i, y1)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(i, y1))[0].slice(-3) == intersectString)))){
             pipesToReplace.push([i, y1])
           }else{
             crossingMidsection = false
@@ -1418,7 +1440,7 @@ function connectPipes(x1, y1, x2, y2){
       var crossingMidsection = true;
       for(var i = y1-1; i > y2; i--){
         for(var j = 0, ll = intersectors.length; j < ll; j++){
-          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(x1, i)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_vv")))){
+          if(intersectId.includes(getMapData(x1, i)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(x1, i))[0].slice(-3) == intersectString)))){
             pipesToReplace.push([x1, i])
           }else{
             crossingMidsection = false
@@ -1450,7 +1472,7 @@ function connectPipes(x1, y1, x2, y2){
       var crossingMidsection = true;
       for(var i = y1+1; i < y2; i++){
         for(var j = 0, ll = intersectors.length; j < ll; j++){
-          if(conduits[getConduitIndex(intersectors[j])].hv.includes(getMapData(x1, i)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_hh" || getTile("tiles", getMapData(x1, i))[0].slice(-3) == "_vv")))){
+          if(intersectId.includes(getMapData(x1, i)) || (intersectors.includes(conduitSelected) && ((getTile("tiles", getMapData(x1, i))[0].slice(-3) == intersectString)))){
             pipesToReplace.push([x1, i])
           }else{
             crossingMidsection = false
@@ -1494,13 +1516,16 @@ function connectPipes(x1, y1, x2, y2){
     }
   }
 
-  if(getMapData(x2, y2) == "p" || getMapData(x1, y1) == "p"){
+  if((getMapData(x2, y2) == "p") || getMapData(x1, y1) == "p"){
+
     if(getMapData(x1, y1) == "p"){
       var endPoints = updateNetwork(x2, y2, true)[1]
     }else{
       var endPoints = updateNetwork(x1, y1, true)[1]
     }
     
+
+
     var pos = 0;
     if(endPoints[0][0] == x1 && endPoints[0][1] == y1){
       pos = 1;
@@ -1821,7 +1846,7 @@ function addPipeNetwork(endPoints, useTrueCoords){
   var connections = getPipeConnections(endX, endY)
   if(JSON.stringify(endPoints[0]) == JSON.stringify(endPoints[1])){
     if(connections.length == 1 || connections.length == 0){
-      return;
+      // return;
     }
   }
   if(useTrueCoords){
@@ -2489,7 +2514,6 @@ function addPipe(x, y, mode){
       if(!beginMouseHold){
         if(getMapData(x, y) == "-"){changeMapData(x, y, conduits[conduitIndex].stub)}
         if((conduits[conduitIndex].endPoints + conduits[conduitIndex].stub + "p-").includes(getMapData(previousPipeX, previousPipeY))){
-          if(x > previousPipeX + 1){console.log("bridge")}
           connectPipes(x, y, previousPipeX, previousPipeY)
         }
       }

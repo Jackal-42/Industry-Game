@@ -521,57 +521,109 @@ var facilities = [
     height: 4,
     maxItems: 256,
     pseudoPipe: false,
-    storage: ["vapor", "kerosene", "naphtha"],
-    layout: [[0, 1], [0, 2], [0, 3], [1, 1], [1, 2], [1, 3]],
+    storage: ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"],
+    layout: [[0, 0], [0, 1], [0, 2], [0, 3], [1, 0], [1, 1], [1, 2], [1, 3]],
     process: function(me){
-      funds += me.data.vapor * 20
       funds += me.data.kerosene * 10
       funds += me.data.naphtha * 15
-      me.data.vapor = 0;
+      funds += me.data.butane * 10
+      funds += me.data.propane * 12
+      funds += me.data.fuel_oil * 20
+      funds += me.data.asphalt * 8
+      funds += me.data.gasoline * 50
+      funds += me.data.diesel * 50
       me.data.kerosene = 0;
       me.data.naphtha = 0;
+      me.data.butane = 0;
+      me.data.propane = 0;
+      me.data.fuel_oil = 0;
+      me.data.asphalt = 0;
+      me.data.gasoline = 0;
+      me.data.diesel = 0;
     },
     ports: [
       {
         x: -1,
+        y: 0,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: 2,
+        y: 0,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: 0,
+        y: -1,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: 1,
+        y: -1,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: 0,
+        y: 4,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: 1,
+        y: 4,
+        conduit: "pipe",
+        gender: ["breaker", ["null"]],
+      },
+
+      {
+        x: -1,
         y: 1,
         conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+        gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
       },
 
       {
         x: -1,
         y: 2,
         conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+        gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
       },
 
       {
         x: -1,
         y: 3,
         conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+        gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
       },
 
       {
         x: 2,
         y: 1,
         conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+        gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
       },
 
       {
         x: 2,
         y: 2,
         conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+        gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
       },
 
       {
         x: 2,
         y: 3,
         conduit: "pipe",
-        gender: ["input", ["kerosene", "naphtha", "vapor"]],
+        gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
       },      
     ],
   },
@@ -1061,6 +1113,12 @@ var tooltips = [
     name: "hotbar_erase",
     title: "Eraser",
     text: ""
+  },
+
+  {
+    name: "hotbar_ship",
+    title: "Tanker Ship",
+    text: "Many oil products can be sold by pumping them into the ship. Items are sold automatically."
   },
 
   {
