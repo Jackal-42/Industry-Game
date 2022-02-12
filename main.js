@@ -455,6 +455,7 @@ var tutorial = [
       shownIndicatorBoxWidth = 32
       shownIndicatorBoxHeight = 32
       document.getElementById("tutorialDisplay").style.top = "120%"
+      document.getElementById("skipTutorial").style.bottom = "-20%"
       mouseDown = false
       setTimeout(function(){
         trueIndicatorBoxX = -20
@@ -508,7 +509,7 @@ function debug(){
 //Rotates the facility placement cursor when tapping R or Z
 document.addEventListener("keydown", function (e) {
   if(doingTutorial){return}
-  if(e.keyCode == 82 || e.keyCode == 90){
+  if((e.keyCode == 82 && !key(16)) || e.keyCode == 90){
     facilityRotation += 90
     if(facilityRotation > 270){
       facilityRotation = 0
@@ -780,7 +781,12 @@ game.window.addEventListener("click", function (e) {
 
   if(areas[areaIndex].networks[facilityID].warnings.length >= 1){
     for(var i = 0, l = areas[areaIndex].networks[facilityID].warnings.length; i < l; i++){
-      document.getElementById("facilityShownWarnings").innerHTML += "<img src=\'docs/assets/warning.png\'>" + areas[areaIndex].networks[facilityID].warnings[i][0] + "<br>"
+      document.getElementById("facilityShownWarnings").innerHTML += "<p class=\'redText\'><img src=\'docs/assets/warning.png\'>" + areas[areaIndex].networks[facilityID].warnings[i][0] + "</p><br>"
+    }
+  }
+  if(areas[areaIndex].networks[facilityID].alerts.length >= 1){
+    for(var i = 0, l = areas[areaIndex].networks[facilityID].alerts.length; i < l; i++){
+      document.getElementById("facilityShownWarnings").innerHTML += "<p><img src=\'docs/assets/alert.png\'>" + areas[areaIndex].networks[facilityID].alerts[i] + "</p><br>"
     }
   }
 
@@ -1213,14 +1219,57 @@ game.loop = function(){
     for(var k = 0, lll = areas.length; k < lll; k++){
       for(var i = 0, l = areas[k].networks.length; i < l; i++){
         areas[areaIndex].networks[i].warnings = []
+        areas[areaIndex].networks[i].alerts = []
         if(areas[k].networks[i].name == "pipeSegment"){continue}
-        for(var j = 0, jl = areas[k].networks[i].data.portsInUse.length; j < jl; j++){
-          areas[k].networks[i].data.portsInUse[j] = false
-        }
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[k].networks[i].name){
             facilities[j].process(areas[k].networks[i])
+            var neededInputs = []
+            var neededInputCheck = []
+            var attemptedOutput = false
+            for(var a = 0, al = facilities[j].ports.length; a < al; a++){
+              if(facilities[j].ports[a].gender[0] == "output" && areas[k].networks[i].data.portsInUse[a]){
+                attemptedOutput = true
+              }
+              if(facilities[j].ports[a].gender[0] == "input"){
+                if(!(neededInputs.includes(JSON.stringify(facilities[j].ports[a].gender[1])))){
+                  neededInputs.push(JSON.stringify(facilities[j].ports[a].gender[1]))
+                  neededInputCheck.push(false)
+                }
+                if(areas[k].networks[i].data.portsInUse[a] == true){
+                  if(neededInputs.includes(JSON.stringify(facilities[j].ports[a].gender[1]))){
+                    neededInputCheck[neededInputs.indexOf(JSON.stringify(facilities[j].ports[a].gender[1]))] = true
+                  }
+                }
+              }
+            }
+            if(attemptedOutput){
+              for(var a = 0, al = neededInputCheck.length; a < al; a++){
+                if(neededInputCheck[a]){continue}
+                var alertString = ""
+                var currentNeededInput = eval(neededInputs[a])
+                for(var b = 0, bl = currentNeededInput.length; b < bl; b++){
+                  var rangeTitle = currentNeededInput[b].split("_")
+                  for(var c = 0, cl = rangeTitle.length; c < cl; c++){
+                    rangeTitle[c] = rangeTitle[c][0].toUpperCase() + rangeTitle[c].substr(1);
+                  }
+
+                  rangeTitle = rangeTitle.join(" ")
+                  if(b == 0){
+                    alertString += rangeTitle
+                  }else if(b == bl - 1){
+                    alertString += " or " + rangeTitle
+                  }else{
+                    alertString += ", " + rangeTitle
+                  }
+                }
+                areas[k].networks[i].alerts.push("This facility needs " + alertString + " to work. <span class=\"tooltipLink\" onclick=\"createTooltip(\'help_inputs\')\">(help)</span>")
+              }
+            }
           }
+        }
+        for(var j = 0, jl = areas[k].networks[i].data.portsInUse.length; j < jl; j++){
+          areas[k].networks[i].data.portsInUse[j] = false
         }
       }
     }
@@ -1401,7 +1450,7 @@ game.loop = function(){
 
         if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output" || genderResolve == "output"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
-            facility1.warnings = [];
+            // facility1.warnings = [];
             facility1.warnings.push(["An output port is connected to another output port. Instead connect it to an input port.", areas[k].links[i].facility1[1]])
             break;
           }
@@ -1444,7 +1493,7 @@ game.loop = function(){
             }
           }catch(err){console.log(err)}
 
-          facility2.warnings = []
+          // facility2.warnings = []
           if(invalidInput){
             if(facility1.name == "any_source"){continue}
             var errorName = invalidInputType.split("_")
@@ -1485,7 +1534,7 @@ game.loop = function(){
           }
         }else if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "input" || genderResolve == "input"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
-            facility1.warnings = [];
+            // facility1.warnings = [];
             facility1.warnings.push(["An input port is connected to another input port. Instead connect it to an output port.", areas[k].links[i].facility1[1]])
             break;
           }
@@ -1531,7 +1580,7 @@ game.loop = function(){
             }
           }catch(err){console.log(err)}
 
-          facility1.warnings = []
+          // facility1.warnings = []
           if(invalidInput){
             if(facility2.name == "any_source"){continue}
             var errorName = invalidInputType.split("_")
@@ -1643,6 +1692,33 @@ game.loop = function(){
             }
             if(areas[areaIndex].networks[i].rotation == 270){  
               ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
+            }
+          }
+        }
+      }
+      ctx.restore()
+      ctx.save()
+      if(areas[areaIndex].networks[i].alerts.length >= 1){
+        ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
+        for(var j = 0, jl = facilities.length; j < jl; j++){
+          if(facilities[j].name == areas[areaIndex].networks[i].name){
+            var offset1 = -8
+            var offset2 = 16
+            if(areas[areaIndex].networks[i].warnings.length >= 1){
+              offset1 = -26
+              offset2 = 6
+            }
+            if(areas[areaIndex].networks[i].rotation == 0){  
+              ctx.drawImage(game.getTexture("alert"), offset1 + facilities[j].width*32, -8, 16, 16)
+            }
+            if(areas[areaIndex].networks[i].rotation == 90){  
+              ctx.drawImage(game.getTexture("alert"), offset2, -8, 16, 16)
+            }
+            if(areas[areaIndex].networks[i].rotation == 180){  
+              ctx.drawImage(game.getTexture("alert"), offset2, 24 - facilities[j].height*32, 16, 16)
+            }
+            if(areas[areaIndex].networks[i].rotation == 270){  
+              ctx.drawImage(game.getTexture("alert"), offset1 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
             }
           }
         }

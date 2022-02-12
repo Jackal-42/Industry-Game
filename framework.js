@@ -42,6 +42,7 @@ game.addTexture("pipe_icon", "docs/assets/pipe_icon.png")//R
 game.addTexture("rail_icon", "docs/assets/rail_icon.png")//B
 game.addTexture("erase_icon", "docs/assets/erase_icon.png")
 game.addTexture("warning", "docs/assets/warning.png")
+game.addTexture("alert", "docs/assets/alert.png")
 
 var tileIds = ("X-p&" + "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?").split("")
 
@@ -500,6 +501,7 @@ function Network(name, rotation, points, data, pseudoPipe, index){
   this.data = data;
   this.pseudoPipe = pseudoPipe;
   this.warnings = [];
+  this.alerts = [];
   this.index = index;
 }
 
@@ -982,7 +984,7 @@ centerDisplay.innerHTML = `
 
 <p id="facilityShownResources" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 1%;"></p>
 
-<p id="facilityShownWarnings" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 1%; color: red"></p>
+<p id="facilityShownWarnings" style="font-family: \'Pixellari\'; margin-left: 32%; margin-top: 1%;"></p>
 
 
 `
@@ -1015,6 +1017,16 @@ function createTooltip(name){
     }
   }
   tooltip.innerHTML = "<p style=\"font-size: 24px; margin-left: 2px; font-family: \'Pixellari\'; \">" + tooltips[tooltipIndex].title +  "</p><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">" + tooltips[tooltipIndex].text + "</p>"
+  var sellable = false
+  for(var i = 0, l = products.length; i < l; i++){
+    if(products[i].name == name){
+      sellable = true
+      tooltip.innerHTML += "<br><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">Sell Price: $" + products[i].price + "</p>"
+    }
+  }
+  if(!sellable && !(name.includes("hotbar") || name.includes("help"))){
+    tooltip.innerHTML += "<br><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">Cannot Be Sold</p>"
+  }
   setTimeout(appendTooltip, 1)
 }
 

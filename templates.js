@@ -2,6 +2,48 @@ var game = new Game("game");
 
 var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane", "gasoline", "diesel", "fuel_oil", "asphalt"]
 
+var products = [
+  {
+    name: "naphtha",
+    price: 15,
+  },
+
+  {
+    name: "kerosene",
+    price: 10,
+  },
+
+  {
+    name: "propane",
+    price: 10,
+  },
+
+  {
+    name: "butane",
+    price: 12,
+  },
+
+  {
+    name: "fuel_oil",
+    price: 20,
+  },
+
+  {
+    name: "asphalt",
+    price: 8,
+  },
+
+  {
+    name: "gasoline",
+    price: 50,
+  },
+
+  {
+    name: "diesel",
+    price: 50,
+  },
+]
+
 
 //The list of facility templates
 var facilities = [
@@ -1080,6 +1122,12 @@ var tooltips = [
   },
 
   {
+    name: "help_inputs",
+    title: "Facility Inputs",
+    text: "Most facilities need to recieve an input of items before they can output items. Look at the infographic. Any arrow that points toward the facility is an input that must be connected before the facility is functional. Multiple inputs of the same item are not required but will boost the speed of the facility. Click on the icons next to the input arrows to see which facilities output those items."
+  },
+
+  {
     name: "hotbar_crude_source",
     title: "Crude Source",
     text: "Produces crude oil. Temporary"
@@ -1184,25 +1232,25 @@ var tooltips = [
   {
     name: "crude_kerosene",
     title: "<img src=\"docs/assets/crude_kerosene_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Kerosene</span>",
-    text: "This flammable oil is commonly used for heating, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be sold"
+    text: "This flammable oil is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and is commonly used for heating, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be sold"
   },
 
   {
     name: "kerosene",
     title: "<img src=\"docs/assets/kerosene_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Kerosene</span>",
-    text: "This flammable oil is commonly used for heating, but is also used to make <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+    text: "This flammable oil is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and is commonly used for heating, but is also used to make <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
   },
 
   {
     name: "crude_naphtha",
     title: "<img src=\"docs/assets/crude_naphtha_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Naphtha</span>",
-    text: "This oil is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+    text: "This oil is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
   },
 
   {
     name: "naphtha",
     title: "<img src=\"docs/assets/naphtha_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Naphtha</span>",
-    text: "This oil is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but it also can be sold for a decent price."
+    text: "This oil is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but it also can be sold for a decent price."
   },
 
   {
@@ -1250,55 +1298,55 @@ var tooltips = [
   {
     name: "fuel_oil",
     title: "<img src=\"docs/assets/fuel_oil_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Fuel Oil</span>",
-    text: "This energy-dense fuel is a key ingredient in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+    text: "This energy-dense fuel is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_fuel_oil_mixer\')\">fuel oil mixer</span> and is a key ingredient in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
   },
 
   {
     name: "light_oil",
     title: "<img src=\"docs/assets/light_oil_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Light Oil</span>",
-    text: "Despite its name, light oil is one of the densest and heaviest products of <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_oil\')\">crude oil</span>. It can be converted into <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
+    text: "Despite its name, light oil is one of the densest and heaviest products of <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_oil\')\">crude oil</span>. It is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span> and can be converted into <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'diesel\')\">diesel</span>"
   },
 
   {
     name: "heavy_oil",
     title: "<img src=\"docs/assets/heavy_oil_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Heavy Oil</span>",
-    text: "One of the most versatile oil products, heavy oil is used to make <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'asphalt\')\">asphalt</span>"
+    text: "One of the most versatile oil products, heavy oil is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span> and is used to make <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'asphalt\')\">asphalt</span>"
   },
 
   {
     name: "crude_propane",
     title: "<img src=\"docs/assets/crude_propane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Propane</span>",
-    text: "This gas can be sold is used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+    text: "This gas can be sold and is used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used. It is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>."
   },
 
   {
     name: "propane",
     title: "<img src=\"docs/assets/propane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Propane</span>",
-    text: "This gas, commonly used for gas stoves, can be sold and is also used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_fuel_oil_mixer\')\">fuel oil mixer</span>."
+    text: "This gas, commonly used for gas stoves, can be sold and is also used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'fuel_oil\')\">fuel oil</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_fuel_oil_mixer\')\">fuel oil mixer</span>. It is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>."
   },
 
   {
     name: "crude_butane",
     title: "<img src=\"docs/assets/crude_butane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Butane</span>",
-    text: "This gas can be sold is used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used"
+    text: "This gas can be sold is used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but must be purified at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> before it can be used. It is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>."
   },
 
   {
     name: "butane",
     title: "<img src=\"docs/assets/butane_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Butane</span>",
-    text: "This gas can be sold and is also used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gasoline_mixer\')\">gasoline mixer</span>"
+    text: "This gas can be sold and is also used to create <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gasoline_mixer\')\">gasoline mixer</span>. It is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>."
   },
 
   {
     name: "crude_vapor",
     title: "<img src=\"docs/assets/crude_vapor_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Crude Vapor</span>",
-    text: "This mixture of gases can be seperated into crude <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_propane\')\">propane</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_butane\')\">butane</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>"
+    text: "This mixture of gases is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and can be seperated into crude <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_propane\')\">propane</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_butane\')\">butane</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gas_processor\')\">vapor processor</span>"
   },
 
   {
     name: "residue",
     title: "<img src=\"docs/assets/residue_icon.png\"><span style=\"position: absolute; margin-top: 4px;\">Residue</span>",
-    text: "This mixture of solids can be seperated into <span class=\"tooltipLink\" onclick=\"createTooltip(\'light_oil\')\">light oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span>"
+    text: "This mixture of solids is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and can be seperated into <span class=\"tooltipLink\" onclick=\"createTooltip(\'light_oil\')\">light oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span> at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_residue_processor\')\">residue processor</span>"
   },
 
   {

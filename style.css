@@ -9,6 +9,7 @@ body {
   background-color: #424242;
   user-select: none;
   overflow: hidden;
+  -ms-overflow-style: none;  /* IE and Edge */
 }
 
 button {
@@ -88,12 +89,12 @@ img {
 }
 
 #controls{
-  line-height: 1.8;
+  line-height: 0.8;
 }
 
 #controls p{
-  margin-top: 6px;
-  margin-bottom: 6px;
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
 
 #guidebook .menu{
@@ -137,6 +138,11 @@ p{
   background-color: rgb(243, 205, 155);
   transition: left 300ms;
   z-index: 4;
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+#slideMenuRight::-webkit-scrollbar {
+  display: none;
 }
 
 .hotbarButton{
@@ -222,7 +228,7 @@ p{
   background-color: rgb(255, 227, 193);
   border: 2px solid rgb(88, 36, 6);
   /* box-shadow: 0px 0px 0px 600px rgba(0, 0, 0, 0.6); */
-  overflow: hidden;
+  overflow: scroll;
   transition: top 200ms;
   z-index: 6;
 }
@@ -268,7 +274,13 @@ p{
   transition: top 250ms, opacity 200ms;
   overflow: scroll;
   z-index: 4;
+  -ms-overflow-style: none;  /* IE and Edge */
 }
+
+#centerDisplay::-webkit-scrollbar {
+  display: none;
+}
+
 /* 
 #centerDisplay::after{
   content: "";
@@ -398,6 +410,10 @@ p{
   margin: 4px;
 }
 
+.redText{
+  color: rgb(255, 0, 0);
+}
+
 .upgradeCost{
   font-family: "Pixellari";
   color: black;
@@ -410,6 +426,10 @@ p{
   width: 16px;
   height: 16px;
   margin-right: 4px;
+}
+
+#facilityShownWarnings p{
+  font-family: "Pixellari";
 }
 
 #fundsWrapper{
