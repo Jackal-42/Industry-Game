@@ -344,7 +344,7 @@ p{
 
 .tooltipRange{
   position: absolute;
-  border: none;
+  border: 2px solid red;
   width: 20px;
   height: 20px;
   z-index: 4;

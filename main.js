@@ -700,42 +700,66 @@ game.window.addEventListener("click", function (e) {
     facilityShownHeight = rangeSubHeight*0.6
     arrowWidth = rangeSubHeight*0.6
   }
-  console.log(facilityDisplayedData.height)
   if(facilityDisplayedData.height == 4){
     arrowWidth /= 2
   }
 
+  // if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 90 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
+  //   facilityShownHeightSave = facilityShownHeight
+  //   facilityShownHeight = facilityShownWidth
+  //   facilityShownWidth = facilityShownHeightSave
+  // }
+
   var newTooltipRange;
+  var newTooltipRangeLeft = 0;
+  var newTooltipRangeTop = 0;
+  var newTooltipRangeHeight = 0;
+  var newTooltipRangeWidth = 0;
+    
   for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
     if(facilityDisplayedData.ports[i].gender[0] == "breaker"){continue}
     newTooltipRange = document.createElement("button")
     newTooltipRange.classList.add("tooltipRange")
 
-    newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) + "px"
+    newTooltipRangeLeft = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6)
 
-    newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 + "px"
+    newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8)
     if(facilityDisplayedData.height == 4){
-      newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 + 4 + "px"
+      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + 4
     }
 
-    newTooltipRange.style.height = arrowWidth + "px"
-    newTooltipRange.style.width = arrowWidth + "px"
+    newTooltipRangeHeight = arrowWidth
+    newTooltipRangeWidth = arrowWidth
 
     if(facilityDisplayedData.ports[i].x == facilityDisplayedData.width){
-      newTooltipRange.style.width = arrowWidth*1.5 + "px"
+      newTooltipRangeWidth = arrowWidth*1.5
     }else if(facilityDisplayedData.ports[i].x == -1){
-      newTooltipRange.style.width = arrowWidth*1.5 + "px"
-      newTooltipRange.style.left = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) - arrowWidth*0.5 + "px"
+      newTooltipRangeWidth = arrowWidth*1.5
+      newTooltipRangeLeft = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) - arrowWidth*0.5
     }else if(facilityDisplayedData.ports[i].y == -1){
-      newTooltipRange.style.height = arrowWidth*1.5 + "px"
-      newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + ((window.innerHeight*0.9)/100)*6 + "px"
+      newTooltipRangeHeight = arrowWidth*1.5
+      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5
       if(facilityDisplayedData.height == 4){
-        newTooltipRange.style.top = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + ((window.innerHeight*0.9)/100)*6 + 4 + "px"
+        newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + 4
       }
     }else{
-      newTooltipRange.style.height = arrowWidth*1.5 + "px"
+      newTooltipRangeHeight = arrowWidth*1.5
     }
+     // + ((window.innerHeight*0.9)/100)*6
+    console.log(newTooltipRangeLeft)
+    console.log(newTooltipRangeTop)
+    console.log(rangeHeight)
+    var rotatedRangeCoords = rotate(rangeSubHeight, rangeHeight, newTooltipRangeLeft, newTooltipRangeTop, areas[areaIndex].networks[facilityDisplayedIndex].rotation * -1)
 
+    newTooltipRange.style.left = rotatedRangeCoords[0] + "px"
+    newTooltipRange.style.top = rotatedRangeCoords[1] + ((window.innerHeight*0.9)/100)*6 + "px"
+    if(areas[areaIndex].networks[facilityDisplayedIndex].rotation >= 180){
+      newTooltipRange.style.top = rotatedRangeCoords[1] + ((window.innerHeight*0.9)/100)*6 - arrowWidth + "px"
+    }
+    newTooltipRange.style.width = newTooltipRangeWidth + "px"
+    newTooltipRange.style.height = newTooltipRangeHeight + "px"
+
+        
     if(facilityDisplayedData.ports[i].gender[1].length == 1){
       if(facilityDisplayedData.ports[i].gender[1][0] == "null"){
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
@@ -947,13 +971,16 @@ game.loop = function(){
     facilityShownCanvas.getContext("2d").imageSmoothingEnabled = false
     facilityShownCanvas.getContext("2d").save()
     facilityShownCanvas.getContext("2d").translate(250, 250)
+    facilityShownCanvas.getContext("2d").rotate(areas[areaIndex].networks[facilityDisplayedIndex].rotation*(Math.PI/180))
 
     facilityShownCanvas.getContext("2d").drawImage(game.getTexture(facilityDisplayedData.name), facilityShownWidth/-2, facilityShownHeight/-2, facilityShownWidth, facilityShownHeight)
 
     facilityShownCanvas.getContext("2d").restore()
     for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
       facilityShownCanvas.getContext("2d").save()
-      facilityShownCanvas.getContext("2d").translate((250 + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/2), (250 + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/2))
+      var rotatedRendering = rotate(250, 250, (250 + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/2),  (250 + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/2), areas[areaIndex].networks[facilityDisplayedIndex].rotation*-1)
+      facilityShownCanvas.getContext("2d").translate(rotatedRendering[0],rotatedRendering[1])
+      facilityShownCanvas.getContext("2d").rotate(areas[areaIndex].networks[facilityDisplayedIndex].rotation*(Math.PI/180))
 
       var arrowRotation = 0;
       if(facilityDisplayedData.ports[i].x == facilityDisplayedData.width){arrowRotation = (270*(Math.PI/180))}else if(facilityDisplayedData.ports[i].x == -1){arrowRotation = (90*(Math.PI/180))}else if(facilityDisplayedData.ports[i].y == -1){arrowRotation = (180*(Math.PI/180))}
@@ -980,6 +1007,7 @@ game.loop = function(){
 
         facilityShownCanvas.getContext("2d").rotate(arrowRotation*-1)
         facilityShownCanvas.getContext("2d").rotate(180*(Math.PI/180))
+        facilityShownCanvas.getContext("2d").rotate(areas[areaIndex].networks[facilityDisplayedIndex].rotation*(Math.PI/180)*-1)
 
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)}
       }else{
@@ -994,6 +1022,7 @@ game.loop = function(){
         facilityShownCanvas.getContext("2d").translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
 
         facilityShownCanvas.getContext("2d").rotate(arrowRotation*-1)
+        facilityShownCanvas.getContext("2d").rotate(areas[areaIndex].networks[facilityDisplayedIndex].rotation*(Math.PI/180)*-1)
 
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
           facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
@@ -1880,6 +1909,7 @@ game.loop = function(){
 
         ctx.rotate(arrowRotation*-1)
         ctx.rotate(180*(Math.PI/180))
+        ctx.rotate(facilityRotation*(Math.PI/180)*-1)
 
         ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
       }else{
@@ -1889,6 +1919,8 @@ game.loop = function(){
         ctx.translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
 
         ctx.rotate(arrowRotation*-1)
+        // ctx.rotate(180*(Math.PI/180))
+        ctx.rotate(facilityRotation*(Math.PI/180)*-1)
 
         ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
       }
