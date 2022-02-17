@@ -159,7 +159,7 @@ var tutorial = [
     text: "<p>This is the Distiller's Infographic. Each of the arrows corresponds to either an input or an output port. Click on each of the oil drop icons to see what resources they input or output.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //8
-      
+
     },
   },
 
@@ -438,7 +438,7 @@ var tutorial = [
     text: "<p>You've just connected a pipe up to the tanker ship, where the naphtha you produced is being sold for a profit. You can pump oil into the six ports on either side of the ship.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //29
-      
+
     },
   },
 
@@ -471,7 +471,7 @@ var tutorial = [
         , 1000)
         mouseDown = false
       }, 1000)
-      
+
     },
   },
 
@@ -577,7 +577,7 @@ game.window.addEventListener("click", function (e) {
     if(checkTooltipClick === undefined){checkTooltipClick = 0}
     var incrementer = 0
     for(var i = 0, l = tooltipsActive.length; i < l; i++){
-      if(tooltipsActive[incrementer].name > checkTooltipClick){  
+      if(tooltipsActive[incrementer].name > checkTooltipClick){
         tooltipsActive[incrementer].remove()
       }else{
         incrementer++
@@ -590,7 +590,7 @@ game.window.addEventListener("click", function (e) {
   //Tries to place a facility on the map
   if(conduitSelected == "facility" && canPlaceFacility){
     if(tutorialIndex == 4 || tutorialIndex == 13 || tutorialIndex == 22 || tutorialIndex == 24){tutorialNext()}
-        
+
     var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
     var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
 
@@ -652,7 +652,7 @@ game.window.addEventListener("click", function (e) {
     return;
   }
 
-  var str = areas[areaIndex].networks[facilityID].name 
+  var str = areas[areaIndex].networks[facilityID].name
   document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
 
   facilityDisplayedData = getFacility(str)
@@ -666,7 +666,7 @@ game.window.addEventListener("click", function (e) {
     }
 
 
-    
+
   }catch{}
 
   var tooltipRanges = document.getElementsByClassName("tooltipRange")
@@ -694,7 +694,7 @@ game.window.addEventListener("click", function (e) {
     facilityShownHeight = rangeSubHeight
     arrowWidth = rangeSubHeight*0.5
   }
-  
+
   if(facilityDisplayedData.width == 1 && facilityDisplayedData.height == 1){
     facilityShownWidth = rangeSubHeight*0.6
     facilityShownHeight = rangeSubHeight*0.6
@@ -704,28 +704,28 @@ game.window.addEventListener("click", function (e) {
     arrowWidth /= 2
   }
 
-  // if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 90 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
-  //   facilityShownHeightSave = facilityShownHeight
-  //   facilityShownHeight = facilityShownWidth
-  //   facilityShownWidth = facilityShownHeightSave
-  // }
+  if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 90 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
+    var facilityShownHeightSave = facilityShownHeight
+    facilityShownHeight = facilityShownWidth
+    facilityShownWidth = facilityShownHeightSave
+  }
 
   var newTooltipRange;
   var newTooltipRangeLeft = 0;
   var newTooltipRangeTop = 0;
   var newTooltipRangeHeight = 0;
   var newTooltipRangeWidth = 0;
-    
+
   for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
     if(facilityDisplayedData.ports[i].gender[0] == "breaker"){continue}
     newTooltipRange = document.createElement("button")
     newTooltipRange.classList.add("tooltipRange")
 
-    newTooltipRangeLeft = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6)
+    newTooltipRangeLeft = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x
 
-    newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8)
+    newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y
     if(facilityDisplayedData.height == 4){
-      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) + 4
+      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + 4
     }
 
     newTooltipRangeHeight = arrowWidth
@@ -735,31 +735,67 @@ game.window.addEventListener("click", function (e) {
       newTooltipRangeWidth = arrowWidth*1.5
     }else if(facilityDisplayedData.ports[i].x == -1){
       newTooltipRangeWidth = arrowWidth*1.5
-      newTooltipRangeLeft = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x + (arrowWidth/6) - arrowWidth*0.5
+      newTooltipRangeLeft = (rangeHeight + (facilityShownWidth/-2)) + arrowWidth*facilityDisplayedData.ports[i].x - arrowWidth*0.5
     }else if(facilityDisplayedData.ports[i].y == -1){
       newTooltipRangeHeight = arrowWidth*1.5
-      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5
+      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) - arrowWidth*0.5 + arrowWidth*facilityDisplayedData.ports[i].y
       if(facilityDisplayedData.height == 4){
-        newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + (arrowWidth/8) - arrowWidth*0.5 + 4
+        newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) - arrowWidth*0.5 + arrowWidth*facilityDisplayedData.ports[i].y + 4
       }
+    }else if(facilityDisplayedData.ports[i].y == facilityDisplayedData.height){
+      newTooltipRangeHeight = arrowWidth*1.5
+      newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y
     }else{
       newTooltipRangeHeight = arrowWidth*1.5
     }
+
+
+    if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 90 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 180){
+      if(facilityDisplayedData.ports[i].y == facilityDisplayedData.height){
+        newTooltipRangeHeight = arrowWidth*1.5
+        newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*0.5 + arrowWidth*facilityDisplayedData.ports[i].y
+      }else if(facilityDisplayedData.ports[i].y == -1){
+        newTooltipRangeHeight = arrowWidth*1.5
+        newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y
+        if(facilityDisplayedData.height == 4){
+          newTooltipRangeTop = (rangeHeight + (facilityShownHeight/-2)) + arrowWidth*facilityDisplayedData.ports[i].y + 4
+        }
+      }
+    }
+
+    if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 180 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
+      if(facilityDisplayedData.ports[i].x == facilityDisplayedData.width){
+        newTooltipRangeLeft += arrowWidth*0.5
+      }else if(facilityDisplayedData.ports[i].x == -1){
+        newTooltipRangeLeft += arrowWidth*0.5
+      }
+    }
+
+
      // + ((window.innerHeight*0.9)/100)*6
     console.log(newTooltipRangeLeft)
     console.log(newTooltipRangeTop)
     console.log(rangeHeight)
     var rotatedRangeCoords = rotate(rangeSubHeight, rangeHeight, newTooltipRangeLeft, newTooltipRangeTop, areas[areaIndex].networks[facilityDisplayedIndex].rotation * -1)
 
-    newTooltipRange.style.left = rotatedRangeCoords[0] + "px"
-    newTooltipRange.style.top = rotatedRangeCoords[1] + ((window.innerHeight*0.9)/100)*6 + "px"
+    // if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 180 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
+    //   rotatedRangeCoords[1] += ((window.innerHeight*0.9)/100)*6
+    // }
+
+    newTooltipRange.style.left = rotatedRangeCoords[0] + (arrowWidth/6) + "px"
+    newTooltipRange.style.top = rotatedRangeCoords[1] + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 + "px"
     if(areas[areaIndex].networks[facilityDisplayedIndex].rotation >= 180){
-      newTooltipRange.style.top = rotatedRangeCoords[1] + ((window.innerHeight*0.9)/100)*6 - arrowWidth + "px"
+      newTooltipRange.style.top = rotatedRangeCoords[1] + (arrowWidth/8) + ((window.innerHeight*0.9)/100)*6 - arrowWidth + "px"
+    }
+    if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 90 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
+      var newTooltipRangeHeightSave = newTooltipRangeHeight
+      newTooltipRangeHeight = newTooltipRangeWidth
+      newTooltipRangeWidth = newTooltipRangeHeightSave
     }
     newTooltipRange.style.width = newTooltipRangeWidth + "px"
     newTooltipRange.style.height = newTooltipRangeHeight + "px"
 
-        
+
     if(facilityDisplayedData.ports[i].gender[1].length == 1){
       if(facilityDisplayedData.ports[i].gender[1][0] == "null"){
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
@@ -778,7 +814,7 @@ game.window.addEventListener("click", function (e) {
       if(facilityDisplayedData.ports[i].gender[0] == "output"){
         rangeContent += "This port can output:"
       }
-      rangeContent += "</p>" 
+      rangeContent += "</p>"
 
       for(var k = 0, kl = facilityDisplayedData.ports[i].gender[1].length; k < kl; k++){
         var rangeTitle = facilityDisplayedData.ports[i].gender[1][k].split("_")
@@ -821,9 +857,9 @@ game.window.addEventListener("click", function (e) {
   if(tutorialIndex == 7 || tutorialIndex == 17){tutorialNext()}
 
   document.getElementById('centerDisplay').style.display = "block"
-  
+
   cacheCode("document.getElementById(\'centerDisplay\').style.top = \"30%\"; document.getElementById(\'centerDisplay\').style.opacity = \"1\";", 1)
-  
+
   }catch(err){console.log(err)}
 
 })
@@ -837,7 +873,7 @@ function toggleDebugMenu(){
     document.getElementById('debug').style.height = 'auto'
     document.getElementById('debug').style.width = '150px'
   }else{
-    
+
     document.getElementById('debugExpander').innerHTML = '-'
     document.getElementById('menus').style.display = 'block'
     document.getElementById('debug').style.height = '400px'
@@ -853,7 +889,7 @@ function toggleGuidebook(){
     document.getElementById('guidebookExpander').innerHTML = '+'
     document.getElementById('guidebook').style.display = 'none'
   }else{
-    
+
     document.getElementById('guidebookExpander').innerHTML = '-'
     document.getElementById('guidebook').style.display = 'block'
   }
@@ -1076,13 +1112,13 @@ game.loop = function(){
   //   document.getElementById('centerDisplay').style.display = "block"
   // }
 
-  
+
 
   document.getElementById("funds").innerHTML = funds
 
 
-  for(var i = 0, l = game.layers.length; i < l; i++){  
-    if(game.layers[i].clearFrames == true){  
+  for(var i = 0, l = game.layers.length; i < l; i++){
+    if(game.layers[i].clearFrames == true){
       game.layers[i].clear();
     }
   }
@@ -1145,12 +1181,12 @@ game.loop = function(){
 
   }
   ctx = game.getLayer("terrain").context
-  
+
 
   ctx.drawImage(document.getElementById("terrainCanvas"), (scrollX/4) * -1, (scrollY/4) * -1, 2048, 1280)
 
   ctx = game.getLayer("main").context
-  
+
   //Updates all the game objects
   game.tick()
   beginMouseHold = false;
@@ -1179,8 +1215,8 @@ game.loop = function(){
     mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
     addPipe(mouseX, mouseY)
   }
-  
-  
+
+
   previousMouseX = Math.floor((previousMouseX)/(32))
   previousMouseY = Math.floor((previousMouseY)/(32))
   //nothing to see here
@@ -1194,7 +1230,7 @@ game.loop = function(){
     document.getElementById("cursorY").innerHTML = mouseY
     document.getElementById("dataAtCursor").innerHTML = tiles[tileIds.indexOf(getMapData(mouseX, mouseY))][0]
   }
-  
+
   //All righty-o, it seems that the code in this block actually prevents the game from functioning properly, so the variable updates have been commented out but I am keeping it just in case. Maybe a code remnant
   if(conduitSelected != "erase" && conduitSelected != "facility"){
     if(conduits[conduitIndex].endPoints.includes(getMapData(mouseX, mouseY))){
@@ -1237,7 +1273,7 @@ game.loop = function(){
 
   if(previousMouseX < 0){previousMouseX = 0}
   if(previousMouseY < 0){previousMouseY = 0}
-  
+
 
   if((framesElapsed + 5) % 15 == 1){
     checkUpgrades()
@@ -1443,7 +1479,7 @@ game.loop = function(){
                 eval("facility2.data." + facility2.data.storedItem + " -= " + 1)
                 eval("facility1.data." + facility2.data.storedItem + " += " + 1)
 
-                
+
               }
             }
             if(!(facility2.data.inputs === undefined) && (facility1.data.inputs === undefined)){
@@ -1491,11 +1527,11 @@ game.loop = function(){
             if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null"){
               movingItems = fluids.slice()
             }
-            
+
             var amountTransferred = 1;
             if(facility1.name == "valve"){
               facility1.data.outputCheck++
-              
+
               amountTransferred = 1/facility1.data.outputs
             }
             var invalidInput = false
@@ -1503,7 +1539,7 @@ game.loop = function(){
             var invalidInputPort = ""
 
             for(var j = 0, jl = movingItems.length; j < jl; j++){
-      
+
               if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
 
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
@@ -1580,7 +1616,7 @@ game.loop = function(){
             var amountTransferred = 1;
             if(facility2.name == "valve"){
               facility2.data.outputCheck++
-              
+
               amountTransferred = 1/facility2.data.outputs
             }
             var invalidInput = false
@@ -1592,13 +1628,13 @@ game.loop = function(){
             var invalidInputPort = "";
             for(var j = 0, jl = movingItems.length; j < jl; j++){
 
-              
+
               if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
 
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
               }
-              
+
               if(eval("facility2.data." + movingItems[j]) >= 1){
 
                 if(isModular1){facility1.data.storedItem = movingItems[j]}
@@ -1710,16 +1746,16 @@ game.loop = function(){
         ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[areaIndex].networks[i].name){
-            if(areas[areaIndex].networks[i].rotation == 0){  
+            if(areas[areaIndex].networks[i].rotation == 0){
               ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].width*32, -8, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 90){  
+            if(areas[areaIndex].networks[i].rotation == 90){
               ctx.drawImage(game.getTexture("warning"), 24, -8, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 180){  
+            if(areas[areaIndex].networks[i].rotation == 180){
               ctx.drawImage(game.getTexture("warning"), 24, 24 - facilities[j].height*32, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 270){  
+            if(areas[areaIndex].networks[i].rotation == 270){
               ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
             }
           }
@@ -1737,16 +1773,16 @@ game.loop = function(){
               offset1 = -26
               offset2 = 6
             }
-            if(areas[areaIndex].networks[i].rotation == 0){  
+            if(areas[areaIndex].networks[i].rotation == 0){
               ctx.drawImage(game.getTexture("alert"), offset1 + facilities[j].width*32, -8, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 90){  
+            if(areas[areaIndex].networks[i].rotation == 90){
               ctx.drawImage(game.getTexture("alert"), offset2, -8, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 180){  
+            if(areas[areaIndex].networks[i].rotation == 180){
               ctx.drawImage(game.getTexture("alert"), offset2, 24 - facilities[j].height*32, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 270){  
+            if(areas[areaIndex].networks[i].rotation == 270){
               ctx.drawImage(game.getTexture("alert"), offset1 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
             }
           }
@@ -1756,7 +1792,7 @@ game.loop = function(){
     }
   }
 
-  
+
   //Draws the water layer
   ctx = game.getLayer("water").context
   ctx.globalCompositeOperation = "source-over"
@@ -1781,10 +1817,10 @@ game.loop = function(){
       ctx.stroke()
       if(activeOverlay[i].rotation !== 0){
         activeOverlay[i].data.age += 0.4
-      }else{ 
+      }else{
         activeOverlay[i].data.age += 0.6
       }
-      
+
       if(activeOverlay[i].data.age > 200){
         activeOverlay.splice(i, 1)
         i--
@@ -1823,16 +1859,16 @@ game.loop = function(){
         ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[areaIndex].networks[i].name){
-            if(areas[areaIndex].networks[i].rotation == 0){  
+            if(areas[areaIndex].networks[i].rotation == 0){
               ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].width*32, -8, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 90){  
+            if(areas[areaIndex].networks[i].rotation == 90){
               ctx.drawImage(game.getTexture("warning"), 24, -8, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 180){  
+            if(areas[areaIndex].networks[i].rotation == 180){
               ctx.drawImage(game.getTexture("warning"), 24, 24 - facilities[j].height*32, 16, 16)
             }
-            if(areas[areaIndex].networks[i].rotation == 270){  
+            if(areas[areaIndex].networks[i].rotation == 270){
               ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
             }
           }
@@ -1861,12 +1897,12 @@ game.loop = function(){
 
   game.render()
 
-  
+
   ctx = game.getLayer("water").context
   ctx.globalCompositeOperation = "source-over"
 
   ctx.globalAlpha = (Math.sin(framesElapsed/8) + 1.6)/3
-  
+
   ctx.fillStyle = "yellow"
 
   var cursorWidth = 32;
@@ -1964,8 +2000,8 @@ game.loop = function(){
     }else{
       ctx.drawImage( tint( facilitySelectedTexture, "red", 0.5), -16, -16, cursorWidth, cursorHeight)
     }
-    
-    
+
+
     ctx.restore()
   }else{
     rotationDisplay.style.display = "none"
@@ -1975,7 +2011,7 @@ game.loop = function(){
   ctx = game.getLayer("water").context
 
 
-  
+
   //The fade screen transition that occurs when switching areas
   if(fadeOpacity > 0 || fading){
     if(fading){
@@ -1989,8 +2025,8 @@ game.loop = function(){
       evalOnFade = ""
       fadeOpacity = 1
     }
-    
-    
+
+
     if(fadeOpacity > 0){
       ctx.globalAlpha = fadeOpacity
     }else{ctx.globalAlpha = 0}
@@ -2001,7 +2037,7 @@ game.loop = function(){
   mouseDownPreviously = false;
   if(mouseDown){mouseDownPreviously = true;}
   framesElapsed++
-  
+
   requestAnimationFrame(game.loop)
 }
 game.loop()

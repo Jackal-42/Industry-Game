@@ -1,6 +1,6 @@
 
 /* Font by Zacchary Dempsey-Plante */
-@font-face{ 
+@font-face{
 	font-family: 'Pixellari';
 	src: url('docs/Pixellari.ttf');
 }
@@ -100,7 +100,7 @@ img {
 #guidebook .menu{
   padding-top: 4px;
   padding-left: 1%;
-  width: 96%;
+  width: 100%;
   background-color: rgb(236, 210, 175);
 }
 
@@ -187,7 +187,7 @@ p{
   position: absolute;
   transform: translate(-50%, -50%) rotate(5deg);
   margin-top: 42%;
-  transition: 100ms; 
+  transition: 100ms;
 }
 
 .clickityElement{
@@ -231,6 +231,11 @@ p{
   overflow: scroll;
   transition: top 200ms;
   z-index: 6;
+	ms-overflow-style: none;
+}
+
+#tutorialDisplay::-webkit-scrollbar {
+  display: none;
 }
 
 #tutorialDisplay p{
@@ -281,7 +286,7 @@ p{
   display: none;
 }
 
-/* 
+/*
 #centerDisplay::after{
   content: "";
   position: fixed;
@@ -344,7 +349,7 @@ p{
 
 .tooltipRange{
   position: absolute;
-  border: 2px solid red;
+  border: none;
   width: 20px;
   height: 20px;
   z-index: 4;
@@ -438,6 +443,22 @@ p{
 
 #guidebook p{
   font-family: "Pixellari";
+}
+
+#guidebook {
+  ms-overflow-style: none;
+}
+
+#guidebook::-webkit-scrollbar {
+  display: none;
+}
+
+#guidebookWrapper {
+  ms-overflow-style: none;
+}
+
+#guidebookWrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .subtext{

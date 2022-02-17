@@ -162,7 +162,7 @@ function updateFacilitySelected(){
       }
     }
   }
-  
+
   facilitySelectedLayout = rotatedLayout
 }
 
@@ -197,7 +197,7 @@ function Conduit(id, index){
   this.stub = tileIds[index + 10]
   this.corners = tileIds[index + 2] + tileIds[index + 3] + tileIds[index + 4] + tileIds[index + 5]
   this.segments = this.endPoints + tileIds[index] + tileIds[index + 1] + this.corners
-  
+
   this.left = tileIds[index + 6]
   this.right = tileIds[index + 7]
   this.bottom = tileIds[index + 8]
@@ -318,7 +318,7 @@ function overrideTexture(name, src){
   img.alt = ""
   for(var i = 0, l = game.textures.length; i < l; i++){
     if(game.textures[i][0] == name){
-      
+
       game.textures[i][1] = img
     }
   }
@@ -481,7 +481,7 @@ function lg(expression){
   }else{
     document.getElementById('evalOutput').innerHTML = expression;
   }
-  
+
 }
 
 function Area(name, baseLayer, waterLayer, activeLayer, networks, links, overlay){
@@ -588,7 +588,7 @@ function selectPlaceable(id, keepOrder){
   if(elementIndex == -1){return}
 
   if(document.getElementById("hotbar_" + id).style.backgroundColor == "rgba(1, 1, 1, 0)"){return}
-  
+
 
   hotbarButtons[elementIndex].childNodes[0].classList.remove('clickityElement'); // reset animation
   void hotbarButtons[elementIndex].childNodes[0].offsetWidth; // trigger reflow
@@ -612,7 +612,7 @@ function selectPlaceable(id, keepOrder){
       // hotbarButtons[i].style.backgroundColor = "rgb(251, 255, 0)"
       hotbarButtons[i].style.border = "3px solid yellow"
 
-      if(hotbarButtons[i].style.left == "0px"){ 
+      if(hotbarButtons[i].style.left == "0px"){
         hotbarButtons[i].style.left = "68px"
       }
     }else{
@@ -842,12 +842,12 @@ var rightMenu = document.createElement('div')
 rightMenu.id = "slideMenuRight"
 
 rightMenu.innerHTML = `
-<div style="position: absolute; left: -61%; width: 50%; top: 2%; background-color: gray; border: 1px solid black; overflow: scroll; max-height: 400px;">
+<div id="guidebookWrapper" style="position: absolute; left: -61%; width: 50%; top: 2%; background-color: rgb(236, 210, 175); border: 1px solid black; overflow: scroll; max-height: 400px;">
 
 
   <button id="guidebookExpander" style="position: absolute; right: 3px; top: 3px;" onclick="toggleGuidebook()">-</button>
 
-  <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; width: 100%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">GUIDEBOOK</p>
+  <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; padding-top: 4%; width: 101%; margin-bottom: 0px; padding-bottom: 0px; text-align: center; margin-top: -4px; background-color: gray;\">GUIDEBOOK</p>
 
   <div id="guidebook">
 
@@ -1005,7 +1005,7 @@ var tooltip;
 function createTooltip(name){
   tooltip = document.createElement("div")
   tooltip.classList.add("tooltip")
-  
+
   tooltip.name = document.getElementsByClassName("tooltip").length
 
   eval("tooltip.onclick = function(){checkTooltipClick = "+ (document.getElementsByClassName("tooltip").length) +"}")
@@ -1034,7 +1034,7 @@ function createTooltip(name){
 function createCustomTooltip(content){
   tooltip = document.createElement("div")
   tooltip.classList.add("tooltip")
-  
+
   tooltip.name = document.getElementsByClassName("tooltip").length
 
   eval("tooltip.onclick = function(){checkTooltipClick = "+ (document.getElementsByClassName("tooltip").length) +"}")
@@ -1120,7 +1120,7 @@ function getTerrainBorders(array, x, y, type){
       try{if(array[y+1].charAt(x+1) != type){return "_bri"}}catch{}
     }
 
-    
+
     return ""
   }
   if(bottom && left && right){
@@ -1171,7 +1171,7 @@ function sanitizeMap(array){
       }
     }
   }
-  
+
   return {ground: sanitized, water: sanitizedWater};
 }
 
@@ -1261,7 +1261,7 @@ function createPipeOverlay(x1, y1, x2, y2){
       }
     }
   }catch{}
-  try{ 
+  try{
     if(getTile("terrain", getMapData(x1, y1, "baseLayer"))[0].substring(0, 5) == "grass"){
       if(getTile("terrain", getMapData(x2, y2, "waterLayer"))[0].substring(0, 6) == "water_"){
         if(x1 > x2){
@@ -1315,7 +1315,7 @@ function connectPipes(x1, y1, x2, y2){
     return;
   }
 
-  
+
   if(pipe2Connections == "lr" || pipe2Connections == "tb"){
     return;
   }
@@ -1335,21 +1335,21 @@ function connectPipes(x1, y1, x2, y2){
   if((Math.abs(waterX - landX) <= 1 && Math.abs(waterY - landY) == 0) || (Math.abs(waterY - landY) <= 1 && Math.abs(waterX - landX) == 0)){
     if(getMapData(waterX, waterY) != "p" && (conduits[conduitIndex].endPoints.includes(getMapData(landX, landY)))){createPipeOverlay(x1, y1, x2, y2)}
   }
-  
+
   var endPoints = [];
-  
+
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name == 'pipeSegment'){
       endPoints.push(areas[areaIndex].networks[i].points[0])
       endPoints.push(areas[areaIndex].networks[i].points[1])
-      
+
       // var stringArray2 = JSON.stringify([x2, y2])
       // if(JSON.stringify(areas[areaIndex].networks[i].points).includes(stringArray2)){
       //   if(JSON.stringify(endPoints).includes(JSON.stringify([x1, y1]))){
       //     var stringArray1 = JSON.stringify([x1, y1])
       //     for(var j = 0; j < l; j++){
       //       if(JSON.stringify(areas[areaIndex].networks[j].points[0]) == stringArray1){
-              
+
       //         if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
       //           areas[areaIndex].networks[j].points[0] = areas[areaIndex].networks[i].points[1]
       //         }else{
@@ -1359,7 +1359,7 @@ function connectPipes(x1, y1, x2, y2){
       //         i--
       //         l--
       //       }else if(JSON.stringify(areas[areaIndex].networks[j].points[1]) == stringArray1){
-             
+
       //         if(JSON.stringify(areas[areaIndex].networks[i].points[0]) == stringArray2){
       //           areas[areaIndex].networks[j].points[1] = areas[areaIndex].networks[i].points[1]
       //         }else{
@@ -1396,7 +1396,7 @@ function connectPipes(x1, y1, x2, y2){
   }
 
   if(x1 > x2 && y1 == y2){
-    
+
     pipesToReplace = [];
     if(x1 > x2+1){
       var crossingMidsection = true;
@@ -1491,7 +1491,7 @@ function connectPipes(x1, y1, x2, y2){
     }
   }
   if(y1 < y2 && x1 == x2){
-    
+
     pipesToReplace = [];
     if(y1 < y2-1){
       var crossingMidsection = true;
@@ -1536,7 +1536,7 @@ function connectPipes(x1, y1, x2, y2){
       changeMapData(x2, y2, "-")
     }else{
       changeMapData(x2, y2, pipe2Id)
-      
+
       if(logPipes && debugging){document.getElementById("pipeLog").innerHTML += "Joined (" + x1 + ", " + y1 + ") and (" + x2 + ", " + y2 + ")<br>"}
     }
   }
@@ -1548,7 +1548,7 @@ function connectPipes(x1, y1, x2, y2){
     }else{
       var endPoints = updateNetwork(x1, y1, true)[1]
     }
-    
+
 
 
     var pos = 0;
@@ -1609,7 +1609,7 @@ function connectPipes(x1, y1, x2, y2){
         var facility2PortIndex = 0;
         var facility1TemplateID = 0;
         var facility2TemplateID = 0;
-        
+
         for(var i = 0, l = facilities.length; i < l; i++){
           if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
             facility1TemplateID = i
@@ -1653,10 +1653,10 @@ function connectPipes(x1, y1, x2, y2){
         document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
       }
     }
-    
+
     if(debugging){updateNetworkLog()}
   }
-  
+
   if(!guideArrowsShown && !endMouseHold){
     guideArrowsShown = true
     var endPoints = updateNetwork(x1, y1)[1]
@@ -1779,7 +1779,7 @@ function connectPipes(x1, y1, x2, y2){
       }
     }
   }
-  
+
 }
 
 function generateArrowOverlay(index, coords){
@@ -1807,9 +1807,9 @@ function generateArrowOverlay(index, coords){
   }
   var outputtedItems = facilities[facilityTemplateID].ports[portIndex].gender[1]
   var outputtedGender = facilities[facilityTemplateID].ports[portIndex].gender[0]
-  
+
   if(outputtedGender == "output"){
-    
+
     for(var i = 0, l = outputtedItems.length; i < l; i++){
       try{
         if(eval("areas[areaIndex].networks[index].data." + outputtedItems[i]) >= 1 || eval("areas[areaIndex].networks[index].data.crude_" + outputtedItems[i]) >= 1){
@@ -1957,7 +1957,7 @@ function addPipeNetwork(endPoints, useTrueCoords){
     var facility2PortIndex = 0;
     var facility1TemplateID = 0;
     var facility2TemplateID = 0;
-    
+
     for(var i = 0, l = facilities.length; i < l; i++){
       if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
         facility1TemplateID = i
@@ -2017,7 +2017,7 @@ function addPipeNetwork(endPoints, useTrueCoords){
   var facility2PortIndex = 0;
   var facility1TemplateID = 0;
   var facility2TemplateID = 0;
-  
+
   for(var i = 0, l = facilities.length; i < l; i++){
     if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
       facility1TemplateID = i
@@ -2096,7 +2096,7 @@ function addGhostNetwork(endPoints, connectionPoints){
         facilityIDs.push(areas[areaIndex].networks[i].index)
       }
     }
-  } 
+  }
 
   if(facilityIDs[1] != undefined){
     if(getNetwork(areaIndex, facilityIDs[0]).pseudoPipe == false && getNetwork(areaIndex, facilityIDs[1]).pseudoPipe == false){
@@ -2114,7 +2114,7 @@ function addGhostNetwork(endPoints, connectionPoints){
     var facility2PortIndex = 0;
     var facility1TemplateID = 0;
     var facility2TemplateID = 0;
-    
+
     for(var i = 0, l = facilities.length; i < l; i++){
       if(facilities[i].name == getNetwork(areaIndex, facilityIDs[0]).name){
         facility1TemplateID = i
@@ -2152,7 +2152,7 @@ function addGhostNetwork(endPoints, connectionPoints){
       }
     }
 
-    
+
 
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
@@ -2171,7 +2171,7 @@ function updatePipe(x, y, sourceX, sourceY){
   if(x < 0 || x > 63 || y < 0 || y > 39){
     return;
   }
-  
+
   var mapData = getMapData(x, y)
 
 
@@ -2180,7 +2180,7 @@ function updatePipe(x, y, sourceX, sourceY){
   }
 
   var conduitIndex = (getConduitIndex(getTile("tiles", mapData)[0].split("_")[0]))
-  
+
   if(conduitIndex === undefined){
     conduitIndex = getConduitIndex(conduitSelected)
   }
@@ -2315,7 +2315,7 @@ function updatePipe(x, y, sourceX, sourceY){
     }else{
       changeMapData(x, y, "-")
     }
-  
+
   }
 
 
@@ -2345,7 +2345,7 @@ function killNetwork(x, y){
         areas[areaIndex].networks.splice(i, 1)
         i--
         l--
-        
+
       }
     }
   }
@@ -2377,7 +2377,7 @@ function addPipe(x, y, mode){
         i--
         l--
       }
-    }  
+    }
 
     if("p&".includes(mapData)){
       var coordString = JSON.stringify([x, y])
@@ -2433,7 +2433,7 @@ function addPipe(x, y, mode){
 
       // updatePipe(x-1, y)
       // updatePipe(x-1, y+1)
-      
+
     }else{
       var directionals = ""
       directionals = getPipeConnections(x, y)
@@ -2524,7 +2524,7 @@ function addPipe(x, y, mode){
       if(debugging){updateNetworkLog()}
 
     }
-    
+
   }else{
     crossingPipe = false;
     if(beginMouseHold){
@@ -2534,10 +2534,10 @@ function addPipe(x, y, mode){
 
     if((previousPipeX != x || previousPipeY != y) && (conduits[conduitIndex].corners + conduits[conduitIndex].v + conduits[conduitIndex].h).includes(getMapData(x, y))){
       beginMouseHold = true
-        
+
       crossingPipe = true
     }
-    
+
     if(("-p" + conduits[conduitIndex].endPoints).includes(getMapData(x, y))){
       if(!beginMouseHold){
         if(getMapData(x, y) == "-"){changeMapData(x, y, conduits[conduitIndex].stub)}
@@ -2545,7 +2545,7 @@ function addPipe(x, y, mode){
           connectPipes(x, y, previousPipeX, previousPipeY)
         }
       }
-      
+
       if(beginMouseHold && getMapData(x, y) == "-"){
         changeMapData(x, y, conduits[conduitIndex].stub)
         if(conduits[conduitIndex].endPoints.includes(getMapData(x, y-1))){
@@ -2609,7 +2609,7 @@ function addPipe(x, y, mode){
         if(connectionCoords.length == 0){connectionCoords = [x, y, x+1, y]}else{connectionCoords = [0]}
       }
 
-      
+
       if(connectionCoords.length == 4){
         connectPipes(connectionCoords[0], connectionCoords[1], connectionCoords[2], connectionCoords[3])
       }
@@ -2620,9 +2620,9 @@ function addPipe(x, y, mode){
       previousPipeX = x;
       previousPipeY = y;
     }
-    
-    
-    
+
+
+
     if(crossingPipe){
       beginMouseHold = false;
     }
@@ -2765,7 +2765,7 @@ function updateNetwork(x, y, giveTrueCoords){
       }else{
         cachedX = x - 1
         cachedY = y
-        cachedXMotion = -1      
+        cachedXMotion = -1
       }
     }
     if(connections.includes("r")){
@@ -2792,7 +2792,7 @@ function updateNetwork(x, y, giveTrueCoords){
   var endPoints = [[x, y],[0, 0]]
   var counter = 0;
 
-  
+
 
   if(giveTrueCoords){
     var validConduitSegments = (conduits[conduitIndex].segments + "Xp")
@@ -2818,7 +2818,7 @@ function updateNetwork(x, y, giveTrueCoords){
       targetY += yMotion;
       continue;
     }
-    
+
     if(connections.includes("b") && validConduitSegments.includes(getMapData(targetX, targetY+1)) && yMotion != -1){
       targetY += 1;
       xMotion = 0;
@@ -2855,7 +2855,7 @@ function updateNetwork(x, y, giveTrueCoords){
         secondSide = true;
         continue;
       }
-      
+
     }
     break;
   }
@@ -2868,7 +2868,7 @@ function updateNetwork(x, y, giveTrueCoords){
     endPoints[1][0] = targetX;
     endPoints[1][1] = targetY;
   }
-  
+
   return [endPoints, previousTargets];
 }
 
