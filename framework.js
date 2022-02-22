@@ -352,7 +352,7 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = false;
+var debugging = true;
 var logPipes = false;
 var windowScale = 1;
 
@@ -1557,6 +1557,7 @@ function connectPipes(x1, y1, x2, y2){
     }
     // if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0], endPoints[pos][1] + 1) == "p"){
     if(addPipeNetwork(endPoints)){
+      notify("That part of the facility cannot be connected to", 240)
       changeMapData(x1, y1, previousMapData1)
       changeMapData(x2, y2, previousMapData2)
     }
@@ -1773,6 +1774,7 @@ function connectPipes(x1, y1, x2, y2){
       connections = getPipeConnections(endX, endY)
       if((connections.includes("t") && getMapData(endX, endY-1) == "p") || (connections.includes("l") && getMapData(endX - 1, endY) == "p") || (connections.includes("r") && getMapData(endX + 1, endY) == "p") || (connections.includes("b") && getMapData(endX, endY + 1) == "p")){
         if(addPipeNetwork(endPoints)){
+          notify("That part of the facility cannot be connected to", 240)
           changeMapData(x1, y1, previousMapData1)
           changeMapData(x2, y2, previousMapData2)
         }

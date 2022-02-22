@@ -45,6 +45,13 @@ document.body.appendChild(interactBlockBoxRight)
 document.body.appendChild(interactBlockBoxTop)
 document.body.appendChild(interactBlockBoxBottom)
 
+var notifyTimeout = 0
+function notify(text, time){
+  document.getElementById("notifyText").innerHTML = text
+  document.getElementById("notifyText").style.opacity = "1"
+  notifyTimeout = time
+}
+
 var tutorial = [
   {
     text: "<p>Welcome to INSERTNAME, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
@@ -566,6 +573,70 @@ game.window.addEventListener("click", function (e) {
   if(tutorialIndex == 16 || tutorialIndex == 26 || tutorialIndex == 27 || tutorialIndex == 28){
     return;
   }
+  if((conduits[0].hv + conduits[0].corners).includes(getMapData(mouseX, mouseY))){
+    var pipeNotification = "This pipe isn\'t transporting anything"
+    var transportedItem = "nothing"
+    var scanPoints = updateNetwork(mouseX, mouseY)[1]
+    var scanPoint1 = JSON.stringify(scanPoints[1][0])
+    var scanPoint2 = JSON.stringify(scanPoints[1][1])
+    for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
+      if(areas[areaIndex].networks[i].name == "pipeSegment"){
+        var pointString = JSON.stringify(areas[areaIndex].networks[i].points)
+        if(pointString.includes(scanPoint1) && pointString.includes(scanPoint2)){
+          for(var j = 0, jl = areas[areaIndex].links.length; j < jl; j++){
+            if(areas[areaIndex].links[j].supportingConduit == areas[areaIndex].networks[i].index){
+              var linkId = j
+              break;
+            }
+          }
+          var port1 = getFacility(getNetwork(areaIndex, areas[areaIndex].links[linkId].facility1[0]).name).ports[areas[areaIndex].links[linkId].facility1[1]]
+          var port2 = getFacility(getNetwork(areaIndex, areas[areaIndex].links[linkId].facility2[0]).name).ports[areas[areaIndex].links[linkId].facility2[1]]
+
+          if((port1.gender[0] == port2.gender[0]) && port1.gender[0] != "modular"){
+            break;
+          }
+          if(port1.gender[0] == "output"){
+            if(port1.gender[1].length == 1){
+              if(port2.gender[1].includes(port1.gender[1][0])){transportedItem = port1.gender[1][0]}
+            }else{
+              for(var k = 0, kl = port1.gender[1].length; k < kl; k++){
+                if(eval("getNetwork(areaIndex, areas[areaIndex].links[linkId].facility1[0]).data." + port1.gender[1][k]) > 0){
+                  if(port2.gender[1].includes(port1.gender[1][k])){transportedItem = port1.gender[1][k]}
+                }
+              }
+            }
+          }
+          if(port2.gender[0] == "output"){
+            if(port2.gender[1].length == 1){
+              if(port1.gender[1].includes(port2.gender[1][0])){transportedItem = port2.gender[1][0]}
+            }else{
+              for(var k = 0, kl = port2.gender[1].length; k < kl; k++){
+                if(eval("getNetwork(areaIndex, areas[areaIndex].links[linkId].facility2[0]).data." + port2.gender[1][k]) > 0){
+                  if(port1.gender[1].includes(port2.gender[1][k])){transportedItem = port2.gender[1][k]}
+                }
+              }
+            }
+          }
+          if(port1.gender[0] == "modular"){
+            if(getNetwork(areaIndex, areas[areaIndex].links[linkId].facility1[0]).data.storedItem == getNetwork(areaIndex, areas[areaIndex].links[linkId].facility2[0]).data.storedItem){
+              transportedItem = getNetwork(areaIndex, areas[areaIndex].links[linkId].facility1[0]).data.storedItem
+            }
+          }
+        }
+      }
+    }
+    if(transportedItem != "nothing"){
+      pipeNotification = transportedItem.split("_")
+
+      for(var j = 0, jl = pipeNotification.length; j < jl; j++){
+        pipeNotification[j] = pipeNotification[j][0].toUpperCase() + pipeNotification[j].substr(1);
+      }
+
+      pipeNotification = pipeNotification.join(" ")
+      pipeNotification = "This pipe is transporting " + pipeNotification
+    }
+    notify(pipeNotification, 200)
+  }
   try{
   var tooltipsActive = document.getElementsByClassName("tooltip")
   //Deletes all tooltips if they are clicked off of
@@ -773,9 +844,7 @@ game.window.addEventListener("click", function (e) {
 
 
      // + ((window.innerHeight*0.9)/100)*6
-    console.log(newTooltipRangeLeft)
-    console.log(newTooltipRangeTop)
-    console.log(rangeHeight)
+
     var rotatedRangeCoords = rotate(rangeSubHeight, rangeHeight, newTooltipRangeLeft, newTooltipRangeTop, areas[areaIndex].networks[facilityDisplayedIndex].rotation * -1)
 
     // if(areas[areaIndex].networks[facilityDisplayedIndex].rotation == 180 || areas[areaIndex].networks[facilityDisplayedIndex].rotation == 270){
@@ -972,6 +1041,15 @@ game.loop = function(){
       tutorialNext()
     }
   }
+
+
+  if(notifyTimeout <= 0){
+    document.getElementById("notifyText").style.opacity = "0"
+  }else{
+    notifyTimeout--
+  }
+
+
 
   canPlaceFacility = true
 
