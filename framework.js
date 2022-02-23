@@ -86,7 +86,9 @@ var terrain = [
   ["placeholder", "docs/assets/null.png"],
   ["placeholder", "docs/assets/null.png"],
   ["placeholder", "docs/assets/null.png"],
-  ["grass", "docs/assets/grass.png"],
+  ["grass_0", "docs/assets/grass_0.png"],
+  ["grass_1", "docs/assets/grass_1.png"],
+  ["grass_2", "docs/assets/grass_2.png"],
   ["grass_tli", "docs/assets/grass_tli.png"],
   ["grass_tlo", "docs/assets/grass_tlo.png"],
   ["grass_tri", "docs/assets/grass_tri.png"],
@@ -1058,6 +1060,12 @@ function appendTooltip(){
 
 //Apparently it is used for determining which sides of a terrain tile are touching a different type of tile
 function getTerrainBorders(array, x, y, type){
+  var defaultTexture = ""
+  if(type == "g"){
+    // var grassTextureEndings = ["_0"]
+    // defaultTexture = grassTextureEndings[Math.floor(Math.random()*grassTextureEndings.length)]
+    defaultTexture = "_0"
+  }
   var waterEdge = false;
   if(type == "W"){type = "w"; waterEdge = true;}
   try{var top = (array[y - 1].charAt(x) == type) ? true : false}catch{var top = true}
@@ -1102,7 +1110,7 @@ function getTerrainBorders(array, x, y, type){
 
 
   if(top && bottom && left && right){
-    if(x == 0){return ""}
+    if(x == 0){return defaultTexture}
     if(type == "w" && !waterEdge){
       try{if(array[y-1].charAt(x-1) != type && array[y-1].charAt(x-1) != "g"){return "_tli"}}catch{}
       try{if(array[y-1].charAt(x+1) != type && array[y-1].charAt(x+1) != "g"){return "_tri"}}catch{}
@@ -1121,7 +1129,7 @@ function getTerrainBorders(array, x, y, type){
     }
 
 
-    return ""
+    return defaultTexture
   }
   if(bottom && left && right){
     return "_t"
@@ -1147,7 +1155,7 @@ function getTerrainBorders(array, x, y, type){
   if(bottom && right){
     return "_tlo"
   }
-  return ""
+  return defaultTexture
 }
 
 //Takes a map of only grass sand and seafloor tiles and rounds out the edges and adds water into the water layer

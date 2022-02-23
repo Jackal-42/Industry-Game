@@ -1361,8 +1361,8 @@ game.loop = function(){
   if(framesElapsed % 15 == 1){
     for(var k = 0, lll = areas.length; k < lll; k++){
       for(var i = 0, l = areas[k].networks.length; i < l; i++){
-        areas[areaIndex].networks[i].warnings = []
-        areas[areaIndex].networks[i].alerts = []
+        areas[k].networks[i].warnings = []
+        areas[k].networks[i].alerts = []
         if(areas[k].networks[i].name == "pipeSegment"){continue}
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[k].networks[i].name){

@@ -17,7 +17,6 @@
           <p>Cursor X: <span id="cursorX"></span></p>
           <p>Cursor Y: <span id="cursorY"></span></p>
           <p>Data At Cursor: <span id="dataAtCursor"></span></p>
-          <button onclick="tutorialIndex = 30; tutorialNext()">Skip Tutorial</button>
           <input type="text" autocomplete="off" id="evalInput" style="font-family: monospace; width: 225px;padding: 1px;" placeholder="use lg() to output result"><button style="margin-bottom: 6px;" onclick="document.getElementById('errorOutput').innerHTML = ''; document.getElementById('evalOutput').innerHTML = ''; try{eval(document.getElementById('evalInput').value)}catch(err){document.getElementById('errorOutput').innerHTML = err}">Evaluate</button><br>
           <p style="color: black;" id="evalOutput"></p>
           <p style="color: red" id="errorOutput"></p>
@@ -27,6 +26,8 @@
           <button onclick="evalOnFade = 'loadArea(\'island\')'; fading = true">Go to Island</button>
           <button onclick="evalOnFade = 'loadArea(\'shore\')'; fading = true">Go to Shore</button><br>
           <button onclick="try{game.loop()}catch(err){lg(err)}">Diagnose</button>
+          <button onclick="navigator.clipboard.writeText(JSON.stringify(new Area('backup', areas[areaIndex].baseLayer, areas[areaIndex].waterLayer, areas[areaIndex].activeLayer, areas[areaIndex].networks, areas[areaIndex].links, areas[areaIndex].overlay)))">Copy Backup File</button>
+
           <p>Monitor Variables</p>
           <input id="monitorVariableInput" type="text" placeholder="Search" autocomplete="off">
           <div id="searchResults"></div>
