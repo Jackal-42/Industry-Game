@@ -874,6 +874,20 @@ game.window.addEventListener("click", function (e) {
         }
       }else{
         eval("newTooltipRange.onclick = function(){createTooltip(\"" + facilityDisplayedData.ports[i].gender[1][0] + "\")}")
+        for(var a = 0, al = areas[areaIndex].networks[facilityDisplayedIndex].warnings.length; a < al; a++){
+          if(areas[areaIndex].networks[facilityDisplayedIndex].warnings[a][2] == i){
+            for(var b = 0, bl = tooltips.length; b < bl; b++){
+              if(tooltips[b].name == facilityDisplayedData.ports[i].gender[1][0]){
+                // eval("newTooltipRange.onclick = function(){createCustomTooltip(\"<p style=\\\"font-size: 24px; margin-left: 2px; font-family: \\\'Pixellari\\\'; \\\">" + tooltips[b].title + "</p><p style=\\\"margin-left: 3px; font-family: \\\'Pixellari\\\'; color: rgb(69, 69, 69);\\\">" + tooltips[b].text + "</p><p class=\\\"redText\\\" style=\\\"font-family: \\\'Pixellari\\\';\\\"><img src=\\\'docs/assets/warning.png\\\'>" + areas[areaIndex].networks[facilityDisplayedIndex].warnings[a][0] + "</p>\")}")
+                newTooltipRange.setAttribute("tooltipHTML", "<p style=\"font-size: 24px; margin-left: 2px; font-family: \'Pixellari\'; \">" + tooltips[b].title + "</p><p style=\"margin-left: 3px; font-family: \'Pixellari\'; color: rgb(69, 69, 69);\">" + tooltips[b].text + "</p><p class=\"redText\" style=\"font-family: \'Pixellari\';\"><img class=\'warningIcon\' src=\'docs/assets/warning.png\'>" + areas[areaIndex].networks[facilityDisplayedIndex].warnings[a][0].replace("A port", "This port").replace("that port", "it").replace("An output port", "This port").replace("An input port", "This port") + "</p>")
+
+                newTooltipRange.onclick = function(){createCustomTooltip(this.getAttribute("tooltipHTML"))}
+
+                break;
+              }
+            }
+          }
+        }
       }
     }else{
       var rangeContent = "<p style=\\\"margin-left: 3px; font-family: \\\'Pixellari\\\'; color: rgb(69, 69, 69);\\\">"
@@ -1124,6 +1138,11 @@ game.loop = function(){
         facilityShownCanvas.getContext("2d").rotate(areas[areaIndex].networks[facilityDisplayedIndex].rotation*(Math.PI/180)*-1)
 
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)}
+        for(var a = 0, al = areas[areaIndex].networks[facilityDisplayedIndex].warnings.length; a < al; a++){
+          if(areas[areaIndex].networks[facilityDisplayedIndex].warnings[a][2] == i){
+            facilityShownCanvas.getContext("2d").drawImage(game.getTexture("warning"), (arrowWidth/-1.5), (arrowWidth/-1.5), (arrowWidth/2), (arrowWidth/2))
+          }
+        }
       }else{
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
           if(areas[areaIndex].networks[facilityDisplayedIndex].data.portsInUse[i]){
@@ -1140,6 +1159,11 @@ game.loop = function(){
 
         if(facilityDisplayedData.ports[i].gender[0] != "breaker"){
           facilityShownCanvas.getContext("2d").drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+        }
+        for(var a = 0, al = areas[areaIndex].networks[facilityDisplayedIndex].warnings.length; a < al; a++){
+          if(areas[areaIndex].networks[facilityDisplayedIndex].warnings[a][2] == i){
+            facilityShownCanvas.getContext("2d").drawImage(game.getTexture("warning"), (arrowWidth/-1.5), (arrowWidth/-1.5), (arrowWidth/2), (arrowWidth/2))
+          }
         }
       }
       facilityShownCanvas.getContext("2d").restore()
@@ -1399,11 +1423,11 @@ game.loop = function(){
 
                   rangeTitle = rangeTitle.join(" ")
                   if(b == 0){
-                    alertString += rangeTitle
+                    alertString += "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+currentNeededInput[b]+"\')\">"+rangeTitle+"</span>"
                   }else if(b == bl - 1){
-                    alertString += " or " + rangeTitle
+                    alertString += " or " + "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+currentNeededInput[b]+"\')\">"+rangeTitle+"</span>"
                   }else{
-                    alertString += ", " + rangeTitle
+                    alertString += ", " + "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+currentNeededInput[b]+"\')\">"+rangeTitle+"</span>"
                   }
                 }
                 areas[k].networks[i].alerts.push("This facility needs " + alertString + " to work. <span class=\"tooltipLink\" onclick=\"createTooltip(\'help_inputs\')\">(help)</span>")
@@ -1594,7 +1618,8 @@ game.loop = function(){
         if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "output" || genderResolve == "output"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "output"){
             // facility1.warnings = [];
-            facility1.warnings.push(["An output port is connected to another output port. Instead connect it to an input port.", areas[k].links[i].facility1[1]])
+            facility1.warnings.push(["An output port is connected to another output port. Instead connect it to an input port. <span class=\"tooltipLink\" onclick=\"createTooltip(\'help_inputs\')\">(help)</span>", areas[k].links[i].facility1[1], areas[k].links[i].facility1[1]])
+            facility2.warnings.push(["An output port is connected to another output port. Instead connect it to an input port. <span class=\"tooltipLink\" onclick=\"createTooltip(\'help_inputs\')\">(help)</span>", areas[k].links[i].facility2[1], areas[k].links[i].facility2[1]])
             break;
           }
           try{
@@ -1615,10 +1640,11 @@ game.loop = function(){
             var invalidInput = false
             var invalidInputType = ""
             var invalidInputPort = ""
+            var invalidPortIndex = -1
 
             for(var j = 0, jl = movingItems.length; j < jl; j++){
 
-              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
+              if(!(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].includes(movingItems[j])) && !(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1][0] == "null")){if(eval("facility1.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidPortIndex = areas[k].links[i].facility2[1]; invalidInputPort = facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[1].slice()}; continue}
 
               if(isModular2 && !(facility2.data.storedItem == 0 || movingItems[j] == facility2.data.storedItem || eval("facility2.data." + facility2.data.storedItem + " < 1"))){
                 continue;
@@ -1646,6 +1672,7 @@ game.loop = function(){
             }
 
             errorName = errorName.join(" ")
+            errorName = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+invalidInputType+"\')\">"+errorName+"</span>"
 
             for(var a = 0, al = invalidInputPort.length; a < al; a++){
               var invalidPortName = invalidInputPort[a].split("_")
@@ -1655,10 +1682,10 @@ game.loop = function(){
               }
               invalidPortName = invalidPortName.join(" ")
 
-              invalidInputPort[a] = invalidPortName
+              invalidInputPort[a] = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+invalidInputPort[a]+"\')\">"+invalidPortName+"</span>"
 
               if(a == al - 1 && al != 1){
-                invalidInputPort[a] = "and " + invalidPortName
+                invalidInputPort[a] = "and " + "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+invalidInputPort[a]+"\')\">"+invalidPortName+"</span>"
               }
 
             }
@@ -1667,18 +1694,19 @@ game.loop = function(){
 
             errorName = "A port is recieving " + errorName + ", but that port can only accept " + invalidInputPort
             if(!checkDuplicate(facility2.warnings, errorName)){
-              facility2.warnings.push([errorName, areas[k].links[i].supportingConduit])
+              facility2.warnings.push([errorName, areas[k].links[i].supportingConduit, invalidPortIndex])
             }
-            if(facility2.warnings.length == 0){
-              facility2.warnings.push([errorName, areas[k].links[i].supportingConduit])
-            }
+            // if(facility2.warnings.length == 0){
+            //   facility2.warnings.push([errorName, areas[k].links[i].supportingConduit, invalidPortIndex])
+            // }
             var invalidInputType = ""
             var invalidInputPort = ""
           }
         }else if(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[0] == "input" || genderResolve == "input"){
           if(facilities[facility2DataIndex].ports[areas[k].links[i].facility2[1]].gender[0] == "input"){
             // facility1.warnings = [];
-            facility1.warnings.push(["An input port is connected to another input port. Instead connect it to an output port.", areas[k].links[i].facility1[1]])
+            facility1.warnings.push(["An input port is connected to another input port. Instead connect it to an output port. <span class=\"tooltipLink\" onclick=\"createTooltip(\'help_inputs\')\">(help)</span>", areas[k].links[i].facility1[1], areas[k].links[i].facility1[1]])
+            facility2.warnings.push(["An input port is connected to another input port. Instead connect it to an output port. <span class=\"tooltipLink\" onclick=\"createTooltip(\'help_inputs\')\">(help)</span>", areas[k].links[i].facility2[1], areas[k].links[i].facility2[1]])
             break;
           }
           try{
@@ -1704,10 +1732,11 @@ game.loop = function(){
 
             var invalidInputType = "";
             var invalidInputPort = "";
+            var  invalidPortIndex = -1;
             for(var j = 0, jl = movingItems.length; j < jl; j++){
 
 
-              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
+              if(!(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].includes(movingItems[j])) && !(facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1][0] == "null")){if(eval("facility2.data." + movingItems[j]) >= 1 || movingItems.length == 1){invalidInput = true; invalidInputType = movingItems[j]; invalidPortIndex = areas[k].links[i].facility1[1]; invalidInputPort = facilities[facility1DataIndex].ports[areas[k].links[i].facility1[1]].gender[1].slice()}; continue}
 
               if(isModular1 && !(facility1.data.storedItem == 0 || movingItems[j] == facility1.data.storedItem || eval("facility1.data." + facility1.data.storedItem + " < 1"))){
                 continue;
@@ -1733,6 +1762,7 @@ game.loop = function(){
             }
 
             errorName = errorName.join(" ")
+            errorName = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+invalidInputType+"\')\">"+errorName+"</span>"
 
             for(var a = 0, al = invalidInputPort.length; a < al; a++){
               var invalidPortName = invalidInputPort[a].split("_")
@@ -1742,10 +1772,10 @@ game.loop = function(){
               }
               invalidPortName = invalidPortName.join(" ")
 
-              invalidInputPort[a] = invalidPortName
+              invalidInputPort[a] = "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+invalidInputPort[a]+"\')\">"+invalidPortName+"</span>"
 
               if(a == al - 1 && al != 1){
-                invalidInputPort[a] = "and " + invalidPortName
+                invalidInputPort[a] = "and " + "<span class=\"tooltipLink\" onclick=\"createTooltip(\'"+invalidInputPort[a]+"\')\">"+invalidPortName+"</span>"
               }
 
             }
@@ -1753,12 +1783,12 @@ game.loop = function(){
             invalidInputPort = invalidInputPort.join(", ")
 
             errorName = "A port is recieving " + errorName + ", but that port can only accept " + invalidInputPort
-            if(!checkDuplicate(facility1.warnings, errorName)){
-              facility1.warnings.push([errorName, areas[k].links[i].supportingConduit])
+            if(!checkDuplicate(facility1.warnings, areas[k].links[i].supportingConduit)){
+              facility1.warnings.push([errorName, areas[k].links[i].supportingConduit, invalidPortIndex])
             }
-            if(facility1.warnings.length == 0){
-              facility1.warnings.push([errorName, areas[k].links[i].supportingConduit])
-            }
+            // if(facility1.warnings.length == 0){
+            //   facility1.warnings.push([errorName, areas[k].links[i].supportingConduit, invalidPortIndex])
+            // }
 
             var invalidInputType = ""
             var invalidInputPort = ""
@@ -2026,6 +2056,7 @@ game.loop = function(){
         ctx.rotate(facilityRotation*(Math.PI/180)*-1)
 
         ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+
       }else{
 
         ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)

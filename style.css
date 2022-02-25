@@ -258,7 +258,7 @@ p{
 }
 
 .interactBlockBox{
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(255, 0, 0, 0);
   width: 100vw;
   height: 100vw;
   position: absolute;
@@ -431,6 +431,12 @@ p{
   width: 16px;
   height: 16px;
   margin-right: 4px;
+}
+
+.warningIcon{
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: 4px !important;
 }
 
 #facilityShownWarnings p{
