@@ -358,6 +358,10 @@ var debugging = true;
 var logPipes = false;
 var windowScale = 1;
 
+//progression
+var upgradeNotified = false
+
+
 if(!debugging){
   document.getElementById("debug").style.display = "none"
 }
@@ -867,7 +871,7 @@ rightMenu.innerHTML = `
       <p>Shift+Click (With Pipe Tool): Erase</p>
     </div>
 
-    <p class="selector" onclick="toggleMenu('basics')"><span id="basicsArrow">ᐳ </span>The Basics</p>
+    <p class="selector" onclick="toggleMenu('basics')"><span id="basicsArrow">ᐳ </span>Facilities / Pipes</p>
 
     <div id="basics" class="menu" style="display:none;">
       <p>FACILITIES</p>
@@ -885,6 +889,9 @@ rightMenu.innerHTML = `
 </div>
 
 
+<div id="politicsButtonWrapper" style="position: absolute; left: -61%; width: 60%; bottom: 2%; background-color: rgba(55, 55, 55, 0.4); border-collapse: collapse;">
+
+</div>
 
 
 
@@ -967,6 +974,10 @@ var rotationDisplay = document.createElement('div')
 rotationDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; text-align: center; bottom: 0px; left: 16px; user-select: none; color: white;\">R/Z: Rotate Facility</p>`
 
 game.window.appendChild(rotationDisplay)
+
+function addPoliticsButton(content){
+  document.getElementById("politicsButtonWrapper").innerHTML += content
+}
 
 
 

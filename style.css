@@ -486,4 +486,22 @@ p{
 	color: white;
 	font-size: 20px;
 	transition: opacity 300ms;
+	pointer-events: none;
+}
+
+.politicsButton {
+	width: 100%;
+	height: 6vw;
+	background-color: lightgray;
+	border: 2px solid red;
+	cursor: pointer;
+	margin-bottom: 8px;
+	text-align: center;
+	font-family: "Pixellari";
+}
+
+.politicsButton p {
+	font-family: "Pixellari";
+	margin: 1px;
+	color: black;
 }

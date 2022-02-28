@@ -1062,8 +1062,10 @@ game.loop = function(){
   }else{
     notifyTimeout--
   }
-
-
+  if(!upgradeNotified && funds >= 1000){
+    addPoliticsButton("<button class=\"politicsButton\" onclick=\"this.remove(); document.getElementById(\'slideMenuRight\').style.left = \'70%\'; document.getElementById(\'fundsWrapper\').style.marginLeft = \'-15%\'\"><b>Upgrade Available</b><br><i>Click this notification to check it out!</i></button>")
+    upgradeNotified = true;
+  }
 
   canPlaceFacility = true
 
