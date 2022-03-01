@@ -571,6 +571,16 @@ game.window.addEventListener("mousemove", function(){
   }
 })
 
+game.window.addEventListener("mouseout", function(){
+  game.mouseDown = false;
+  mouseDown = false;
+})
+
+window.addEventListener('mouseup', function(e){
+  game.mouseDown = false;
+  mouseDown = false;
+})
+
 var facilityDisplayedData;
 var facilityDisplayedIndex;
 

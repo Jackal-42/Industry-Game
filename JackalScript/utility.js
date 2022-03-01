@@ -49,7 +49,7 @@ function Game(id){
   this.window.style = "position: absolute; background-color: lightgray; width: 100%; height: 100%; image-rendering: pixelated; left: 0px; top: 0px;"
 
   //Allows the user to create layers which are stored in game.layers and each is a seperate canvas element
-  
+
   this.layers = [];
   this.addLayer = function(id){
     newLayer = new Layer(id)
@@ -104,7 +104,7 @@ function Game(id){
 
     //modifiers can make specific objects vary from the template without devoting additional lines of code to setting each one up
 
-    if (!(modifiers === undefined)){  
+    if (!(modifiers === undefined)){
       eval(modifiers)
     }
   }
@@ -190,13 +190,13 @@ function Game(id){
   }
 
   this.render = function(){
-    
-    //Sorts the this.objects list by z-index order ascending to prepare for rendering. 
+
+    //Sorts the this.objects list by z-index order ascending to prepare for rendering.
 
     var indexedObjects = this.objects.sort((a, b) => {
       return a.zindex - b.zindex;
     });
-    
+
     for(var i = 0, l = indexedObjects.length; i < l; i++){
       if(!(indexedObjects[i].texture === undefined)){
 
@@ -213,7 +213,7 @@ function Game(id){
         }else{
           ctx = this.layers[0].context;
         }
-        
+
 
         var height = 0;
         var width = 0;
@@ -241,7 +241,7 @@ function Game(id){
 
         ctx.translate(indexedObjects[i].x + indexedObjects[i].width/2, indexedObjects[i].y + indexedObjects[i].height/2)
         ctx.rotate(indexedObjects[i].rotation)
-        
+
 
         ctx.drawImage(this.getTexture(indexedObjects[i].texture), 0 - width/2, 0 - height/2, width, height)
 
@@ -272,7 +272,7 @@ function Game(id){
             obj1.momentumX = 0;
             obj1.x = this.objects[i].x - obj1.width
           }
-        }        
+        }
       }
     }
   }
@@ -310,15 +310,15 @@ function Game(id){
       if(ctx.getImageData(obj.x, obj.y, 1, obj.height).data.some(checkForGround)){
         obj.x += 1
         touchingGround = true;
-        leftCrashAmount += 1  
+        leftCrashAmount += 1
       }
       if(ctx.getImageData(obj.x + obj.width, obj.y, 1, obj.height).data.some(checkForGround)){
         obj.x -= 1
         touchingGround = true;
-        rightCrashAmount += 1 
+        rightCrashAmount += 1
       }
-      
-      
+
+
       if(downCrashAmount == 1 && rightCrashAmount == 1){
         obj.y -= 1
       }
