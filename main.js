@@ -54,7 +54,7 @@ function notify(text, time){
 
 var tutorial = [
   {
-    text: "<p>Welcome to INSERTNAME, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //0
       trueIndicatorBoxX = (window.innerWidth/50) + 1
@@ -740,9 +740,16 @@ game.window.addEventListener("click", function (e) {
   }
 
   var str = areas[areaIndex].networks[facilityID].name
-  document.getElementById('facilityShown').innerHTML = str.charAt(0).toUpperCase() + str.slice(1);
+  str = str.split("_")
 
-  facilityDisplayedData = getFacility(str)
+  for(var j = 0, jl = str.length; j < jl; j++){
+    str[j] = str[j][0].toUpperCase() + str[j].substr(1);
+  }
+
+  str = str.join(" ")
+  document.getElementById('facilityShown').innerHTML = str
+
+  facilityDisplayedData = getFacility(areas[areaIndex].networks[facilityID].name)
   facilityDisplayedIndex = facilityID
 
   try{

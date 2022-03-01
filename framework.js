@@ -360,6 +360,7 @@ var windowScale = 1;
 
 //progression
 var upgradeNotified = false
+var firstView = false
 
 
 if(!debugging){
@@ -387,6 +388,10 @@ var stopAreaInteraction = false
 function loadArea(id){
   scrollX = 0;
   scrollY = 0;
+  if(!firstView && id != "shore"){
+    firstView = true;
+    addPoliticsButton("<button class=\"politicsButton\" onclick=\"this.remove(); document.getElementById(\'slideMenuRight\').style.left = \'70%\'; document.getElementById(\'fundsWrapper\').style.marginLeft = \'-15%\'\"><b>How to get back</b><br><i>Click the \'Go to factory\' button under Pebblefellow Industries</i></button>")
+  }
   for(var i = 0, l = areas.length; i < l; i++){
     if(areas[i].name == areaLoaded){
       areas[i].baseLayer = game.getObject("baseLayer").mapData
@@ -632,14 +637,14 @@ function selectPlaceable(id, keepOrder){
   for(var i = 0, l = hotbarButtons.length; i < l; i++){
     if(hotbarButtons[i].id == elementID){
       // hotbarButtons[i].style.backgroundColor = "rgb(251, 255, 0)"
-      hotbarButtons[i].style.border = "3px solid yellow"
+      hotbarButtons[i].style.backgroundImage = "url(\"docs/assets/button_box_active.png\")"
 
       if(hotbarButtons[i].style.left == "0px"){
         hotbarButtons[i].style.left = "68px"
       }
     }else{
-      if(hotbarButtons[i].style.border == "3px solid yellow"){
-        hotbarButtons[i].style.border = "3px solid transparent"
+      if(hotbarButtons[i].style.backgroundImage == "url(\"docs/assets/button_box_active.png\")"){
+        hotbarButtons[i].style.backgroundImage = "url(\"docs/assets/button_box.png\")"
         // hotbarButtons[i].style.backgroundColor = "rgb(100, 100, 111)"
         // hotbarButtons[i].style.border = "3px solid black"
       }
@@ -689,18 +694,18 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="67px" style="top: 67px; z-index: 3;" id="hotbarMenu0">
 
-<button id="hotbar_edit_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('edit_menu'); toggleHorizontalHotbarMenu('hotbarMenu0'); if(tutorialIndex == 5){tutorialNext()}"><img class="clickityElement" src="docs/assets/null.png"></button>
+<button id="hotbar_edit_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('edit_menu'); toggleHorizontalHotbarMenu('hotbarMenu0'); if(tutorialIndex == 5){tutorialNext()}"><img class="clickityElement" src="docs/assets/more_icon.png"></button>
 
 <button id="hotbar_pointer" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pointer'); if(tutorialIndex == 6){tutorialNext()}"><img class="clickityElement" src="docs/assets/pointer.png"></button>
 
-<button id="hotbar_erase" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase_icon.png"></button>
+<button id="hotbar_erase" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('erase')"><img class="clickityElement" src="docs/assets/erase.png"></button>
 
 </div>
 
 
 <div class="hotbarMenuHorizontal" savestate="133px" style="top: 133px; z-index: 3;" id="hotbarMenu1">
 
-<button id="hotbar_gear_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('gear_menu'); toggleHorizontalHotbarMenu('hotbarMenu1'); if(tutorialIndex == 14){tutorialNext()}"><img class="clickityElement" src="docs/assets/gear.png"></button>
+<button id="hotbar_pipe_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('pipe_menu'); toggleHorizontalHotbarMenu('hotbarMenu1'); if(tutorialIndex == 14){tutorialNext()}"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
 
 <button id="hotbar_pipe" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('pipe'); if(tutorialIndex == 15 || tutorialIndex == 25){tutorialNext()}"><img class="clickityElement" src="docs/assets/pipe_icon.png"></button>
 
@@ -720,7 +725,7 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="199px" style="top: 199px; z-index: 3;" id="hotbarMenu2">
 
-<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2'); if(tutorialIndex == 2){tutorialNext()}"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
+<button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2'); if(tutorialIndex == 2){tutorialNext()}"><img class="clickityElement" src="docs/assets/gear.png"></button>
 
 <button id="hotbar_distiller" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('distiller'); if(tutorialIndex == 3){tutorialNext()}"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
 
@@ -742,13 +747,13 @@ hotbarMenu.innerHTML = `
 
 <div class="hotbarMenuHorizontal" savestate="265px" style="top: 265px; z-index: 3;" id="hotbarMenu3">
 
-<button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3'); if(tutorialIndex == 11){tutorialNext()}"><img class="clickityElement" src="docs/assets/pipe_x.png"></button>
+<button id="hotbar_extra_menu" class="hotbarButton" style="z-index: 3;" onclick="selectPlaceable('extra_menu'); toggleHorizontalHotbarMenu('hotbarMenu3'); if(tutorialIndex == 11){tutorialNext()}"><img class="clickityElement" src="docs/assets/any_source.png"></button>
 
 <button id="hotbar_crude_source" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('crude_source'); if(tutorialIndex == 12){tutorialNext()}"><img class="clickityElement" src="docs/assets/crude_source.png"></button>
 
 <button id="hotbar_hydrogen_source" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('hydrogen_source'); if(tutorialIndex == 23){tutorialNext()}"><img class="clickityElement" src="docs/assets/hydrogen_source.png"></button>
 
-<button id="hotbar_any_source" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('any_source')"><img class="clickityElement" src="docs/assets/any_source.png"></button>
+<!-- <button id="hotbar_any_source" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('any_source')"><img class="clickityElement" src="docs/assets/any_source.png"></button> -->
 
 </div>
 
@@ -782,7 +787,7 @@ function unlockHotbarButton(id){
 }
 unlockHotbarButton("hotbar_hammer_menu")
 unlockHotbarButton("hotbar_edit_menu")
-unlockHotbarButton("hotbar_gear_menu")
+unlockHotbarButton("hotbar_pipe_menu")
 unlockHotbarButton("hotbar_facilities_menu")
 unlockHotbarButton("hotbar_extra_menu")
 unlockHotbarButton("hotbar_pointer")
@@ -793,7 +798,7 @@ unlockHotbarButton("hotbar_gas_processor")
 unlockHotbarButton("hotbar_residue_processor")
 unlockHotbarButton("hotbar_hydrotreater")
 unlockHotbarButton("hotbar_crude_source")
-unlockHotbarButton("hotbar_any_source")
+// unlockHotbarButton("hotbar_any_source")
 unlockHotbarButton("hotbar_hydrogen_source")
 
 
@@ -928,10 +933,13 @@ rightMenu.innerHTML = `
 </div>
 
 
-<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 20%; width: 75%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">STOCK MARKET<br><br>
+<p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; margin-top: 4%; margin-left: 20%; width: 75%; margin-bottom: 0px; padding-bottom: 0px; text-align: center;\">STOCK MARKET<br>
 
 <div id="stockMarket">
+<div class="stockButton"><p class="upgradeTitle">Pebblefellow Industries</p><button class="smallButton" onclick="evalOnFade = \'loadArea(\\\'shore\\\')\'; fading = true; notifyTimeout = 1;">Go to factory</button></div>
+<div class="stockButton"><p class="upgradeTitle">Western Gas & Oil</p><button class="smallButton" onclick="evalOnFade = \'loadArea(\\\'island\\\')\'; fading = true">View Factory</button><button class="smallButton">Acquire ($15,000)</button></div>
 
+<div class="stockButton">Robtech Corporation</div>
 
 </div>
 
