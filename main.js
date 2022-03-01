@@ -516,6 +516,7 @@ function debug(){
 //Rotates the facility placement cursor when tapping R or Z
 document.addEventListener("keydown", function (e) {
   if(doingTutorial){return}
+  //rotate clockwise
   if((e.keyCode == 82 && !key(16)) || e.keyCode == 90){
     facilityRotation += 90
     if(facilityRotation > 270){
@@ -523,6 +524,7 @@ document.addEventListener("keydown", function (e) {
     }
     updateFacilitySelected()
   }
+  //rotate counterclockwise
   if(e.keyCode == 88 || (e.keyCode == 82 && key(16))){
     facilityRotation -= 90
     if(facilityRotation < 0){
@@ -530,19 +532,23 @@ document.addEventListener("keydown", function (e) {
     }
     updateFacilitySelected()
   }
-  if(e.keyCode == 80){
+  //pipe tool
+  if(e.keyCode == 80 && !stopAreaInteraction){
     selectPlaceable('pipe')
   }
+  //hotbar
   if(e.keyCode == 69){
     //nice
     toggleVerticalHotbarMenu('hotbarMenuVertical')
   }
-  if(e.keyCode == 188){
+  //previous item
+  if(e.keyCode == 188 && !stopAreaInteraction){
     placeableIndex--
     checkPlaceableIndex()
     selectPlaceable(previousPlaceables[placeableIndex], true)
   }
-  if(e.keyCode == 190){
+  //next item
+  if(e.keyCode == 190 && !stopAreaInteraction){
     placeableIndex++
     checkPlaceableIndex()
     selectPlaceable(previousPlaceables[placeableIndex], true)
@@ -675,7 +681,7 @@ game.window.addEventListener("click", function (e) {
     var facilitySelectedData = getFacility(facilitySelected)
 
     for(var k = 0, kl = facilitySelectedLayout.length; k < kl; k++){
-      if(facilitySelectedData.pseudoPipe == true){
+      if(facilitySelectedData.pseudoPipe == true || facilitySelectedData.name == "ship"){
         if(!(conduits[0].segments + "-").includes(getMapData(facilityPlotX + facilitySelectedLayout[k][0], facilityPlotY + facilitySelectedLayout[k][1], "activeLayer"))){
           return;
         }
@@ -946,6 +952,12 @@ game.window.addEventListener("click", function (e) {
   }catch(err){console.log(err)}
 
 })
+
+function placeShip(){
+  conduitSelected = 'facility';
+  facilitySelected = 'ship';
+  updateFacilitySelected()
+}
 
 //Collapses and expands the debug menu
 function toggleDebugMenu(){
@@ -1386,6 +1398,7 @@ game.loop = function(){
   //Transfers items along working links. Evaluates 4 times per second.
   if(framesElapsed % 15 == 1){
     for(var k = 0, lll = areas.length; k < lll; k++){
+      if(!corporations[0].owns.includes(areas[k].name)){continue}
       for(var i = 0, l = areas[k].networks.length; i < l; i++){
         areas[k].networks[i].warnings = []
         areas[k].networks[i].alerts = []
@@ -2098,6 +2111,9 @@ game.loop = function(){
           validPlot = false;
         }
       }
+    }
+    if(facilitySelectedData.name == "ship"){
+      validPlot = true
     }
 
     var facilitySelectedTexture = facilitySelected

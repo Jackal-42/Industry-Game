@@ -666,7 +666,7 @@ var facilities = [
         y: 3,
         conduit: "pipe",
         gender: ["input", ["kerosene", "naphtha", "propane", "butane", "fuel_oil", "asphalt", "gasoline", "diesel"]],
-      },      
+      },
     ],
   },
 
@@ -802,7 +802,7 @@ var facilities = [
     data: [["direction", "\"left\""]],
     layout: [[0, 0]],
     process: function(me){
-      
+
     },
     ports: [
       {
@@ -849,7 +849,7 @@ var facilities = [
     data: [],
     layout: [[0, 0]],
     process: function(me){
-      
+
     },
     ports: [
       {
@@ -1008,11 +1008,12 @@ var facilities = [
 
 
 var upgrades = [
+
   {
-    name: "Storage Tanks",
-    text: "A place to store up to 250 liters of any substance",
+    name: "Fuel Oil Mixer",
+    text: "Extracts a valuable, high energy fuel from heavy oil",
     cost: 1000,
-    unlock: "unlockHotbarButton(\"hotbar_tank\")",
+    unlock: "unlockHotbarButton(\"hotbar_fuel_oil_mixer\"); upgrades.splice(1, 0, {name: \"Gasoline Mixer\",text: \"Mixes several different products to create the most sought-after fuel on the market\",cost: 1500,unlock: \"unlockHotbarButton(\\\"hotbar_gasoline_mixer\\\")\",unlocked: false,priority: 2,});upgrades.splice(2, 0, {name: \"Diesel Mixer\",text: \"Mixes several different products to create a heavy-duty fuel that fetches a high price\",cost: 2000,unlock: \"unlockHotbarButton(\\\"hotbar_diesel_mixer\\\")\",unlocked: false,priority: 4,})",
     unlocked: false,
     priority: 1,
   },
@@ -1023,43 +1024,7 @@ var upgrades = [
     cost: 1500,
     unlock: "unlockHotbarButton(\"hotbar_valve\")",
     unlocked: false,
-    priority: 2,
-  },
-
-  {
-    name: "Advocacy",
-    text: "Hire advocates for your company to lobby for political issues",
-    cost: 2500,
-    unlock: "",
-    unlocked: false,
     priority: 3,
-  },
-
-  {
-    name: "Fuel Oil Mixer",
-    text: "Extracts a valuable, high energy fuel from heavy oil",
-    cost: 3000,
-    unlock: "unlockHotbarButton(\"hotbar_fuel_oil_mixer\")",
-    unlocked: false,
-    priority: 4,
-  },
-
-  {
-    name: "Gasoline Mixer",
-    text: "Mixes several different products to create the most sought-after fuel on the market",
-    cost: 5000,
-    unlock: "unlockHotbarButton(\"hotbar_gasoline_mixer\")",
-    unlocked: false,
-    priority: 5,
-  },
-
-  {
-    name: "T-Valves",
-    text: "They can change the direction items flow at the flip of an arrow",
-    cost: 2000,
-    unlock: "unlockHotbarButton(\"hotbar_t_valve\")",
-    unlocked: false,
-    priority: 2,
   },
 
   {
@@ -1068,17 +1033,35 @@ var upgrades = [
     cost: 7500,
     unlock: "unlockHotbarButton(\"hotbar_asphalt_mixer\")",
     unlocked: false,
+    priority: 7,
+  },
+
+  {
+    name: "T-Valves",
+    text: "They can change the direction items flow at the flip of an arrow",
+    cost: 2000,
+    unlock: "unlockHotbarButton(\"hotbar_t_valve\")",
+    unlocked: false,
     priority: 6,
   },
 
   {
-    name: "Diesel Mixer",
-    text: "Mixes several different products to create a heavy-duty fuel that fetches a high price",
-    cost: 10000,
-    unlock: "unlockHotbarButton(\"hotbar_diesel_mixer\")",
+    name: "Storage Tanks",
+    text: "A place to store up to 250 liters of any substance",
+    cost: 1000,
+    unlock: "unlockHotbarButton(\"hotbar_tank\")",
     unlocked: false,
-    priority: 7,
+    priority: 5,
   },
+
+  // {
+  //   name: "Advocacy",
+  //   text: "Hire advocates for your company to lobby for political issues",
+  //   cost: 2500,
+  //   unlock: "",
+  //   unlocked: false,
+  //   priority: 3,
+  // },
 
   {
     name: "One-Way Pump",
@@ -1086,7 +1069,7 @@ var upgrades = [
     cost: 2400,
     unlock: "unlockHotbarButton(\"hotbar_one_way_pipe\")",
     unlocked: false,
-    priority: 2,
+    priority: 8,
   },
 
   {
@@ -1129,14 +1112,14 @@ var tooltips = [
 
   {
     name: "hotbar_crude_source",
-    title: "Crude Source",
-    text: "Produces crude oil. Temporary"
+    title: "Crude Oil Pump",
+    text: "Produces crude oil"
   },
 
   {
     name: "hotbar_hydrogen_source",
-    title: "Hydrogen Source",
-    text: "Produces hydrogen. Temporary"
+    title: "Hydrogen Synthesizer",
+    text: "Produces hydrogen"
   },
 
   {
@@ -1355,7 +1338,7 @@ var tooltips = [
     text: "This gas is used by the <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_hydrotreater\')\">hydrotreater</span> to bring the impurities out of other oils and gases"
   },
 
-  
+
 ]
 
 var corporations = [
@@ -1365,6 +1348,7 @@ var corporations = [
     shares: 1000,
     playerShares: 1000,
     owned: true,
+    owns: ["shore"],
   },
 
   {
@@ -1373,6 +1357,7 @@ var corporations = [
     shares: 1500,
     playerShares: 0,
     owned: false,
+    owns: ["island"],
   },
 
   {
@@ -1381,6 +1366,7 @@ var corporations = [
     shares: 4000,
     playerShares: 0,
     owned: false,
+    owns: [],
   },
 ]
 
@@ -1404,11 +1390,11 @@ game.addTemplate("terrain", [
   ["layerId", "main"],
   ["backup", false],
   ["mapData", [
-    
+
   ]],
   ["role", function(myIndex){
     var self = game.objects[myIndex]
-    
+
 
     var mapTargetX = scrollX
     var mapTargetY = scrollY
@@ -1423,8 +1409,8 @@ game.addTemplate("terrain", [
     }else{
       ctx = game.getLayer(self.layerId).context;
     }
-    
-    
+
+
     ctx.imageSmoothingEnabled = false;
     if(self.refresh || self.render){
       ctx.clearRect(0, 0, 2048, 1280)
@@ -1530,11 +1516,11 @@ game.addTemplate("terrain", [
       }
     }
     self.render = false;
-  
-  
-  
-  
-  
+
+
+
+
+
   }],
   ["layer", "terrain"],
   ["zindex", 1],

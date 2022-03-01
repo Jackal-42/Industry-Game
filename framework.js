@@ -380,6 +380,9 @@ function cacheCode(data, delay){
   cachedCode.push(new CodeBlock(data, delay))
 }
 
+var stopAreaInteraction = false
+
+
 //Changes the area of the map and hides it with a fade
 function loadArea(id){
   scrollX = 0;
@@ -400,6 +403,19 @@ function loadArea(id){
       game.getObject("waterLayer").mapData = areas[i].waterLayer
       game.getObject("activeLayer").mapData = areas[i].activeLayer
       activeOverlay = areas[i].overlay
+    }
+  }
+  if(corporations[0].owns.includes(id)){
+    document.getElementById("hotbarMenuVertical").style.display = "block"
+    stopAreaInteraction = false
+  }else{
+    conduitSelected = "pointer"
+    document.getElementById("hotbarMenuVertical").style.display = "none"
+    stopAreaInteraction = true
+    for(var i = 0, l = corporations.length; i < l; i++){
+      if(corporations[i].owns.includes(id)){
+        notify("You are viewing the " + corporations[i].name + " factory", 300)
+      }
     }
   }
   game.getObject('baseLayer').render = true;
