@@ -1353,7 +1353,7 @@ var corporations = [
 
   {
     name: "Western Gas & Oil",
-    worth: 25000,
+    worth: 15000,
     shares: 1500,
     playerShares: 0,
     owned: false,
@@ -1362,11 +1362,11 @@ var corporations = [
 
   {
     name: "Robtech Corporation",
-    worth: 300000,
+    worth: 100000,
     shares: 4000,
     playerShares: 0,
     owned: false,
-    owns: [],
+    owns: ["ur_mom"],
   },
 ]
 

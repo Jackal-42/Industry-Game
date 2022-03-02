@@ -337,6 +337,10 @@ Object.defineProperty(String.prototype, 'capitalize', {
   enumerable: false
 });
 
+function commas(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
 var mouseDownPreviously = false;
 var beginMouseHold = false;
 var endMouseHold = false;
@@ -361,6 +365,7 @@ var windowScale = 1;
 //progression
 var upgradeNotified = false
 var firstView = false
+var firstBuy = false
 
 
 if(!debugging){
@@ -411,6 +416,10 @@ function loadArea(id){
     }
   }
   if(corporations[0].owns.includes(id)){
+    if(!firstBuy && id != "shore"){
+      firstBuy = true;
+      addPoliticsButton("<button class=\"politicsButton\" onclick=\"this.remove();\"><b>Congratulations!</b><br><i>You've just acquired your first rival corporation. You're moving up in the world!</i></button>")
+    }
     document.getElementById("hotbarMenuVertical").style.display = "block"
     stopAreaInteraction = false
   }else{
@@ -910,7 +919,7 @@ rightMenu.innerHTML = `
 </div>
 
 
-<div id="politicsButtonWrapper" style="position: absolute; left: -61%; width: 60%; bottom: 2%; background-color: rgba(55, 55, 55, 0.4); border-collapse: collapse;">
+<div id="politicsButtonWrapper" style="position: absolute; left: -61%; width: 60%; bottom: 2%; background-color: rgba(55, 55, 55, 0.4);">
 
 </div>
 
@@ -942,7 +951,8 @@ rightMenu.innerHTML = `
 <div class="stockButton">Robtech Corporation</div>
 
 </div>
-
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<p>e</p>
 
 `
 
@@ -959,7 +969,7 @@ function updateUpgrades(){
   upgradeIndexes = []
   for(var i = 0, l = upgrades.length; i < l; i++){
     if(!upgrades[i].unlocked){
-      upgradeDiv.children[upgradeButtonIndex].innerHTML = "<p class=\"upgradeTitle\">"+upgrades[i].name+"</p>  <p class=\"upgradeText\">"+upgrades[i].text+"</p> <p class=\"upgradeCost\">$" + upgrades[i].cost + "</p>"
+      upgradeDiv.children[upgradeButtonIndex].innerHTML = "<p class=\"upgradeTitle\">"+upgrades[i].name+"</p>  <p class=\"upgradeText\">"+upgrades[i].text+"</p> <p class=\"upgradeCost\">$" + commas(upgrades[i].cost) + "</p>"
       eval("upgradeDiv.children[upgradeButtonIndex].onclick = function(){if(funds >= " + upgrades[i].cost + "){funds -= "+ upgrades[i].cost +";" + upgrades[i].unlock + "; upgrades["+i+"].unlocked = true; updateUpgrades();}}")
       upgradeIndexes.push(i)
       upgradeButtonIndex++
@@ -982,6 +992,24 @@ function checkUpgrades(){
       upgradeDiv.children[i].style.filter = "opacity(1)"
     }
   }
+}
+
+function updateStockMarket(){
+  document.getElementById("stockMarket").innerHTML = ""
+  for(var i = 0, l = corporations.length; i < l; i++){
+    console.log(corporations[i].owns[0])
+    if(corporations[i].owned){
+      document.getElementById("stockMarket").innerHTML += "<div class=\"stockButton\"><p class=\"upgradeTitle\">"+ corporations[i].name +"</p><button class=\"smallButton\" onclick=\"fadeToArea(\'"+corporations[i].owns[0]+"\')\">Go to factory</button></div>"
+    }else{
+      document.getElementById("stockMarket").innerHTML += "<div class=\"stockButton\"><p class=\"upgradeTitle\">"+ corporations[i].name +"</p><button class=\"smallButton\" onclick=\"fadeToArea(\'"+corporations[i].owns[0]+"\')\">View Factory</button><button class=\"smallButton\" onclick=\"if(funds >= "+ corporations[i].worth +"){corporations["+i+"].owned = true; corporations[0].owns.push(\'"+corporations[i].owns[0]+"\'); funds -= "+corporations[i].worth+"; updateStockMarket()}\">Acquire ($"+commas(corporations[i].worth)+")</button></div>"
+    }
+  }
+}
+updateStockMarket()
+
+function fadeToArea(name){
+  evalOnFade = 'loadArea(\"'+ name +'\")';
+  fading = true;
 }
 
 

@@ -410,11 +410,10 @@ p{
   width: 75%;
   margin-left: 20%;
   margin-top: 0.5%;
-  height: 5vw;
+  height: 4vw;
   background-color: rgb(170, 170, 175);
   border: 1px solid black;
   transition: background-color 200ms;
-  cursor: pointer;
 	text-align: center;
 }
 
