@@ -1,4 +1,5 @@
 var game = new Game("game");
+noise.seed(Math.random())
 
 var fluids = ["crude_oil", "crude_vapor", "crude_kerosene", "crude_naphtha", "residue", "vapor", "kerosene", "naphtha", "hydrogen", "water", "light_oil", "heavy_oil", "crude_propane", "propane", "crude_butane", "butane", "gasoline", "diesel", "fuel_oil", "asphalt"]
 
@@ -1362,11 +1363,11 @@ var corporations = [
 
   {
     name: "Robtech Corporation",
-    worth: 100000,
+    worth: 100000000,
     shares: 4000,
     playerShares: 0,
     owned: false,
-    owns: ["ur_mom"],
+    owns: ["riverBend"],
   },
 ]
 

@@ -1316,12 +1316,25 @@ game.loop = function(){
   ctx = game.getLayer("terrain").context
 
 
-  ctx.drawImage(document.getElementById("terrainCanvas"), (scrollX/4) * -1, (scrollY/4) * -1, 2048, 1280)
+  ctx.drawImage(document.getElementById("terrainCanvas"), Math.round(scrollX/4) * -1, Math.round(scrollY/4) * -1, 2048, 1280)
 
   ctx = game.getLayer("main").context
 
   //Updates all the game objects
   game.tick()
+
+  for( var i = 0, l = activeOverlay.length; i < l; i++){
+    if(activeOverlay[i].type == "flavor"){
+      ctx.save()
+      ctx.globalCompositeOperation = "destination-over"
+
+      ctx.translate((activeOverlay[i].x)-scrollX/4+16, (activeOverlay[i].y)-scrollY/4+16)
+      ctx.rotate(activeOverlay[i].rotation)
+      ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16, -16, 32, 32)
+      ctx.restore()
+    }
+  }
+
   beginMouseHold = false;
   endMouseHold = false;
   //Calculates if a pipe is beginning or ending

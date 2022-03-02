@@ -220,10 +220,10 @@ p{
 
 #tutorialDisplay{
   display: block;
-  left: 32.5%;
-  top: 80%;
-  width: 35%;
-  height: 15%;
+  left: 30%;
+  top: 75%;
+  width: 40%;
+  height: 20%;
   position: absolute;
   background-color: rgb(255, 227, 193);
   border: 2px solid rgb(88, 36, 6);

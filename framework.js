@@ -44,6 +44,19 @@ game.addTexture("erase_icon", "docs/assets/erase_icon.png")
 game.addTexture("warning", "docs/assets/warning.png")
 game.addTexture("alert", "docs/assets/alert.png")
 
+game.addTexture("flower_0", "docs/assets/flower_0.png");
+game.addTexture("flower_1", "docs/assets/flower_1.png");
+game.addTexture("flower_2", "docs/assets/flower_2.png");
+game.addTexture("flower_3", "docs/assets/flower_3.png");
+game.addTexture("flower_4", "docs/assets/flower_4.png");
+game.addTexture("flower_5", "docs/assets/flower_5.png");
+game.addTexture("flower_6", "docs/assets/flower_6.png");
+game.addTexture("flower_7", "docs/assets/flower_7.png");
+game.addTexture("grass_overlay_0", "docs/assets/grass_overlay_0.png");
+game.addTexture("grass_overlay_1", "docs/assets/grass_overlay_1.png");
+
+var flavorOverlay = ["flower_0", "flower_1", "flower_2", "flower_3", "flower_4", "flower_5", "flower_6", "flower_7"];
+
 var tileIds = ("X-p&" + "~1234567890=qwertyuio[]asdfghjklzxcvbnm,./!@#$%^*()_+QWERTYUIOP{}|ASDFGHJKL:ZCVBNM<>?").split("")
 
 //RESERVED: [ X ] [ - ] [ p ] [ & ]
@@ -358,7 +371,7 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = true;
+var debugging = false;
 var logPipes = false;
 var windowScale = 1;
 
@@ -1225,6 +1238,7 @@ function getTerrainBorders(array, x, y, type){
 function sanitizeMap(array){
   var sanitized = [];
   var sanitizedWater = [];
+  var sanitizedOverlay = [];
   for(var i = 0, l = array.length; i < l; i++){
     sanitized.push("")
     sanitizedWater.push("")
@@ -1232,6 +1246,11 @@ function sanitizeMap(array){
       if(array[i].charAt(k) == "g"){
         var edgeType = getTerrainBorders(array, k, i, "g")
         sanitized[i] += getTileId("terrain", "grass" + edgeType, "")
+        if(edgeType == "_0"){
+          if((noise.simplex3(k/15, i/30, 0.5))/15 + Math.random() > 0.94){
+            sanitizedOverlay.push(new Overlay("flavor", flavorOverlay[Math.floor(Math.random()*flavorOverlay.length)], (k*32)+(Math.random()-0.5)*8, (i*32)+(Math.random()-0.5)*8, 0))
+          }
+        }
         sanitizedWater[i] += "-"
       }else if(array[i].charAt(k) == "w"){
         sanitized[i] += getTileId("terrain", "sand" + getTerrainBorders(array, k, i, "w"), "")
@@ -1243,7 +1262,7 @@ function sanitizeMap(array){
     }
   }
 
-  return {ground: sanitized, water: sanitizedWater};
+  return {ground: sanitized, water: sanitizedWater, overlay: sanitizedOverlay};
 }
 
 //Returns the tile at the specified coords
@@ -1300,6 +1319,7 @@ function createPipeOverlay(x1, y1, x2, y2){
   try{
     if(getTile("terrain", getMapData(x1, y1, "waterLayer"))[0].substring(0, 6) == "water_"){
       if(getTile("terrain", getMapData(x2, y2, "baseLayer"))[0].substring(0, 5) == "grass"){
+        lg(1)
         if(x2 > x1){
           pipeRotation = -90
         }else if(x2 < x1){
@@ -1331,10 +1351,11 @@ function createPipeOverlay(x1, y1, x2, y2){
         }
       }
     }
-  }catch{}
+  }catch{};
   try{
     if(getTile("terrain", getMapData(x1, y1, "baseLayer"))[0].substring(0, 5) == "grass"){
       if(getTile("terrain", getMapData(x2, y2, "waterLayer"))[0].substring(0, 6) == "water_"){
+        lg(2)
         if(x1 > x2){
           pipeRotation = -90
         }else if(x1 < x2){
@@ -1405,6 +1426,7 @@ function connectPipes(x1, y1, x2, y2){
 
   if((Math.abs(waterX - landX) <= 1 && Math.abs(waterY - landY) == 0) || (Math.abs(waterY - landY) <= 1 && Math.abs(waterX - landX) == 0)){
     if(getMapData(waterX, waterY) != "p" && (conduits[conduitIndex].endPoints.includes(getMapData(landX, landY)))){createPipeOverlay(x1, y1, x2, y2)}
+    if(getMapData(landX, landY) != "p" && (conduits[conduitIndex].endPoints.includes(getMapData(waterX, waterY)))){createPipeOverlay(x1, y1, x2, y2)}
   }
 
   var endPoints = [];
