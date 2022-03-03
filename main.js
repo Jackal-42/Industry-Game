@@ -585,7 +585,7 @@ var facilityDisplayedData;
 var facilityDisplayedIndex;
 
 //Checks for a couple things, listed below
-game.window.addEventListener("click", function (e) {
+game.getLayer("effects").canvas.addEventListener("click", function (e) {
   if(tutorialIndex == 16 || tutorialIndex == 26 || tutorialIndex == 27 || tutorialIndex == 28){
     return;
   }

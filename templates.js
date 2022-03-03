@@ -1074,8 +1074,8 @@ var upgrades = [
   },
 
   {
-    name: "E",
-    text: "E",
+    name: "Out of Upgrades",
+    text: "Congrats! You have no more upgrades to unlock!",
     cost: 0,
     unlock: "",
     unlocked: false,
@@ -1363,7 +1363,7 @@ var corporations = [
 
   {
     name: "Robtech Corporation",
-    worth: 100000000,
+    worth: 50000,
     shares: 4000,
     playerShares: 0,
     owned: false,
