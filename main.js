@@ -2005,7 +2005,8 @@ game.loop = function(){
       ctx.drawImage(facilityTexture, -16, -16, facilityTexture.width * 2, facilityTexture.height * 2)
       ctx.restore()
       if(framesElapsed % 4 == 1 && Math.random() < 0.012){
-        activeOverlay.push(new Overlay("ripple", "null", areas[areaIndex].networks[i].points[0][0] + 0.5, areas[areaIndex].networks[i].points[0][1] + 1.5, 1))
+        var ripplePoints = rotate(0, 0, 0.5, 1.5, areas[areaIndex].networks[i].rotation*-1)
+        activeOverlay.push(new Overlay("ripple", "null", areas[areaIndex].networks[i].points[0][0] + ripplePoints[0] - 0.5, areas[areaIndex].networks[i].points[0][1] + ripplePoints[1] - 0.5, 1))
       }
       ctx.save()
       if(areas[areaIndex].networks[i].warnings.length >= 1){

@@ -371,7 +371,7 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = false;
+var debugging = true;
 var logPipes = false;
 var windowScale = 1;
 
@@ -1010,7 +1010,6 @@ function checkUpgrades(){
 function updateStockMarket(){
   document.getElementById("stockMarket").innerHTML = ""
   for(var i = 0, l = corporations.length; i < l; i++){
-    console.log(corporations[i].owns[0])
     if(corporations[i].owned){
       document.getElementById("stockMarket").innerHTML += "<div class=\"stockButton\"><p class=\"upgradeTitle\">"+ corporations[i].name +"</p><button class=\"smallButton\" onclick=\"fadeToArea(\'"+corporations[i].owns[0]+"\')\">Go to factory</button></div>"
     }else{
@@ -1637,23 +1636,26 @@ function connectPipes(x1, y1, x2, y2){
   if((getMapData(x2, y2) == "p") || getMapData(x1, y1) == "p"){
 
     if(getMapData(x1, y1) == "p"){
-      var endPoints = updateNetwork(x2, y2, true)[1]
+      var endPointsSource = updateNetwork(x2, y2, false)
     }else{
-      var endPoints = updateNetwork(x1, y1, true)[1]
+      var endPointsSource = updateNetwork(x1, y1, false)
     }
+    var endPoints = endPointsSource[0]
+    var portEndPoints = endPointsSource[1]
 
-
-
+    // console.log(endPoints)
     var pos = 0;
     if(endPoints[0][0] == x1 && endPoints[0][1] == y1){
       pos = 1;
     }
     // if(getMapData(endPoints[pos][0], endPoints[pos][1] - 1) == "p" || getMapData(endPoints[pos][0] - 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0] + 1, endPoints[pos][1]) == "p" || getMapData(endPoints[pos][0], endPoints[pos][1] + 1) == "p"){
-    if(addPipeNetwork(endPoints)){
+    if(addPipeNetwork(endPoints, true, portEndPoints)){
       notify("That part of the facility cannot be connected to", 240)
       changeMapData(x1, y1, previousMapData1)
       changeMapData(x2, y2, previousMapData2)
     }
+
+
     if(getMapData(x2, y2) == "p" && getMapData(x1, y1) == "p"){
       if(Math.abs(x1-x2) > 1 || Math.abs(y1-y2) > 1){
 
@@ -1957,7 +1959,12 @@ function generateArrowOverlay(index, coords){
 }
 
 //Creates a new pipe network and links from a set of coordinates (anywhere on the target pipe)
-function addPipeNetwork(endPoints, useTrueCoords){
+function addPipeNetwork(endPoints, useTrueCoords, portEndPoints){
+  if(useTrueCoords){
+    var portEndPointSave = portEndPoints[1]
+    portEndPoints[1] = portEndPoints[0]
+    portEndPoints[0] = portEndPointSave
+  }
   if(useTrueCoords == undefined){
     useTrueCoords = false
   }
@@ -1988,8 +1995,7 @@ function addPipeNetwork(endPoints, useTrueCoords){
     }else if((connections.includes("r") && getMapData(endX+1, endY) == "p")){
       facility1X = endX + 1
       facility1Y = endY
-    }
-    else if((connections.includes("b") && getMapData(endX, endY+1) == "p")){
+    }else if((connections.includes("b") && getMapData(endX, endY+1) == "p")){
       facility1X = endX
       facility1Y = endY + 1
     }
@@ -2016,7 +2022,6 @@ function addPipeNetwork(endPoints, useTrueCoords){
   var facilityIDs = [];
 
 
-
   for(var i = 0, l = areas[areaIndex].networks.length; i < l; i++){
     if(areas[areaIndex].networks[i].name != "pipeSegment"){
       var areaString = JSON.stringify(areas[areaIndex].networks[i].points)
@@ -2035,11 +2040,17 @@ function addPipeNetwork(endPoints, useTrueCoords){
       }
     }
   }
+  if(useTrueCoords){
+    endPoints = portEndPoints
+  }
 
+  // console.log(facility1String + ", " + facility2String + " : " + endPoints[0] + ", " + endPoints[1])
   if(facilityIDs.length == 0){return false}
 
 
-  if(facilityIDs[1] != undefined){
+  if(facilityIDs[1] != undefined && facilityIDs[0] != facilityIDs[1]){
+    // console.log(endPoints)
+    // console.log(portEndPoints)
     facility1X = getNetwork(areaIndex, facilityIDs[0]).points[0][0]
     facility1Y = getNetwork(areaIndex, facilityIDs[0]).points[0][1]
     facility2X = getNetwork(areaIndex, facilityIDs[1]).points[0][0]
@@ -2091,7 +2102,6 @@ function addPipeNetwork(endPoints, useTrueCoords){
         facility2PortIndex = c
       }
     }
-
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
 
     areas[areaIndex].networks.push(new Network("pipeSegment", 0, endPoints, {connectedFacilities: [facilityIDs[0], facilityIDs[1]]}, false, networkTotal))
@@ -2246,7 +2256,6 @@ function addGhostNetwork(endPoints, connectionPoints){
         facility2PortIndex = c
       }
     }
-
 
 
     areas[areaIndex].links.push({facility1: [facilityIDs[0], facility1PortIndex], facility2: [facilityIDs[1], facility2PortIndex], supportingConduit: networkTotal})
@@ -2889,11 +2898,11 @@ function updateNetwork(x, y, giveTrueCoords){
 
 
 
-  if(giveTrueCoords){
+  // if(giveTrueCoords){
     var validConduitSegments = (conduits[conduitIndex].segments + "Xp")
-  }else{
-    var validConduitSegments = (conduits[conduitIndex].segments + "X")
-  }
+  // }else{
+    // var validConduitSegments = (conduits[conduitIndex].segments + "X")
+  // }
 
   var currentTargets = [[x, y], [x, y]]
   var previousTargets = [[x, y], [x, y]]
@@ -2907,12 +2916,14 @@ function updateNetwork(x, y, giveTrueCoords){
       currentTargets[0] = [targetX, targetY]
     }
 
-    var connections = getPipeConnections(targetX, targetY)
     if(getMapData(targetX, targetY) == "X"){
       targetX += xMotion;
       targetY += yMotion;
       continue;
     }
+
+    var connections = getPipeConnections(targetX, targetY)
+
 
     if(connections.includes("b") && validConduitSegments.includes(getMapData(targetX, targetY+1)) && yMotion != -1){
       targetY += 1;
@@ -2949,6 +2960,9 @@ function updateNetwork(x, y, giveTrueCoords){
         yMotion = cachedYMotion;
         secondSide = true;
         continue;
+      }else if(!giveTrueCoords){
+        endPoints[0][0] = cachedX;
+        endPoints[0][1] = cachedY;
       }
 
     }
@@ -2963,7 +2977,11 @@ function updateNetwork(x, y, giveTrueCoords){
     endPoints[1][0] = targetX;
     endPoints[1][1] = targetY;
   }
-
+  // if(!giveTrueCoords){
+  //   endPoints[0][0] = cachedX;
+  //   endPoints[0][1] = cachedY;
+  // }
+  // console.log(previousTargets)
   return [endPoints, previousTargets];
 }
 
