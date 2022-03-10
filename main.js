@@ -1360,6 +1360,8 @@ game.loop = function(){
     mouseX = Math.floor((game.mouseX + scrollX/4)/(32))
     mouseY = Math.floor((game.mouseY + scrollY/4)/(32))
     addPipe(mouseX, mouseY)
+    previousPipeX = 0;
+    previousPipeY = 0;
   }
 
 
