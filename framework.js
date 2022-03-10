@@ -448,7 +448,7 @@ function loadArea(id){
   }
   game.getObject('baseLayer').render = true;
   game.getObject('waterLayer').render = true;
-  updateNetworkLog()
+  if(debugging){updateNetworkLog()};
 }
 
 //Only used in the debug menu
@@ -2169,7 +2169,7 @@ function addPipeNetwork(endPoints, useTrueCoords, portEndPoints){
     return true;
   }
 
-  updateNetworkLog()
+  if(debugging){updateNetworkLog()};
   return false;
 
 }
@@ -2265,7 +2265,7 @@ function addGhostNetwork(endPoints, connectionPoints){
     document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
   }
 
-  updateNetworkLog()
+  if(debugging){updateNetworkLog()};
 
 }
 
