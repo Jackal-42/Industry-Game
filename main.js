@@ -1247,7 +1247,7 @@ game.loop = function(){
 
 
 
-  document.getElementById("funds").innerHTML = commas(funds)
+  document.getElementById("funds").innerHTML = commas(Math.floor(funds))
 
 
   for(var i = 0, l = game.layers.length; i < l; i++){

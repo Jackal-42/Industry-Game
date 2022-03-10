@@ -1,0 +1,25 @@
+{
+  "name": "industry-game",
+  "version": "1.0.0",
+  "description": "<i>An ASTOUNDING resource-management game running on A FANTASTIC game engine with THOROUGH documentation</i>",
+  "main": "main.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jackal-42/Industry-Game.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jackal-42/Industry-Game/issues"
+  },
+  "homepage": "https://github.com/Jackal-42/Industry-Game#readme",
+  "dependencies": {
+    "@airbrake/browser": "^2.1.7"
+  }
+}

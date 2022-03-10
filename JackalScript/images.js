@@ -5,6 +5,10 @@
 
 
 
+//THIS IS FUTURE ME
+//THEY TOTALLY ARE CODE REMNANTS
+
+
 
 // var images = [
 //   "test1",
