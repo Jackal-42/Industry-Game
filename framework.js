@@ -8,6 +8,7 @@
 
 var framesElapsed = 0;
 var mouseDown = false;
+var count = 0;
 
 game.addLayer("oil")
 game.getLayer("oil").clearFrames = false;
@@ -2471,6 +2472,8 @@ function addPipe(x, y, mode){
   }
   var conduitIndex = getConduitIndex(conduitSelected)
   if(key(16) || conduitSelected == "erase" || mode == "erase"){
+    previousPipeX = x;
+    previousPipeY = y;
     if(doingTutorial){return}
     conduitIndex = 0;
     var mapData = getMapData(x, y)
@@ -2840,6 +2843,7 @@ function updateNetworkLog(){
 
 //Returns endpoints for a pipe segment network, given coordinates. I have no idea why I named it updateNetwork because it certainly does not
 function updateNetwork(x, y, giveTrueCoords){
+  count++;
   if(giveTrueCoords == undefined){
     giveTrueCoords = true
   }
