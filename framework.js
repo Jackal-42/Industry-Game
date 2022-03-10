@@ -371,7 +371,7 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = false;
+var debugging = true;
 var logPipes = false;
 var windowScale = 1;
 

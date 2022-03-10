@@ -1386,7 +1386,8 @@ game.loop = function(){
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds or removes pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
-  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility" && conduitSelected != "pointer"){
+  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility" && conduitSelected != "pointer" && !(mouseX == previousPipeX && mouseY == previousPipeY)){
+
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
     var slope = distanceY/distanceX
