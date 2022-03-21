@@ -1,6 +1,6 @@
 console.log("JackalScript Compiling...\n")
 
-import { Notifier } from '../node_modules/@airbrake/browser/esm/notifier.js';
+import { Notifier } from '@airbrake_browser';
 
 const airbrake = new Notifier({
   projectId: 402502,
