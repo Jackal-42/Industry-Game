@@ -1,8 +1,8 @@
 console.log("JackalScript Compiling...\n")
 
-import { Notifier } from '@airbrake_browser';
+import * as Airbrake from '../node_modules/@airbrake/browser/umd/airbrake.js';
 
-const airbrake = new Notifier({
+const crashReport = new Airbrake.Notifier({
   projectId: 402502,
   projectKey: '8d003f2d81abdb7201e766685852049d',
   environment: 'production'
@@ -24,8 +24,7 @@ function loadScript(url, callback){
     } else {  //Others
         script.onload = function(){
             callback();
-        };
-    }
+        };    }
 
     script.src = url;
     document.getElementsByTagName("head")[0].appendChild(script);
