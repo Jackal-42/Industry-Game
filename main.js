@@ -1,3 +1,4 @@
+
 var previousMouseX = 0;
 var previousMouseY = 0;
 var facilityDisplayed = 0;
@@ -498,10 +499,20 @@ function tutorialNext(){
 }
 tutorialNext()
 
-window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
-  console.log(errorObj)
-  game.loop()
-}
+// import * as Airbrake from '../node_modules/airbrake/browser/umd/airbrake.js'
+//
+// window.crashReport = new Airbrake.Notifier({
+//   projectId: 402502,
+//   projectKey: '8d003f2d81abdb7201e766685852049d',
+//   environment: 'production'
+// });
+
+
+
+// window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+//   console.log(errorObj)
+//   game.loop()
+// }
 
 function debug(){
   if(debugging){
@@ -585,6 +596,28 @@ var facilityDisplayedData;
 var facilityDisplayedIndex;
 
 //Checks for a couple things, listed below
+
+window.addEventListener("click", function (e) {
+  var tooltipsActive = document.getElementsByClassName("tooltip")
+  //Deletes all tooltips if they are clicked off of
+  if(checkTooltipClick < 0){
+    for(var i = 0, l = tooltipsActive.length; i < l; i++){
+      tooltipsActive[0].remove()
+    }
+  }else{
+    if(checkTooltipClick === undefined){checkTooltipClick = 0}
+    var incrementer = 0
+    for(var i = 0, l = tooltipsActive.length; i < l; i++){
+      if(tooltipsActive[incrementer].name > checkTooltipClick){
+        tooltipsActive[incrementer].remove()
+      }else{
+        incrementer++
+      }
+    }
+    checkTooltipClick = -1
+  }
+});
+
 game.getLayer("effects").canvas.addEventListener("click", function (e) {
   if(tutorialIndex == 16 || tutorialIndex == 26 || tutorialIndex == 27 || tutorialIndex == 28){
     return;
@@ -654,24 +687,7 @@ game.getLayer("effects").canvas.addEventListener("click", function (e) {
     notify(pipeNotification, 200)
   }
   try{
-  var tooltipsActive = document.getElementsByClassName("tooltip")
-  //Deletes all tooltips if they are clicked off of
-  if(checkTooltipClick < 0){
-    for(var i = 0, l = tooltipsActive.length; i < l; i++){
-      tooltipsActive[0].remove()
-    }
-  }else{
-    if(checkTooltipClick === undefined){checkTooltipClick = 0}
-    var incrementer = 0
-    for(var i = 0, l = tooltipsActive.length; i < l; i++){
-      if(tooltipsActive[incrementer].name > checkTooltipClick){
-        tooltipsActive[incrementer].remove()
-      }else{
-        incrementer++
-      }
-    }
-    checkTooltipClick = -1
-  }
+
   if((mouseDownX != mouseX || mouseDownY != mouseY) && conduitSelected != "facility"){return}
 
   //Tries to place a facility on the map
@@ -1247,7 +1263,7 @@ game.loop = function(){
 
 
 
-  document.getElementById("funds").innerHTML = commas(funds)
+  document.getElementById("funds").innerHTML = commas(Math.floor(funds))
 
 
   for(var i = 0, l = game.layers.length; i < l; i++){
