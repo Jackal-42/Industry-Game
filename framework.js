@@ -750,7 +750,7 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_facilities_menu" class="hotbarButton"  style="z-index: 3;" onclick="selectPlaceable('facilities_menu'); toggleHorizontalHotbarMenu('hotbarMenu2'); if(tutorialIndex == 2){tutorialNext()}"><img class="clickityElement" src="docs/assets/gear.png"></button>
 
-<button id="hotbar_distiller" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('distiller'); if(tutorialIndex == 3){tutorialNext()}"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
+<button id="hotbar_distiller" savestate="66px" style="left: 66px;" class="hotbarButton" onclick="selectPlaceable('distiller')"><img class="clickityElement" src="docs/assets/distiller.png" style="width: 40%; height: 80%;"></button>
 
 <button id="hotbar_residue_processor" savestate="132px" style="left: 132px;" class="hotbarButton" onclick="selectPlaceable('residue_processor')"><img class="clickityElement" src="docs/assets/residue_processor.png" style="width: 40%; height: 80%;"></button>
 
@@ -762,7 +762,7 @@ hotbarMenu.innerHTML = `
 
 <button id="hotbar_gasoline_mixer" savestate="396px" style="left: 396px;" class="hotbarButton" onclick="selectPlaceable('gasoline_mixer')"><img class="clickityElement" src="docs/assets/gasoline_mixer.png" style="height: 40%; width: 80%;"></button>
 
-<button id="hotbar_asphalt_mixer" savestate="462px" style="left: 462px;" class="hotbarButton" onclick="selectPlaceable('asphalt_mixer')"><img class="clickityElement" src="docs/assets/asphalt_mixer.png" style=""></button>
+<button id="hotbar_asphalt_mixer" savestate="462px" style="left: 462px;" class="hotbarButton" onclick="selectPlaceable('asphalt_mixer'); if(tutorialIndex == 3){tutorialNext()}"><img class="clickityElement" src="docs/assets/asphalt_mixer.png" style=""></button>
 
 <button id="hotbar_diesel_mixer" savestate="528px" style="left: 528px;" class="hotbarButton" onclick="selectPlaceable('diesel_mixer')"><img class="clickityElement" src="docs/assets/diesel_mixer.png" style="height: 40%; width: 80%;"></button>
 
@@ -826,7 +826,7 @@ unlockHotbarButton("hotbar_hydrogen_source")
 
 
 
-// unlockHotbarButton("hotbar_asphalt_mixer")
+unlockHotbarButton("hotbar_asphalt_mixer")
 // unlockHotbarButton("hotbar_gasoline_mixer")
 // unlockHotbarButton("hotbar_diesel_mixer")
 // unlockHotbarButton("hotbar_fuel_oil_mixer")
@@ -1050,7 +1050,7 @@ var centerDisplay = document.createElement('div')
 centerDisplay.id = "centerDisplay"
 
 centerDisplay.innerHTML = `
-<button id="closeCenterDisplay" onclick="if(!doingTutorial || tutorialIndex == 10 || tutorialIndex == 20){if(tutorialIndex == 10 || tutorialIndex == 20){tutorialNext()};document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)}" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; background-color: tan; border: 1px solid black; cursor: pointer;'><img src='docs/assets/x_button.png' style='position: absolute; width: 100%; left: 0px; top: 0px; image-rendering: auto;'></button>
+<button id="closeCenterDisplay" onclick="if(!doingTutorial || tutorialIndex == 10 || tutorialIndex == 27){if(tutorialIndex == 10 || tutorialIndex == 27){tutorialNext()};document.getElementById(\'centerDisplay\').style.top = \'35%\'; document.getElementById(\'centerDisplay\').style.opacity = \'0\'; cacheCode(\'document.getElementById(\\\'centerDisplay\\\').style.display = \\\'none\\\' \', 12)}" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; background-color: tan; border: 1px solid black; cursor: pointer;'><img src='docs/assets/x_button.png' style='position: absolute; width: 100%; left: 0px; top: 0px; image-rendering: auto;'></button>
 
 <div id="facilityShownRange">
 <canvas id="facilityShownCanvas" width="500" height="500" style="width: 30%; border: 1px solid black; position: absolute; top: 6vh; left: 1%; background-color: rgb(100, 100, 133)"></canvas>
@@ -2761,6 +2761,16 @@ function createNetwork(x, y, type, modifiers){
   networkTotal++
   for(var i = 0, l = facilities.length; i < l; i++){
     if(facilities[i].name == type){
+      var facilityTotal = 0;
+      for(var j = 0, jl = areas[areaIndex].networks.length; j < jl; j++){
+        if(areas[areaIndex].networks[j].name == type){
+          facilityTotal++
+        }
+      }
+      if(facilityTotal >= facilities[i].limit){
+        notify("You have the maximum number of "+facilities[i].name.split("_").join(" ")+"s placed on the map ("+facilities[i].limit+"/"+facilities[i].limit+").<br>Delete them to place more, or raise the limit by completing missions.", 400);
+        return;
+      }
       var rotation = 0;
       var facilityCoordinates = [];
       var facilityData = {};

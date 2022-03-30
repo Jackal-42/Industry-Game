@@ -84,7 +84,7 @@ var tutorial = [
     text: "<p>Then, expand the Facilities sub-menu.</p>",
     action: function(){
       //2
-      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 66
+      trueIndicatorBoxX = (window.innerWidth/50) + 1 + 462
       trueIndicatorBoxY = (window.innerHeight/50) + 199 + 9
       trueIndicatorBoxWidth = 60
       trueIndicatorBoxHeight = 60
@@ -94,7 +94,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>Click this button to select the Distiller facility. It processes crude oil into many products.</p>",
+    text: "<p>Click this button to select the Asphalt Mixer facility. It processes crude oil into many asphalt.</p>",
     action: function(){
       //3
       lockIndicatorBox = true
@@ -108,7 +108,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>Place the distiller down by clicking on the map. Use arrow keys to scroll.</p>",
+    text: "<p>Place the asphalt mixer down by clicking on the map. Use arrow keys to scroll.</p>",
     action: function(){
       //4
       lockIndicatorBox = false
@@ -143,14 +143,14 @@ var tutorial = [
       lockedIndicatorBoxX = 26
       lockedIndicatorBoxY = 11
       trueIndicatorBoxWidth = 32
-      trueIndicatorBoxHeight = 64
+      trueIndicatorBoxHeight = 32
       shownIndicatorBoxWidth = 32
-      shownIndicatorBoxHeight = 64
+      shownIndicatorBoxHeight = 32
     },
   },
 
   {
-    text: "<p>Click on the placed distiller to see its properties</p>",
+    text: "<p>Click on the placed asphalt mixer to see its properties</p>",
     action: function(){
       //7
       lockIndicatorBox = false
@@ -164,7 +164,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>This is the Distiller's Infographic. Each of the arrows corresponds to either an input or an output port. Click on each of the oil drop icons to see what resources they input or output.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>This is the Asphalt Mixer's Infographic. Each of the arrows corresponds to either an input or an output port. Click on each of the oil drop icons to see what resources they input or output.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //8
 
@@ -172,7 +172,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>You can see that because the only arrows that point into the distiller show crude oil, the distiller needs a crude oil input to work.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>You can see that because the only arrows that point into the asphalt mixer show crude oil, the asphalt mixer needs a crude oil input to work.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //9
       var rect = document.getElementById("closeCenterDisplay").getBoundingClientRect()
@@ -226,7 +226,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>Place it near the distiller.</p>",
+    text: "<p>Place it near the asphalt mixer.</p>",
     action: function(){
       //13
       lockIndicatorBox = false
@@ -275,9 +275,9 @@ var tutorial = [
       lockedIndicatorBoxX = 26
       lockedIndicatorBoxY = 11
       trueIndicatorBoxWidth = 32
-      trueIndicatorBoxHeight = 64
+      trueIndicatorBoxHeight = 32
       shownIndicatorBoxWidth = 32
-      shownIndicatorBoxHeight = 64
+      shownIndicatorBoxHeight = 32
     },
   },
 
@@ -296,16 +296,17 @@ var tutorial = [
   },
 
   {
-    text: "<p>The arrow we linked the pipe to turned green! That's a good sign. Click on the red drop of oil to see more information about that.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>The arrow we linked the pipe to turned green! That's a good sign. Click on the asphalt shards to see more information about that.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //18
     },
   },
 
   {
-    text: "<p>We need to refine that naphtha before we can sell it and make money.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>We need to pipe that asphalt into the ship if we want to sell it and make money.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //19
+      tutorialIndex = 27;
       var rect = document.getElementById("closeCenterDisplay").getBoundingClientRect()
       trueIndicatorBoxX = rect.left;
       trueIndicatorBoxY = rect.top;
@@ -317,9 +318,21 @@ var tutorial = [
   },
 
   {
-    text: "<p>Grab a hydrotreater</p>",
+    // text: "<p>Grab a hydrotreater</p>",
+    // action: function(){
+    //   //20
+    //   lockIndicatorBox = false
+    //   trueIndicatorBoxX = (window.innerWidth/50) + 1 + 264
+    //   trueIndicatorBoxY = (window.innerHeight/50) + 9 + 199
+    //   trueIndicatorBoxWidth = 60
+    //   trueIndicatorBoxHeight = 60
+    //   shownIndicatorBoxWidth = 60
+    //   shownIndicatorBoxHeight = 60
+    // },
+    text: "<p>Exit the window</p>",
     action: function(){
       //20
+      tutorialNext();
       lockIndicatorBox = false
       trueIndicatorBoxX = (window.innerWidth/50) + 1 + 264
       trueIndicatorBoxY = (window.innerHeight/50) + 9 + 199
@@ -387,7 +400,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>Finally, connect them all together.</p>",
+    text: "<p>Connect them all together.</p>",
     action: function(){
       //25
       lockIndicatorBox = true
@@ -401,7 +414,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>Finally, connect them all together.</p>",
+    text: "<p>Connect them all together.</p>",
     action: function(){
       //26
       lockIndicatorBox = true
@@ -415,21 +428,21 @@ var tutorial = [
   },
 
   {
-    text: "<p>Finally, connect them all together.</p>",
+    text: "<p>Connect them all together.</p>",
     action: function(){
       //27
       lockIndicatorBox = true
-      lockedIndicatorBoxX = 30
+      lockedIndicatorBoxX = 26
       lockedIndicatorBoxY = 11
-      trueIndicatorBoxWidth = 256
+      trueIndicatorBoxWidth = 384
       trueIndicatorBoxHeight = 32
-      shownIndicatorBoxWidth = 256
+      shownIndicatorBoxWidth = 384
       shownIndicatorBoxHeight = 32
     },
   },
 
   {
-    text: "<p>Finally, connect them all together.</p>",
+    text: "<p>Connect them all together.</p>",
     action: function(){
       //28
       lockIndicatorBox = false
@@ -443,7 +456,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>You've just connected a pipe up to the tanker ship, where the naphtha you produced is being sold for a profit. You can pump oil into the six ports on either side of the ship.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>You've just connected a pipe up to the tanker ship, where the asphalt you produced is being sold for a profit. You can pump oil into the six ports on either side of the ship.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //29
 
@@ -451,7 +464,7 @@ var tutorial = [
   },
 
   {
-    text: "<p>The distiller produces more than just naphtha. Make sure to fully utilize all of its outputs, and make the most of tooltips and the infigraphic menus. That's all for the tutorial. Have fun!</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>You will be able to use other facilities to produce more than just asphalt. Make sure to fully utilize all of their outputs, and make the most of tooltips and the infographic menus. That's all for the tutorial. Have fun!</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //29
       lockIndicatorBox = false
@@ -1096,7 +1109,7 @@ game.loop = function(){
     }
   }
   if(tutorialIndex == 28){
-    if(getMapData(31, 11) == "~" && getMapData(32, 11) == "~" && getMapData(33, 11) == "~" && getMapData(34, 11) == "~" && getMapData(35, 11) == "~" && getMapData(36, 11) == "~"){
+    if(getMapData(27, 11) == "~" && getMapData(28, 11) == "~" && getMapData(29, 11) == "~" && getMapData(30, 11) == "~" && getMapData(31, 11) == "~" && getMapData(32, 11) == "~" && getMapData(33, 11) == "~" && getMapData(34, 11) == "~" && getMapData(35, 11) == "~" && getMapData(36, 11) == "~"){
       tutorialNext()
     }
   }

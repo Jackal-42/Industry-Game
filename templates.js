@@ -50,6 +50,7 @@ var products = [
 var facilities = [
   {
     name: "distiller",
+    limit: Infinity,
     width: 1,
     height: 2,
     maxItems: 2,
@@ -110,6 +111,7 @@ var facilities = [
 
   {
     name: "residue_processor",
+    limit: Infinity,
     width: 1,
     height: 2,
     maxItems: 2,
@@ -168,6 +170,7 @@ var facilities = [
 
   {
     name: "gas_processor",
+    limit: Infinity,
     width: 1,
     height: 2,
     maxItems: 2,
@@ -226,6 +229,7 @@ var facilities = [
 
   {
     name: "hydrotreater",
+    limit: Infinity,
     width: 2,
     height: 1,
     maxItems: 1,
@@ -324,6 +328,7 @@ var facilities = [
 
   {
     name: "gasoline_mixer",
+    limit: Infinity,
     width: 2,
     height: 1,
     maxItems: 2,
@@ -391,6 +396,7 @@ var facilities = [
 
   {
     name: "diesel_mixer",
+    limit: Infinity,
     width: 2,
     height: 1,
     maxItems: 2,
@@ -458,6 +464,7 @@ var facilities = [
 
   {
     name: "fuel_oil_mixer",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 2,
@@ -509,19 +516,18 @@ var facilities = [
 
   {
     name: "asphalt_mixer",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 2,
     pseudoPipe: false,
-    storage: ["hydrogen", "heavy_oil", "asphalt"],
+    storage: ["crude_oil", "asphalt"],
     layout: [[0, 0]],
     process: function(me){
       while(true){
-        if(me.data.hydrogen >= 0.5 && me.data.heavy_oil >= 1){
-          me.data.asphalt += 1
-
-          me.data.hydrogen -= 0.5
-          me.data.heavy_oil -= 1
+        if(me.data.crude_oil >= 1){
+          me.data.crude_oil -= 1;
+          me.data.asphalt += 0.2;
           break;
         }
         break;
@@ -532,7 +538,7 @@ var facilities = [
         x: 0,
         y: -1,
         conduit: "pipe",
-        gender: ["input", ["heavy_oil"]],
+        gender: ["input", ["crude_oil"]],
       },
 
       {
@@ -546,20 +552,21 @@ var facilities = [
         x: 0,
         y: 1,
         conduit: "pipe",
-        gender: ["input", ["heavy_oil"]],
+        gender: ["input", ["crude_oil"]],
       },
 
       {
         x: -1,
         y: 0,
         conduit: "pipe",
-        gender: ["input", ["hydrogen"]],
+        gender: ["input", ["crude_oil"]],
       },
     ],
   },
 
   {
     name: "ship",
+    limit: Infinity,
     width: 2,
     height: 4,
     maxItems: 256,
@@ -673,6 +680,7 @@ var facilities = [
 
   {
     name: "tank",
+    limit: Infinity,
     width: 2,
     height: 2,
     maxItems: 20,
@@ -746,6 +754,7 @@ var facilities = [
 
   {
     name: "valve",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 4,
@@ -795,6 +804,7 @@ var facilities = [
 
   {
     name: "t_valve",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 4,
@@ -842,6 +852,7 @@ var facilities = [
 
   {
     name: "one_way_pipe",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 2,
@@ -885,6 +896,7 @@ var facilities = [
 
   {
     name: "crude_source",
+    limit: 2,
     width: 1,
     height: 1,
     maxItems: 4,
@@ -925,6 +937,7 @@ var facilities = [
 
   {
     name: "hydrogen_source",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 4,
@@ -965,6 +978,7 @@ var facilities = [
 
   {
     name: "any_source",
+    limit: Infinity,
     width: 1,
     height: 1,
     maxItems: 4,
@@ -1026,15 +1040,6 @@ var upgrades = [
     unlock: "unlockHotbarButton(\"hotbar_valve\")",
     unlocked: false,
     priority: 3,
-  },
-
-  {
-    name: "Asphalt Mixer",
-    text: "While it does not sell for a high price, asphalt is useful for deals and contracts that increase your repuation",
-    cost: 7500,
-    unlock: "unlockHotbarButton(\"hotbar_asphalt_mixer\")",
-    unlocked: false,
-    priority: 7,
   },
 
   {
@@ -1246,7 +1251,7 @@ var tooltips = [
   {
     name: "hotbar_asphalt_mixer",
     title: "Asphalt Mixer",
-    text: "Converts <span class=\"tooltipLink\" onclick=\"createTooltip(\'heavy_oil\')\">heavy oil</span> and <span class=\"tooltipLink\" onclick=\"createTooltip(\'hydrogen\')\">hydrogen</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'asphalt\')\">asphalt</span>"
+    text: "Converts <span class=\"tooltipLink\" onclick=\"createTooltip(\'crude_oil\')\">crude oil</span> into <span class=\"tooltipLink\" onclick=\"createTooltip(\'asphalt\')\">asphalt</span>"
   },
 
   {
