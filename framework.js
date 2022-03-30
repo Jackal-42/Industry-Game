@@ -372,7 +372,7 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = false;
+var debugging = true;
 var logPipes = false;
 var windowScale = 1;
 
@@ -1411,6 +1411,8 @@ function connectPipes(x1, y1, x2, y2){
   if(pipe2Connections == "lr" || pipe2Connections == "tb"){
     return;
   }
+
+  console.log("test");
 
   var waterX = x1
   var waterY = y1

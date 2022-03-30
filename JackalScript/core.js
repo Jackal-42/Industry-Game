@@ -1,12 +1,14 @@
-console.log("JackalScript Compiling...\n")
+console.log("JackalScript Compiling...\n");
 
-import * as Airbrake from '../node_modules/@airbrake/browser/umd/airbrake.js';
+// import * as Airbrake from '../node_modules/airbrake/browser/umd/airbrake.js';
 
-const crashReport = new Airbrake.Notifier({
-  projectId: 402502,
-  projectKey: '8d003f2d81abdb7201e766685852049d',
-  environment: 'production'
-});
+// window.crashReport = new Airbrake.Notifier({
+//   projectId: 402502,
+//   projectKey: '8d003f2d81abdb7201e766685852049d',
+//   environment: 'production'
+// });
+
+
 
 function loadScript(url, callback){
 
@@ -36,7 +38,7 @@ var loadPercentage = 0;
 var rhymesWithLoading = ["Off-Roading", "Encoding", "Exploding", "Eroding", "Foreboding", "Loading"]
 setTimeout(function(){setInterval(function(){document.getElementById("loadText").innerHTML = rhymesWithLoading[Math.floor(Math.random()*rhymesWithLoading.length)] + "<br>" + Math.floor(loadPercentage) + "%"; loadPercentage += ((100-loadPercentage)/16)}, 500)}, 2500)
 
-loadScript("JackalScript/blanket.js", function(){console.log("Blanket Loaded"); loadScript("JackalScript/math.js", function(){console.log("Math Loaded"); loadScript("JackalScript/utility.js", function(){console.log("Utility Loaded"); loadScript("JackalScript/physics.js", function(){console.log("Physics Loaded"); loadScript("JackalScript/images.js", function(){console.log("Images Loaded"); loadScript("JackalScript/audio.js", function(){console.log("Audio Loaded\n");loadScript("templates.js", function(){console.log("Templates Loaded");loadScript("framework.js", function(){console.log("Framework Loaded"); loadScript("stages.js", function(){console.log("Stages Loaded"); loadScript("main.js", function(){document.getElementById("load").style.display = "none"; console.log("Setup Complete")})})})})})})})})})})
+loadScript("JackalScript/blanket.js", function(){console.log("Blanket Loaded"); loadScript("JackalScript/math.js", function(){console.log("Math Loaded"); loadScript("JackalScript/utility.js", function(){console.log("Utility Loaded"); loadScript("JackalScript/physics.js", function(){console.log("Physics Loaded"); loadScript("JackalScript/images.js", function(){console.log("Images Loaded"); loadScript("JackalScript/audio.js", function(){console.log("Audio Loaded\n");loadScript("templates.js", function(){console.log("Templates Loaded");loadScript("framework.js", function(){console.log("Framework Loaded"); loadScript("stages.js", function(){console.log("Stages Loaded"); loadScript("main.js", function(){document.getElementById("load").style.display = "none"; console.log("Setup Complete");})})})})})})})})})})
 //Loads all the seperate files in the JackalScript Engine in the correct order
 
 // function loadOthers(){
