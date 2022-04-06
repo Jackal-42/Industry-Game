@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/Jackal-42/Industry-Game#readme",
   "dependencies": {
-    "@airbrake/browser": "^2.1.7"
+    "@airbrake/browser": "^2.1.7",
+    "@airbrake/node": "^2.1.7",
+    "airbrake": "^2.1.3"
   }
 }

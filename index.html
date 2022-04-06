@@ -76,16 +76,16 @@
       <p id="loadText" class="loadText">Loading</p>
     </div>
     <script src="noise.js"></script>
-    <script type="module">
-      // import * as Airbrake from './node_modules/@airbrake/browser/umd/airbrake.js';
-      //
-      // new Airbrake.Notifier({
-      //   projectId: 402502,
-      //   projectKey: '8d003f2d81abdb7201e766685852049d',
-      //   environment: 'production'
-      // });
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="JackalScript/core.js"></script>
+    <script type="module" src="JackalScript/core.js"></script>
+    <script src="/node_modules/@airbrake/browser/umd/airbrake.js"></script>
+    <script type="module">
+      const airbrake = new Airbrake.Notifier({
+        projectId: 402502,
+        projectKey: '8d003f2d81abdb7201e766685852049d',
+        environment: 'production'
+      })
+      console.log("test");
+    </script>
   </body>
 </html>
