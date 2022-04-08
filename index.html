@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>Industry Game</title>
+    <title>Pebblefellow Industries</title>
+    <link rel="icon" type="image/x-icon" href="./docs/assets/favicon.png">
     <link href='https://fonts.googleapis.com/css?family=Rubik' rel='stylesheet'>
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
@@ -77,8 +78,32 @@
       <div class="loader"></div>
       <p id="loadText" class="loadText">Loading</p>
     </div>
+
     <script src="noise.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="JackalScript/core.js"></script>
+    <!--TO DISABLE DYNAMIC FEATURES, COMMENT OUT THE FOLLOWING TWO LINES-->
+
+    <!-- <script>enableDynamic = true</script>
+    <script src="/node_modules/@airbrake/browser/umd/airbrake.js"></script> -->
+
+
+
+
+    <script type="module">
+      if(enableDynamic){
+        const airbrake = new Airbrake.Notifier({
+          projectId: 402502,
+          projectKey: '8d003f2d81abdb7201e766685852049d',
+          environment: 'production'
+        })
+        window.onbeforeunload = function(){
+          airbrake.notify({
+            error: ("[UPTIME : " + (framesElapsed/60).toFixed(2) + "][FUNDS : "+funds.toFixed(2)+"]"),
+            context: { severity: 'info' }
+          });
+        };
+      }
+    </script>
   </body>
 </html>

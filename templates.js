@@ -1396,7 +1396,7 @@ var objectives = [
 
   {
     name: "Get an Upgrade",
-    description: "just do it",
+    description: "FUN TIMES IN CLEVELAND AGAIN; <b>CLEVELAND</b>",
     condition: "lifetimeUpgrades > 0",
     reward: "getFacility(\"crude_source\").limit += 1; funds += 200",
     rewardText: "+1 Crude Oil Pump<br>$200",

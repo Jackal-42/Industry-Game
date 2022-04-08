@@ -55,7 +55,7 @@ function notify(text, time){
 
 var tutorial = [
   {
-    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production. Music: https://www.bensound.com, Sound effects obtained from https://www.zapsplat.com</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production. Music: https://www.bensound.com, Sound effects obtained from https://www.zapsplat.com. Your game data may be monitored by us in order to improve the game. By using this software, you agree to all the terms of the <a href='https://jackal-42.github.io/pebblefellow-eula/' target='_blank'>End User License Agreement</a>.</p> <br><br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //0
       retrosoul.play();

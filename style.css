@@ -248,12 +248,12 @@ p{
 }
 
 #tutorialDisplay button{
-  width: 20%;
-  left: 40%;
-  bottom: 2%;
+  width: 10%;
+  left: 45%;
+  bottom: 6%;
   font-family: "Pixellari";
   border: 1px solid black;
-  position: absolute;
+  position: fixed;
   cursor: pointer;
 }
 
