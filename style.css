@@ -292,6 +292,27 @@ p{
   display: none;
 }
 
+#objectiveDisplay{
+  display: none;
+	opacity: 0;
+  left: 30%;
+  bottom: 25%;
+  width: 40%;
+  height: 40%;
+  position: absolute;
+  background-color: rgb(255, 227, 193);
+  border: 2px solid rgb(88, 36, 6);
+  box-shadow: 0px 0px 0px 1600px rgba(0, 0, 0, 0.6);
+  transition: bottom 200ms, left 200ms, box-shadow 200ms, width 200ms, height 200ms, opacity 300ms;
+  overflow: scroll;
+  z-index: 4;
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+#objectiveDisplay::-webkit-scrollbar {
+  display: none;
+}
+
 /*
 #centerDisplay::after{
   content: "";

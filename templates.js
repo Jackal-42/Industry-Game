@@ -582,6 +582,14 @@ var facilities = [
       funds += me.data.asphalt * 8
       funds += me.data.gasoline * 50
       funds += me.data.diesel * 50
+      lifetimeProducts.kerosene += me.data.kerosene
+      lifetimeProducts.naphtha += me.data.naphtha
+      lifetimeProducts.butane += me.data.butane
+      lifetimeProducts.propane += me.data.propane
+      lifetimeProducts.fuel_oil += me.data.fuel_oil
+      lifetimeProducts.asphalt += me.data.asphalt
+      lifetimeProducts.gasoline += me.data.gasoline
+      lifetimeProducts.diesel += me.data.diesel
       me.data.kerosene = 0;
       me.data.naphtha = 0;
       me.data.butane = 0;
@@ -1079,12 +1087,12 @@ var upgrades = [
   },
 
   {
-    name: "Out of Upgrades",
-    text: "Congrats! You have no more upgrades to unlock!",
+    name: "",
+    text: "",
     cost: 0,
     unlock: "",
     unlocked: false,
-    priority: 4,
+    priority: 0,
   },
 ]
 
@@ -1374,6 +1382,25 @@ var corporations = [
     owned: false,
     owns: ["riverBend"],
   },
+];
+
+var objectivesScored = 0;
+var objectives = [
+  {
+    name: "Produce Naphtha",
+    description: "just do it",
+    condition: "lifetimeProducts.naphtha > 0",
+    reward: "getFacility(\"crude_source\").limit += 1; funds += 200",
+    rewardText: "+1 Crude Oil Pump<br>$200",
+  },
+
+  {
+    name: "Get an Upgrade",
+    description: "just do it",
+    condition: "lifetimeUpgrades > 0",
+    reward: "getFacility(\"crude_source\").limit += 1; funds += 200",
+    rewardText: "+1 Crude Oil Pump<br>$200",
+  },
 ]
 
 //World Maps are 32 x 20
@@ -1420,12 +1447,12 @@ game.addTemplate("terrain", [
     ctx.imageSmoothingEnabled = false;
     if(self.refresh || self.render){
       ctx.clearRect(0, 0, 2048, 1280)
-      for(var j = Math.floor(mapTargetY/128)-1, ll = Math.floor(mapTargetY/128)+mapHeight; j < ll; j++){
+      for(var j = Math.floor(mapTargetY/128)-1, ll = (Math.floor(mapTargetY/128)+mapHeight)/zoom; j < ll; j++){
         if(j < 0 || j > 39){
           continue;
         }
         var row = game.objects[myIndex].mapData[j].split("");
-        for(var k = Math.floor(mapTargetX/128)-1, lll = Math.floor(mapTargetX/128)+mapWidth; k < lll; k++){
+        for(var k = Math.floor(mapTargetX/128)-1, lll = (Math.floor(mapTargetX/128)+mapWidth)/zoom; k < lll; k++){
           if(k < 0 || k > row.length){
             continue;
           }
@@ -1496,19 +1523,19 @@ game.addTemplate("terrain", [
             if(intersectors.includes(conduitTextureX)){
               image = game.getTexture(conduitTextureY + "_vv")
 
-              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2*zoom, ((j*16)-mapTargetY/8) * 2*zoom, image.width * 2*zoom, image.height * 2*zoom)
 
               image = game.getTexture(conduitTextureX + "_hh")
 
-              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2*zoom, ((j*16)-mapTargetY/8) * 2*zoom, image.width * 2*zoom, image.height * 2*zoom)
             }else{
               image = game.getTexture(conduitTextureX + "_hh")
 
-              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2*zoom, ((j*16)-mapTargetY/8) * 2*zoom, image.width * 2*zoom, image.height * 2*zoom)
 
               image = game.getTexture(conduitTextureY + "_vv")
 
-              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2, ((j*16)-mapTargetY/8) * 2, image.width * 2, image.height * 2)
+              ctx.drawImage(image, ((k*16)-mapTargetX/8)*2*zoom, ((j*16)-mapTargetY/8) * 2*zoom, image.width * 2*zoom, image.height * 2*zoom)
             }
             continue;
           }
@@ -1517,7 +1544,7 @@ game.addTemplate("terrain", [
           }else{
             var image = game.getTexture(getTile("tile", row[k])[0])
           }
-          ctx.drawImage(image, ((k*16)-mapTargetX/8) * 2, ((j*16)-mapTargetY/8) * 2, 32, 32)
+          ctx.drawImage(image, ((k*16)-mapTargetX/8) * 2*zoom, ((j*16)-mapTargetY/8) * 2*zoom, 32*zoom, 32*zoom)
         }
       }
     }

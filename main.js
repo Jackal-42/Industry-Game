@@ -55,9 +55,10 @@ function notify(text, time){
 
 var tutorial = [
   {
-    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production.</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production. Music: https://www.bensound.com, Sound effects obtained from https://www.zapsplat.com</p> <br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //0
+      retrosoul.play();
       trueIndicatorBoxX = (window.innerWidth/50) + 1
       trueIndicatorBoxY = (window.innerHeight/50) + 9
       trueIndicatorBoxWidth = 60
@@ -485,6 +486,12 @@ var tutorial = [
         trueIndicatorBoxHeight = window.innerHeight + 40
         shownIndicatorBoxWidth = window.innerWidth + 40
         shownIndicatorBoxHeight = window.innerHeight + 40
+        setTimeout(function(){
+          document.getElementById("objectiveDisplay").style.display = "block"
+        }, 260)
+        setTimeout(function(){
+          document.getElementById("objectiveDisplay").style.opacity = "1"
+        }, 300)
         setTimeout(function(){doingTutorial = false; interactBlockBoxBottom.remove(); interactBlockBoxTop.remove();interactBlockBoxLeft.remove();interactBlockBoxRight.remove();
         setTimeout(function(){
           game.getLayer("tutorial").clearFrames = false;
@@ -577,6 +584,12 @@ document.addEventListener("keydown", function (e) {
     checkPlaceableIndex()
     selectPlaceable(previousPlaceables[placeableIndex], true)
   }
+
+
+  if(e.keyCode == 68 && key(17) && key(18)){
+    debug()
+  }
+
 })
 
 //Checks if the mouse has moved away from the temporary tooltip
@@ -632,6 +645,9 @@ window.addEventListener("click", function (e) {
 });
 
 game.getLayer("effects").canvas.addEventListener("click", function (e) {
+  if(!(document.getElementById('centerDisplay').style.display == 'none' && (document.getElementById('objectiveDisplay').style.display == 'none' || document.getElementById('objectiveMax').style.display == 'none'))){
+    return;
+  }
   if(tutorialIndex == 16 || tutorialIndex == 26 || tutorialIndex == 27 || tutorialIndex == 28){
     return;
   }
@@ -1005,6 +1021,12 @@ function placeShip(){
   updateFacilitySelected()
 }
 
+function placeAnySource(){
+  conduitSelected = 'facility';
+  facilitySelected = 'any_source';
+  updateFacilitySelected()
+}
+
 //Collapses and expands the debug menu
 function toggleDebugMenu(){
   if(document.getElementById('debugExpander').innerHTML == '-'){
@@ -1029,10 +1051,18 @@ function toggleGuidebook(){
 
     document.getElementById('guidebookExpander').innerHTML = '+'
     document.getElementById('guidebook').style.display = 'none'
+    document.getElementById('guidebookTitle').style.fontSize = '16px'
+    document.getElementById('guidebookTitle').style.textAlign = 'left'
+    document.getElementById('guidebookWrapper').style.width = '30%'
+    document.getElementById('guidebookWrapper').style.left = '-41%'
   }else{
 
     document.getElementById('guidebookExpander').innerHTML = '-'
     document.getElementById('guidebook').style.display = 'block'
+    document.getElementById('guidebookTitle').style.fontSize = '24px'
+    document.getElementById('guidebookTitle').style.textAlign = 'center'
+    document.getElementById('guidebookWrapper').style.width = '50%'
+    document.getElementById('guidebookWrapper').style.left = '-61%'
   }
 }
 
@@ -1090,6 +1120,9 @@ function checkFacilityShownResources(){
 
 document.getElementById('centerDisplay').style.display = 'none'
 
+var latencyTest = [];
+var oldTime = new Date().getTime();
+const average = (array) => array.reduce((a, b) => a + b) / array.length;
 //The code that is executed each frame
 game.loop = function(){
 
@@ -1161,7 +1194,7 @@ game.loop = function(){
     facilityShownCanvas.getContext("2d").translate(250, 250)
     facilityShownCanvas.getContext("2d").rotate(areas[areaIndex].networks[facilityDisplayedIndex].rotation*(Math.PI/180))
 
-    facilityShownCanvas.getContext("2d").drawImage(game.getTexture(facilityDisplayedData.name), facilityShownWidth/-2, facilityShownHeight/-2, facilityShownWidth, facilityShownHeight)
+    facilityShownCanvas.getContext("2d").drawImage(game.getTexture(facilityDisplayedData.name), (facilityShownWidth/-2), (facilityShownHeight/-2), facilityShownWidth, facilityShownHeight)
 
     facilityShownCanvas.getContext("2d").restore()
     for(var i = 0, l = facilityDisplayedData.ports.length; i < l; i++){
@@ -1244,28 +1277,42 @@ game.loop = function(){
   }
 
   //Scrolling on the map
+  if(key(187) && zoom < 1.2){
+    zoom += 0.005
+    scrollX += offsetWidth * 0.01
+    scrollY += offsetHeight * 0.01
+    game.mouseX /= 1.005
+    game.mouseY /= 1.005
+  }
+  if(key(189) && zoom > 0.8){
+    zoom -= 0.005
+    scrollX -= offsetWidth * 0.01
+    scrollY -= offsetHeight * 0.01
+    game.mouseX *= 1.005
+    game.mouseY *= 1.005
+  }
   if(key("left")){
     if(lockIndicatorBox){mouseDown = false}
     if(scrollX > 0){
       scrollX += -23
-      if(scrollX < 0){scrollX = 0}
     }
   }
   if(key("right")){
     if(lockIndicatorBox){mouseDown = false}
     scrollX += 23
-    if(scrollX/4 > 2048 - offsetWidth){scrollX = (2048 - offsetWidth)*4}
   }
   if(key("up")){
     if(lockIndicatorBox){mouseDown = false}
     scrollY += -23
-    if(scrollY < 0){scrollY = 0}
   }
   if(key("down")){
     if(lockIndicatorBox){mouseDown = false}
     scrollY += 23
-    if(scrollY/4 > 1280 - offsetHeight){scrollY = (1280 - offsetHeight)*4}
   }
+  if(scrollX < 0){scrollX = 0}
+  if(scrollY < 0){scrollY = 0}
+  if(scrollX/4 > (2048 - offsetWidth/zoom)){scrollX = (2048 - offsetWidth/zoom)*4}
+  if(scrollY/4 > (1280 - offsetHeight/zoom)){scrollY = (1280 - offsetHeight/zoom)*4}
 
 
   // if(document.getElementById('centerDisplay').style.opacity == "0"){
@@ -1316,17 +1363,33 @@ game.loop = function(){
     indicatorBoxWidth = shownIndicatorBoxWidth
     indicatorBoxHeight = shownIndicatorBoxHeight
   }
+  if(!lockIndicatorBox){
+    interactBlockBoxLeft.style.width = "100vw"
+    interactBlockBoxRight.style.width = "100vw"
+    interactBlockBoxTop.style.height = "100vh"
+    interactBlockBoxBottom.style.height = "100vh"
 
-  interactBlockBoxLeft.style.left = trueIndicatorBoxX - window.innerWidth + "px"
-  interactBlockBoxRight.style.left = trueIndicatorBoxX + trueIndicatorBoxWidth + "px"
-  interactBlockBoxTop.style.top = trueIndicatorBoxY - window.innerWidth + "px"
-  interactBlockBoxBottom.style.top = trueIndicatorBoxY + trueIndicatorBoxHeight + "px"
+    interactBlockBoxLeft.style.left = trueIndicatorBoxX - window.innerWidth + "px"
+    interactBlockBoxRight.style.left = trueIndicatorBoxX + trueIndicatorBoxWidth + "px"
+    interactBlockBoxTop.style.top = trueIndicatorBoxY - window.innerWidth + "px"
+    interactBlockBoxBottom.style.top = trueIndicatorBoxY + trueIndicatorBoxHeight + "px"
+  }else{
+    interactBlockBoxLeft.style.width = 100*(window.devicePixelRatio/1.5) + "vw"
+    interactBlockBoxRight.style.width = 100*(window.devicePixelRatio/1.5) + "vw"
+    interactBlockBoxTop.style.height = 100*(window.devicePixelRatio/1.5) + "vh"
+    interactBlockBoxBottom.style.height = 100*(window.devicePixelRatio/1.5) + "vh"
+
+    interactBlockBoxLeft.style.left = trueIndicatorBoxX/(window.devicePixelRatio/1.5) - window.innerWidth*(window.devicePixelRatio/1.5) + "px"
+    interactBlockBoxRight.style.left = trueIndicatorBoxX/(window.devicePixelRatio/1.5) + trueIndicatorBoxWidth/(window.devicePixelRatio/1.5) + "px"
+    interactBlockBoxTop.style.top = trueIndicatorBoxY/(window.devicePixelRatio/1.5) - window.innerHeight*(window.devicePixelRatio/1.5) + "px"
+    interactBlockBoxBottom.style.top = trueIndicatorBoxY/(window.devicePixelRatio/1.5) + trueIndicatorBoxHeight/(window.devicePixelRatio/1.5) + "px"
+  }
 
   if(doingTutorial){
     ctx = game.getLayer("tutorial").context
     ctx.globalAlpha = 0.75
     ctx.fillStyle="black"
-    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight)
+    ctx.fillRect(0, 0, window.innerWidth*(window.devicePixelRatio/1.5), window.innerHeight*(window.devicePixelRatio/1.5))
     ctx.globalAlpha = 1
     ctx.fillStyle = "rgb(255, 255, "+(Math.sin(framesElapsed/10)*60)+")"
     ctx.strokeStyle = ctx.fillStyle
@@ -1334,18 +1397,30 @@ game.loop = function(){
 
     ctx.lineWidth = 4;
     ctx.beginPath();
-    ctx.moveTo(window.innerWidth * 0.5, window.innerHeight * 0.875)
-    ctx.lineTo(indicatorBoxX + indicatorBoxWidth/2, indicatorBoxY + indicatorBoxHeight/2)
+    ctx.moveTo(window.innerWidth*(window.devicePixelRatio/1.5) * 0.5, window.innerHeight*(window.devicePixelRatio/1.5) * 0.875)
+    if(!lockIndicatorBox){
+      modIndicatorX = indicatorBoxX*(window.devicePixelRatio/1.5)
+      modIndicatorY = indicatorBoxY*(window.devicePixelRatio/1.5)
+      modIndicatorWidth = indicatorBoxWidth*(window.devicePixelRatio/1.5)
+      modIndicatorHeight = indicatorBoxHeight*(window.devicePixelRatio/1.5)
+    }else{
+      modIndicatorX = indicatorBoxX
+      modIndicatorY = indicatorBoxY
+      modIndicatorWidth = indicatorBoxWidth
+      modIndicatorHeight = indicatorBoxHeight
+    }
+
+    ctx.lineTo(modIndicatorX + modIndicatorWidth/2, modIndicatorY + modIndicatorHeight/2)
     if(drawIndicatorLine){ctx.stroke()}
 
-    ctx.fillRect(indicatorBoxX - Math.sin(framesElapsed/10) - 4, indicatorBoxY - Math.sin(framesElapsed/10) - 4, indicatorBoxWidth + Math.sin(framesElapsed/10)*2 + 8, indicatorBoxHeight + Math.sin(framesElapsed/10)*2 + 8)
-    ctx.clearRect(indicatorBoxX - Math.sin(framesElapsed/10), indicatorBoxY - Math.sin(framesElapsed/10), indicatorBoxWidth + Math.sin(framesElapsed/10)*2, indicatorBoxHeight + Math.sin(framesElapsed/10)*2)
+    ctx.fillRect(modIndicatorX - Math.sin(framesElapsed/10) - 4, modIndicatorY - Math.sin(framesElapsed/10) - 4, modIndicatorWidth + Math.sin(framesElapsed/10)*2 + 8, modIndicatorHeight + Math.sin(framesElapsed/10)*2 + 8)
+    ctx.clearRect(modIndicatorX - Math.sin(framesElapsed/10), modIndicatorY - Math.sin(framesElapsed/10), modIndicatorWidth + Math.sin(framesElapsed/10)*2, modIndicatorHeight + Math.sin(framesElapsed/10)*2)
 
   }
   ctx = game.getLayer("terrain").context
 
 
-  ctx.drawImage(document.getElementById("terrainCanvas"), Math.round(scrollX/4) * -1, Math.round(scrollY/4) * -1, 2048, 1280)
+  ctx.drawImage(document.getElementById("terrainCanvas"), (Math.round(scrollX/4) * -1)*zoom, (Math.round(scrollY/4) * -1)*zoom, 2048*zoom, 1280*zoom )
 
   ctx = game.getLayer("main").context
 
@@ -1357,9 +1432,9 @@ game.loop = function(){
       ctx.save()
       ctx.globalCompositeOperation = "destination-over"
 
-      ctx.translate((activeOverlay[i].x)-scrollX/4+16, (activeOverlay[i].y)-scrollY/4+16)
+      ctx.translate(((activeOverlay[i].x)-scrollX/4+16)*zoom, ((activeOverlay[i].y)-scrollY/4+16)*zoom)
       ctx.rotate(activeOverlay[i].rotation)
-      ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16, -16, 32, 32)
+      ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16*zoom, -16*zoom, 32*zoom, 32*zoom)
       ctx.restore()
     }
   }
@@ -1417,7 +1492,7 @@ game.loop = function(){
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds or removes pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
-  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && conduitSelected != "facility" && conduitSelected != "pointer" && !(mouseX == previousPipeX && mouseY == previousPipeY)){
+  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && (document.getElementById('objectiveDisplay').style.display == 'none' || document.getElementById('objectiveMax').style.display == 'none') && conduitSelected != "facility" && conduitSelected != "pointer" && !(mouseX == previousPipeX && mouseY == previousPipeY)){
 
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
@@ -1454,7 +1529,25 @@ game.loop = function(){
 
 
   if((framesElapsed + 5) % 15 == 1){
+    var newTime = new Date().getTime()
+    latencyTest.push(newTime-oldTime)
+    oldTime = newTime
+    if(latencyTest.length > 4){
+      latencyTest.shift()
+    }
+    if(debugging){
+      document.getElementById("latency").innerHTML = (average(latencyTest)/15).toFixed(2)
+    }
     checkUpgrades()
+    if(objectivesScored < objectives.length && eval(objectives[objectivesScored].condition)){
+      expandObjectiveDisplay()
+      document.getElementById("claimObjective").style.opacity = "1"
+      // eval(objectives[objectivesScored].reward)
+      // objectivesScored++
+      // updateObjectives()
+    }else{
+      document.getElementById("claimObjective").style.opacity = "0.3"
+    }
   }
 
   //Transfers items along working links. Evaluates 4 times per second.
@@ -1913,7 +2006,7 @@ game.loop = function(){
         continue;
       }
       ctx.save()
-      ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
+      ctx.translate((((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16)*zoom,( ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)*zoom)
       ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
       var facilityTextureName = areas[areaIndex].networks[i].name
       if(areas[areaIndex].networks[i].name == "t_valve"){
@@ -1924,24 +2017,24 @@ game.loop = function(){
         }
       }
       var facilityTexture = game.getTexture(facilityTextureName)
-      ctx.drawImage(facilityTexture, -16, -16, facilityTexture.width * 2, facilityTexture.height * 2)
+      ctx.drawImage(facilityTexture, -16*zoom, -16*zoom, facilityTexture.width * 2*zoom, facilityTexture.height * 2*zoom)
       ctx.restore()
       ctx.save()
       if(areas[areaIndex].networks[i].warnings.length >= 1){
-        ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
+        ctx.translate((((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4))*zoom,( ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))*zoom)
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[areaIndex].networks[i].name){
             if(areas[areaIndex].networks[i].rotation == 0){
-              ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].width*32, -8, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), (-8 + facilities[j].width*32)*zoom, -8*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 90){
-              ctx.drawImage(game.getTexture("warning"), 24, -8, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), 24*zoom, -8*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 180){
-              ctx.drawImage(game.getTexture("warning"), 24, 24 - facilities[j].height*32, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), 24*zoom, (24 - facilities[j].height*32)*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 270){
-              ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), (-8 + facilities[j].height*32)*zoom, (24 - facilities[j].width*32)*zoom, 16*zoom, 16*zoom)
             }
           }
         }
@@ -1949,7 +2042,7 @@ game.loop = function(){
       ctx.restore()
       ctx.save()
       if(areas[areaIndex].networks[i].alerts.length >= 1){
-        ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
+        ctx.translate((((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4))*zoom,( ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))*zoom)
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[areaIndex].networks[i].name){
             var offset1 = -8
@@ -1959,16 +2052,16 @@ game.loop = function(){
               offset2 = 6
             }
             if(areas[areaIndex].networks[i].rotation == 0){
-              ctx.drawImage(game.getTexture("alert"), offset1 + facilities[j].width*32, -8, 16, 16)
+              ctx.drawImage(game.getTexture("alert"), (offset1 + facilities[j].width*32)*zoom, -8*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 90){
-              ctx.drawImage(game.getTexture("alert"), offset2, -8, 16, 16)
+              ctx.drawImage(game.getTexture("alert"), offset2*zoom, -8*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 180){
-              ctx.drawImage(game.getTexture("alert"), offset2, 24 - facilities[j].height*32, 16, 16)
+              ctx.drawImage(game.getTexture("alert"), offset2*zoom, (24 - facilities[j].height*32)*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 270){
-              ctx.drawImage(game.getTexture("alert"), offset1 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
+              ctx.drawImage(game.getTexture("alert"), (offset1 + facilities[j].height*32)*zoom, (24 - facilities[j].width*32)*zoom, 16*zoom, 16*zoom)
             }
           }
         }
@@ -1984,7 +2077,7 @@ game.loop = function(){
   ctx.imageSmoothingEnabled = false
 
   ctx.globalAlpha = 0.6;
-  ctx.drawImage(document.getElementById("waterCanvas"), (scrollX/4) * -1, (scrollY/4) * -1, 2048, 1280)
+  ctx.drawImage(document.getElementById("waterCanvas"), (scrollX/4) * -1*zoom, (scrollY/4) * -1*zoom, 2048*zoom, 1280*zoom)
   ctx.globalAlpha = 1;
 
   //Randomly spawns ripples
@@ -1995,9 +2088,9 @@ game.loop = function(){
       ctx.globalAlpha = (2-(activeOverlay[i].data.age/100))
       ctx.beginPath()
       if(activeOverlay[i].rotation !== 0){
-        ctx.arc((activeOverlay[i].x*32)-scrollX/4 + 16, (activeOverlay[i].y*32)-scrollY/4 + 16, (1 + activeOverlay[i].data.age/8)*4, 0, 2 * Math.PI);
+        ctx.arc(((activeOverlay[i].x*32)-scrollX/4 + 16)*zoom, ((activeOverlay[i].y*32)-scrollY/4 + 16)*zoom, (1 + activeOverlay[i].data.age/8)*4*zoom, 0, 2 * Math.PI);
       }else{
-        ctx.arc((activeOverlay[i].x*32)-scrollX/4 + 16, (activeOverlay[i].y*32)-scrollY/4 + 16, 1 + activeOverlay[i].data.age/8, 0, 2 * Math.PI);
+        ctx.arc(((activeOverlay[i].x*32)-scrollX/4 + 16)*zoom, ((activeOverlay[i].y*32)-scrollY/4 + 16)*zoom, (1 + activeOverlay[i].data.age/8)*zoom, 0, 2 * Math.PI);
       }
       ctx.stroke()
       if(activeOverlay[i].rotation !== 0){
@@ -2022,7 +2115,7 @@ game.loop = function(){
         continue;
       }
       ctx.save()
-      ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)
+      ctx.translate((((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4) + 16)*zoom,( ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4) + 16)*zoom)
 
       ctx.rotate(areas[areaIndex].networks[i].rotation * (Math.PI/180))
       var facilityTextureName = areas[areaIndex].networks[i].name
@@ -2034,7 +2127,7 @@ game.loop = function(){
         }
       }
       var facilityTexture = game.getTexture(facilityTextureName)
-      ctx.drawImage(facilityTexture, -16, -16, facilityTexture.width * 2, facilityTexture.height * 2)
+      ctx.drawImage(facilityTexture, -16*zoom, -16*zoom, facilityTexture.width * 2*zoom, facilityTexture.height * 2*zoom)
       ctx.restore()
       if(framesElapsed % 4 == 1 && Math.random() < 0.012){
         var ripplePoints = rotate(0, 0, 0.5, 1.5, areas[areaIndex].networks[i].rotation*-1)
@@ -2042,20 +2135,20 @@ game.loop = function(){
       }
       ctx.save()
       if(areas[areaIndex].networks[i].warnings.length >= 1){
-        ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4), ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4))
+        ctx.translate(((areas[areaIndex].networks[i].points[0][0] * 32) - scrollX/4)*zoom, ((areas[areaIndex].networks[i].points[0][1] * 32) - scrollY/4)*zoom)
         for(var j = 0, jl = facilities.length; j < jl; j++){
           if(facilities[j].name == areas[areaIndex].networks[i].name){
             if(areas[areaIndex].networks[i].rotation == 0){
-              ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].width*32, -8, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), (-8 + facilities[j].width*32)*zoom, -8*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 90){
-              ctx.drawImage(game.getTexture("warning"), 24, -8, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), 24*zoom, -8*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 180){
-              ctx.drawImage(game.getTexture("warning"), 24, 24 - facilities[j].height*32, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), 24*zoom, (24 - facilities[j].height*32)*zoom, 16*zoom, 16*zoom)
             }
             if(areas[areaIndex].networks[i].rotation == 270){
-              ctx.drawImage(game.getTexture("warning"), -8 + facilities[j].height*32, 24 - facilities[j].width*32, 16, 16)
+              ctx.drawImage(game.getTexture("warning"), (-8 + facilities[j].height*32)*zoom, (24 - facilities[j].width*32)*zoom, 16*zoom, 16*zoom)
             }
           }
         }
@@ -2069,11 +2162,11 @@ game.loop = function(){
       ctx.save()
       ctx.globalCompositeOperation = "source-over"
 
-      ctx.translate((activeOverlay[i].x*32)-scrollX/4+16, (activeOverlay[i].y*32)-scrollY/4+16)
+      ctx.translate(((activeOverlay[i].x*32)-scrollX/4+16)*zoom, ((activeOverlay[i].y*32)-scrollY/4+16)*zoom)
 
       ctx.rotate(activeOverlay[i].rotation)
-      if(activeOverlay[i].type == "arrow"){ctx.translate(0, Math.sin(framesElapsed/20)*(2))}
-      ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16, -16, 32, 32)
+      if(activeOverlay[i].type == "arrow"){ctx.translate(0, Math.sin(framesElapsed/20)*(2)*zoom)}
+      ctx.drawImage(game.getTexture(activeOverlay[i].texture), -16*zoom, -16*zoom, 32*zoom, 32*zoom)
       if(framesElapsed % 4 == 1 && Math.random() < 0.005 && activeOverlay[i].type == "pipe"){
         activeOverlay.push(new Overlay("ripple", "null", activeOverlay[i].x, activeOverlay[i].y, 0))
       }
@@ -2104,12 +2197,12 @@ game.loop = function(){
     var facilityShownHeight = 32
     ctx.imageSmoothingEnabled = false
     ctx.save()
-    ctx.translate((mouseX*32)-scrollX/4 + 16, (mouseY*32)-scrollY/4 + 16)
+    ctx.translate(((mouseX*32)-scrollX/4 + 16)*zoom, ((mouseY*32)-scrollY/4 + 16)*zoom)
     ctx.rotate(facilityRotation * (Math.PI/180))
 
     for(var i = 0, l = facilitySelectedData.ports.length; i < l; i++){
       ctx.save()
-      ctx.translate(((facilityShownWidth/-2)) + arrowWidth*facilitySelectedData.ports[i].x + (arrowWidth/2), ((facilityShownHeight/-2)) + arrowWidth*facilitySelectedData.ports[i].y + (arrowWidth/2))
+      ctx.translate((((facilityShownWidth/-2)) + arrowWidth*facilitySelectedData.ports[i].x + (arrowWidth/2))*zoom,( ((facilityShownHeight/-2)) + arrowWidth*facilitySelectedData.ports[i].y + (arrowWidth/2))*zoom)
 
       var arrowRotation = 0;
       if(facilitySelectedData.ports[i].x == facilitySelectedData.width){arrowRotation = (270*(Math.PI/180))}else if(facilitySelectedData.ports[i].x == -1){arrowRotation = (90*(Math.PI/180))}else if(facilitySelectedData.ports[i].y == -1){arrowRotation = (180*(Math.PI/180))}
@@ -2121,31 +2214,31 @@ game.loop = function(){
       if(facilitySelectedData.ports[i].gender[0] == "output" || (facilitySelectedData.ports[i].gender[0] == "modular" && (framesElapsed/20) % (Math.PI*2) < (Math.PI))){
         ctx.rotate(180*(Math.PI/180))
 
-        ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2)*zoom, ((arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20))*zoom, arrowWidth*zoom, arrowWidth*zoom)
 
         if(facilitySelectedData.ports[i].gender[0] == "modular"){
-          ctx.translate(0, (arrowWidth/-4.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
+          ctx.translate(0, ((arrowWidth/-4.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))*zoom)
         }else{
-          ctx.translate(0, (arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))
+          ctx.translate(0, ((arrowWidth/-3.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) - (arrowWidth/4))*zoom)
         }
 
         ctx.rotate(arrowRotation*-1)
         ctx.rotate(180*(Math.PI/180))
         ctx.rotate(facilityRotation*(Math.PI/180)*-1)
 
-        ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+        ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2)*zoom, (arrowWidth/-2)*zoom, arrowWidth*zoom, arrowWidth*zoom)
 
       }else{
 
-        ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2), (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20), arrowWidth, arrowWidth)
+        ctx.drawImage(game.getTexture("facility_arrow"), (arrowWidth/-2)*zoom, ((arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20))*zoom, arrowWidth*zoom, arrowWidth*zoom)
 
-        ctx.translate(0, (arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))
+        ctx.translate(0, ((arrowWidth/-1.7) + Math.sin(framesElapsed/20)*(arrowWidth/20) + (arrowWidth))*zoom)
 
         ctx.rotate(arrowRotation*-1)
         // ctx.rotate(180*(Math.PI/180))
         ctx.rotate(facilityRotation*(Math.PI/180)*-1)
 
-        ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2), (arrowWidth/-2), arrowWidth, arrowWidth)
+        ctx.drawImage(game.getTexture(portTypeImage), (arrowWidth/-2)*zoom, (arrowWidth/-2)*zoom, arrowWidth*zoom, arrowWidth*zoom)
       }
       ctx.restore()
     }
@@ -2158,7 +2251,7 @@ game.loop = function(){
     cursorWidth = facilitySelectedData.width*32
     cursorHeight = facilitySelectedData.height*32
     ctx.save()
-    ctx.translate((mouseX*32)-scrollX/4 + 16, (mouseY*32)-scrollY/4 + 16)
+    ctx.translate(((mouseX*32)-scrollX/4 + 16)*zoom, ((mouseY*32)-scrollY/4 + 16)*zoom)
     ctx.rotate(facilityRotation * (Math.PI/180))
     var facilityPlotX = Math.floor((game.mouseX + scrollX/4)/(32))
     var facilityPlotY = Math.floor((game.mouseY + scrollY/4)/(32))
@@ -2186,16 +2279,16 @@ game.loop = function(){
     }
 
     if(validPlot){
-      ctx.drawImage(game.getTexture(facilitySelectedTexture), -16, -16, cursorWidth, cursorHeight)
+      ctx.drawImage(game.getTexture(facilitySelectedTexture), -16*zoom, -16*zoom, cursorWidth*zoom, cursorHeight*zoom)
     }else{
-      ctx.drawImage( tint( facilitySelectedTexture, "red", 0.5), -16, -16, cursorWidth, cursorHeight)
+      ctx.drawImage( tint( facilitySelectedTexture, "red", 0.5), -16*zoom, -16*zoom, cursorWidth*zoom, cursorHeight*zoom)
     }
 
 
     ctx.restore()
   }else{
     rotationDisplay.style.display = "none"
-    ctx.fillRect((mouseX*32)-scrollX/4, (mouseY*32)-scrollY/4, cursorWidth, cursorHeight)
+    ctx.fillRect(((mouseX*32)-scrollX/4)*zoom, ((mouseY*32)-scrollY/4)*zoom, cursorWidth*zoom, cursorHeight*zoom)
   }
 
   ctx = game.getLayer("water").context

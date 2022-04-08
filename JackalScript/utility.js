@@ -5,6 +5,7 @@ String.prototype.replaceAt = function(index, replacement) {
 
 
 var keys;
+var zoom = 1;
 
 //Adds listeners to detect when keys are pressed and depressed :( and puts the results in an array indentified by keycode
 
@@ -35,8 +36,8 @@ function Game(id){
   this.mouseDown = false;
   document.body.appendChild(this.window)
   this.window.addEventListener('mousemove', function(e){
-    eval(this.id).mouseX = e.clientX - this.offsetLeft
-    eval(this.id).mouseY = e.clientY - this.offsetTop
+    eval(this.id).mouseX = ((e.clientX - this.offsetLeft)*(window.devicePixelRatio/1.5))/zoom
+    eval(this.id).mouseY = ((e.clientY - this.offsetTop)*(window.devicePixelRatio/1.5))/zoom
     // console.log(eval(this.id).mouseX + " , " + eval(this.id).mouseY)
   })
   this.window.addEventListener('mousedown', function(e){

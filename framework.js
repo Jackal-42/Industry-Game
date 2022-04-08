@@ -33,6 +33,13 @@ var doingTutorial = true;
 var lockIndicatorBox = false;
 var drawIndicatorLine = true;
 
+//stats
+var lifetimeProducts = {};
+for(var i = 0, l = fluids.length; i < l; i++){
+  eval("lifetimeProducts."+fluids[i]+" = 0");
+}
+var lifetimeUpgrades = 0;
+
 
 //KEEP
 game.addTexture("selector", "docs/assets/selector.png")
@@ -372,9 +379,8 @@ var fadeOpacity = 0;
 var fading = false;
 var evalOnFade = "";
 
-var debugging = true;
+var debugging = false;
 var logPipes = false;
-var windowScale = 1;
 
 //progression
 var upgradeNotified = false
@@ -448,7 +454,7 @@ function loadArea(id){
   }
   game.getObject('baseLayer').render = true;
   game.getObject('waterLayer').render = true;
-  if(debugging){updateNetworkLog()};
+  if(logPipes){updateNetworkLog()};
 }
 
 //Only used in the debug menu
@@ -465,13 +471,12 @@ function toggleMenu(menu){
 
 var offsetHeight = 0;
 var offsetWidth = 0;
-
 window.addEventListener('resize', setWindowScale)
 
 //Keeps track of the size of the window and scales the canvas accordingly to make sure that the game does not render more than it needs to
 function setWindowScale(){
-  offsetWidth = game.window.offsetWidth
-  offsetHeight = game.window.offsetHeight
+  offsetWidth = game.window.offsetWidth*(window.devicePixelRatio/1.5)
+  offsetHeight = game.window.offsetHeight*(window.devicePixelRatio/1.5)
 
   for(var i = 0, l = game.layers.length; i < l; i++){
     game.layers[i].canvas.width = offsetWidth
@@ -479,6 +484,10 @@ function setWindowScale(){
   }
 }
 setWindowScale()
+for(var i = 0, l = game.layers.length; i < l; i++){
+  game.layers[i].canvas.width = offsetWidth
+  game.layers[i].canvas.height = offsetHeight
+}
 
 // Make the DIV element draggable:
 dragElement(document.getElementById("debug"));
@@ -779,9 +788,6 @@ hotbarMenu.innerHTML = `
 <!-- <button id="hotbar_any_source" savestate="198px" style="left: 198px;" class="hotbarButton" onclick="selectPlaceable('any_source')"><img class="clickityElement" src="docs/assets/any_source.png"></button> -->
 
 </div>
-
-
-
 `
 
 game.window.appendChild(hotbarMenu)
@@ -821,8 +827,8 @@ unlockHotbarButton("hotbar_gas_processor")
 unlockHotbarButton("hotbar_residue_processor")
 unlockHotbarButton("hotbar_hydrotreater")
 unlockHotbarButton("hotbar_crude_source")
-// unlockHotbarButton("hotbar_any_source")
 unlockHotbarButton("hotbar_hydrogen_source")
+// unlockHotbarButton("hotbar_any_source")
 
 
 
@@ -897,7 +903,7 @@ rightMenu.innerHTML = `
 
   <button id="guidebookExpander" style="position: absolute; right: 3px; top: 3px;" onclick="toggleGuidebook()">-</button>
 
-  <p style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; padding-top: 4%; width: 101%; margin-bottom: 0px; padding-bottom: 0px; text-align: center; margin-top: -4px; background-color: gray;\">GUIDEBOOK</p>
+  <p id="guidebookTitle" style=\"font-family: \'Pixellari\'; font-size: 24px; font-smooth: never; padding-top: 4%; width: 101%; margin-bottom: 0px; padding-bottom: 0px; text-align: center; margin-top: -4px; background-color: gray;\">GUIDEBOOK</p>
 
   <div id="guidebook">
 
@@ -911,6 +917,7 @@ rightMenu.innerHTML = `
       <p>E: Toggle Inventory</p>
       <p>Shift+E: Toggle Full Inventory</p>
       <p>>/<: Recently Used Items</p>
+      <p>+/-: Zoom</p>
       <p>P: Pipe Tool</p>
       <p>Shift+Click (With Pipe Tool): Erase</p>
     </div>
@@ -933,7 +940,7 @@ rightMenu.innerHTML = `
 </div>
 
 
-<div id="politicsButtonWrapper" style="position: absolute; left: -61%; width: 60%; bottom: 2%; background-color: rgba(55, 55, 55, 0.4);">
+<div id="politicsButtonWrapper" style="position: absolute; left: -61%; width: 60%; bottom: 2%;">
 
 </div>
 
@@ -946,11 +953,11 @@ rightMenu.innerHTML = `
 <div id="upgrades" style="margin-top: -4%; height: 22vw;">
 
 
-<button class="upgradeButton">test1</button>
+<button class="upgradeButton">placeholder</button>
 
-<button class="upgradeButton">test2</button>
+<button class="upgradeButton">placeholder</button>
 
-<button class="upgradeButton">test3</button>
+<button class="upgradeButton">placeholder</button>
 
 
 </div>
@@ -982,9 +989,11 @@ function updateUpgrades(){
   var upgradeButtonIndex = 0
   upgradeIndexes = []
   for(var i = 0, l = upgrades.length; i < l; i++){
+    var costString = "$" + commas(upgrades[i].cost)
+    if(upgrades[i].cost == 0){costString = ""}
     if(!upgrades[i].unlocked){
-      upgradeDiv.children[upgradeButtonIndex].innerHTML = "<p class=\"upgradeTitle\">"+upgrades[i].name+"</p>  <p class=\"upgradeText\">"+upgrades[i].text+"</p> <p class=\"upgradeCost\">$" + commas(upgrades[i].cost) + "</p>"
-      eval("upgradeDiv.children[upgradeButtonIndex].onclick = function(){if(funds >= " + upgrades[i].cost + "){funds -= "+ upgrades[i].cost +";" + upgrades[i].unlock + "; upgrades["+i+"].unlocked = true; updateUpgrades();}}")
+      upgradeDiv.children[upgradeButtonIndex].innerHTML = "<p class=\"upgradeTitle\">"+upgrades[i].name+"</p>  <p class=\"upgradeText\">"+upgrades[i].text+"</p> <p class=\"upgradeCost\">" + costString + "</p>"
+      eval("upgradeDiv.children[upgradeButtonIndex].onclick = function(){if(funds >= " + upgrades[i].cost + "){funds -= "+ upgrades[i].cost +";" + upgrades[i].unlock + "; upgrades["+i+"].unlocked = true; updateUpgrades(); lifetimeUpgrades++}}")
       upgradeIndexes.push(i)
       upgradeButtonIndex++
     }
@@ -1000,7 +1009,7 @@ updateUpgrades()
 function checkUpgrades(){
   var upgradeDiv = document.getElementById("upgrades")
   for(var i = 0; i < upgradeIndexes.length; i++){
-    if(upgrades[upgradeIndexes[i]].cost > funds){
+    if(upgrades[upgradeIndexes[i]].cost > funds || upgrades[upgradeIndexes[i]].cost == 0){
       upgradeDiv.children[i].style.filter = "opacity(0.5)"
     }else{
       upgradeDiv.children[i].style.filter = "opacity(1)"
@@ -1036,7 +1045,7 @@ game.window.appendChild(fundsDisplay)
 
 var rotationDisplay = document.createElement('div')
 
-rotationDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; text-align: center; bottom: 0px; left: 16px; user-select: none; color: white;\">R/Z: Rotate Facility</p>`
+rotationDisplay.innerHTML = `<p style=\"font-family: \'Pixellari\'; font-size: 32px; font-smooth: never; position: absolute; text-align: center; bottom: 0px; left: 0px; width: 100%; user-select: none; color: white;\">R/Z: Rotate Facility</p>`
 
 game.window.appendChild(rotationDisplay)
 
@@ -1069,6 +1078,47 @@ centerDisplay.innerHTML = `
 
 
 game.window.appendChild(centerDisplay)
+
+var objectiveDisplay = document.createElement('div')
+objectiveDisplay.id = "objectiveDisplay"
+
+objectiveDisplay.innerHTML = `
+
+<div id="objectiveMax">
+  <button id="closeObjectiveDisplay" onclick="if(!doingTutorial && !eval(objectives[objectivesScored].condition)){document.getElementById(\'objectiveDisplay\').style.bottom = \'1%\'; document.getElementById(\'objectiveDisplay\').style.left = \'1%\'; document.getElementById(\'objectiveDisplay\').style.boxShadow = \'0px 0px 0px 1600px rgba(0, 0, 0, 0)\'; document.getElementById(\'objectiveDisplay\').style.width = \'15%\'; document.getElementById(\'objectiveDisplay\').style.height = \'6vw\'; document.getElementById(\'objectiveMax\').style.display = \'none\'; document.getElementById(\'objectiveMin\').style.display = \'block\';document.getElementById(\'objectiveDisplay\').style.cursor = \'pointer\';setTimeout(function(){document.getElementById(\'objectiveDisplay\').onclick=function(){expandObjectiveDisplay()}}, 20)}" style='width: 4vh; padding-top: 4vh; position: absolute; top: 1%; right: 1%; background-color: tan; border: 1px solid black; cursor: pointer;'><img src='docs/assets/x_button.png' style='position: absolute; width: 100%; left: 0px; top: 0px; image-rendering: auto; z-index: 4;'></button>
+
+  <p style="font-family: \'Pixellari\'; font-size: 4vh; margin-top: 0%; width: 100%; text-align: center; color: rgb(42, 42, 42);">Current Objective</p>
+  <p id="currentObjective" style="font-family: \'Pixellari\'; font-size: 6vh; margin-top: 0vh; width: 100%; text-align: center;">placeholder</p>
+  <p id="objectiveDescription" style="font-family: \'Pixellari\'; margin-top: 0vh; font-size: 3vh; width: 100%; text-align: center; color: rgb(69, 69, 69);">lorem ipsum dolor sit amet</p>
+  <p style="font-family: \'Pixellari\'; font-size: 3vh; width: 100%; text-align: center; margin-top: 4vh;">Rewards:<br><span id="objectiveRewards"></span></p>
+  <button id="claimObjective" style="position: absolute; left: 20%; width: 60%; bottom: 2%; border: 2px solid black; font-family: \'Pixellari\'; font-size: 5vh; cursor: pointer; transition: opacity 300ms;" onclick="eval(objectives[objectivesScored].reward);objectivesScored++;updateObjectives();">Claim Reward</button>
+</div>
+
+<div id="objectiveMin" style="display: none;">
+  <p style="font-family: \'Pixellari\'; width: 100%; text-align: center;"><b>Current Objective</b></p>
+  <p id="currentObjectiveMin" style="font-family: \'Pixellari\'; width: 100%; text-align: center;">placeholder</p>
+  <p style="font-family: \'Pixellari\'; width: 100%; text-align: center;"><i>Click to open expanded view</i></p>
+</div>
+
+`
+
+game.window.appendChild(objectiveDisplay)
+
+function expandObjectiveDisplay(){
+  document.getElementById('objectiveDisplay').style.bottom = '30%'; document.getElementById('objectiveDisplay').style.left = '30%'; document.getElementById('objectiveDisplay').style.boxShadow = '0px 0px 0px 1600px rgba(0, 0, 0, 0.6)'; document.getElementById('objectiveDisplay').style.width = '40%'; document.getElementById('objectiveDisplay').style.height = '40%'; document.getElementById('objectiveMax').style.display = 'block';
+  document.getElementById('objectiveMin').style.display = 'none';
+  document.getElementById('objectiveDisplay').style.cursor = '';
+  document.getElementById('objectiveDisplay').onclick = function(){};
+}
+
+function updateObjectives(){
+  if(objectivesScored == objectives.length){document.getElementById('objectiveDisplay').style.display = "none"; return}
+  document.getElementById("currentObjective").innerHTML = objectives[objectivesScored].name
+  document.getElementById("currentObjectiveMin").innerHTML = objectives[objectivesScored].name
+  document.getElementById("objectiveDescription").innerHTML = objectives[objectivesScored].description
+  document.getElementById("objectiveRewards").innerHTML = objectives[objectivesScored].rewardText
+}
+updateObjectives()
 
 var facilityShownCanvas = document.getElementById("facilityShownCanvas")
 facilityShownCanvas.getContext("2d").fillRect(20, 20, 20, 20)
@@ -1412,7 +1462,8 @@ function connectPipes(x1, y1, x2, y2){
     return;
   }
 
-  console.log("test");
+  // clank.currentTime = 0;
+  // clank.play()
 
   var waterX = x1
   var waterY = y1
@@ -1753,7 +1804,7 @@ function connectPipes(x1, y1, x2, y2){
       }
     }
 
-    if(debugging){updateNetworkLog()}
+    if(logPipes){updateNetworkLog()}
   }
 
   if(!guideArrowsShown && !endMouseHold){
@@ -2171,7 +2222,7 @@ function addPipeNetwork(endPoints, useTrueCoords, portEndPoints){
     return true;
   }
 
-  if(debugging){updateNetworkLog()};
+  if(logPipes){updateNetworkLog()};
   return false;
 
 }
@@ -2267,7 +2318,7 @@ function addGhostNetwork(endPoints, connectionPoints){
     document.getElementById("pipeLog").innerHTML += "Added pipe connecting " + facilityIDs[0] + " and " + facilityIDs[1] + "<br>"
   }
 
-  if(debugging){updateNetworkLog()};
+  if(logPipes){updateNetworkLog()};
 
 }
 
@@ -2630,7 +2681,7 @@ function addPipe(x, y, mode){
           }
         }
       }
-      if(debugging){updateNetworkLog()}
+      if(logPipes){updateNetworkLog()}
 
     }
 
@@ -2838,7 +2889,7 @@ function createNetwork(x, y, type, modifiers){
     }
   }
 
-  if(debugging){updateNetworkLog()}
+  if(logPipes){updateNetworkLog()}
 }
 
 //Changes the network log in the debug menu

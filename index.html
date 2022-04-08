@@ -20,12 +20,12 @@
           <input type="text" autocomplete="off" id="evalInput" style="font-family: monospace; width: 225px;padding: 1px;" placeholder="use lg() to output result"><button style="margin-bottom: 6px;" onclick="document.getElementById('errorOutput').innerHTML = ''; document.getElementById('evalOutput').innerHTML = ''; try{eval(document.getElementById('evalInput').value)}catch(err){document.getElementById('errorOutput').innerHTML = err}">Evaluate</button><br>
           <p style="color: black;" id="evalOutput"></p>
           <p style="color: red" id="errorOutput"></p>
-          <button style="margin-bottom: 2px;" id="debugSwitch" onclick="if(logPipes){logPipes=false; document.getElementById('debugSwitch').innerHTML = 'Log Pipes OFF'}else{logPipes=true; document.getElementById('debugSwitch').innerHTML = 'Log Pipes ON'}">Log Pipes OFF</button>
+          <button style="margin-bottom: 2px;" id="debugSwitch" onclick="if(logPipes){logPipes=false; document.getElementById('debugSwitch').innerHTML = 'Logs OFF'}else{logPipes=true; document.getElementById('debugSwitch').innerHTML = 'Logs ON'}">Logs OFF</button>
           <br>
+          <p>Latency: <span id="latency"></span> ms</p>
           <button onclick="evalOnFade = 'loadArea(\'island\')'; fading = true">Go to Island</button>
           <button onclick="evalOnFade = 'loadArea(\'shore\')'; fading = true">Go to Shore</button><br>
           <button onclick="try{game.loop()}catch(err){lg(err)}">Diagnose</button>
-          <button onclick="placeShip()">Place Ship</button>
           <button onclick="navigator.clipboard.writeText(JSON.stringify(new Area('backup', areas[areaIndex].baseLayer, areas[areaIndex].waterLayer, areas[areaIndex].activeLayer, areas[areaIndex].networks, areas[areaIndex].links, areas[areaIndex].overlay)))">Copy Backup File</button>
 
           <p>Monitor Variables</p>
@@ -40,7 +40,7 @@
           <div style="background-color: #eeeeee; border: 1px solid black; height: 150px; width: 96%; margin-top: 4px; margin-bottom: 4px; margin-left: -2px; overflow: scroll; font-size: 12px; display: inline-block; white-space: nowrap; resize: vertical;">
             <p id="pipeLog"><p>
           </div>
-          <p>Rails will transport oil at the moment. It's not a bug, it's a feature.</p>
+          <button onclick="updateNetworkLog();">Update Network Log</button>
           <div style="background-color: #eeeeee; border: 1px solid black; height: 100px; width: 96%; margin-top: 4px; margin-bottom: 4px; margin-left: -2px; overflow: scroll; font-size: 12px; display: inline-block; white-space: nowrap; resize: vertical;">
             <p id="networkLog"><p>
           </div>
@@ -51,6 +51,8 @@
         <div id="editor" class="menu" style="display:none;">
           <button onclick="funds = Infinity">Infinite Money</button>
           <button onclick="funds = 0">0 Money</button>
+          <button onclick="placeShip()">Place Ship</button>
+          <button onclick="placeAnySource()">Place Source</button>
           <img id="luigi" src="docs/assets/luigi-dance.gif">
           <p id="luigiSpeak">i'm-a still here<br>i may never leave</p>
         </div>
@@ -65,7 +67,7 @@
       <div id="tutorialContent"></div>
     </div>
 
-    <button id="skipTutorial" style="left: 1%; position: absolute; bottom: 1%; z-index: 12; cursor: pointer; font-family: 'Pixellari'; font-size: 20px; transition: bottom 200ms;" onclick="tutorialIndex = 30; tutorialNext()">Skip Tutorial</button>
+    <button id="skipTutorial" style="left: 1%; position: absolute; bottom: 1%; z-index: 12; cursor: pointer; font-family: 'Pixellari'; font-size: 20px; transition: bottom 200ms;" onclick="tutorialIndex = 30; tutorialNext(); retrosoul.play();">Skip Tutorial</button>
 
     <p id="notifyText">According to all known laws of aviation there is no way a bee should be able to fly. Of course, bees fly anyway, because bees don't care what humans think is impossible.</p>
 
