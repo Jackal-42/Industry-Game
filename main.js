@@ -55,7 +55,7 @@ function notify(text, time){
 
 var tutorial = [
   {
-    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production. Music: https://www.bensound.com, Sound effects obtained from https://www.zapsplat.com. Your game data may be monitored by us in order to improve the game. By using this software, you agree to all the terms of the <a href='https://jackal-42.github.io/pebblefellow-eula/' target='_blank'>End User License Agreement</a>.</p> <br><br> <button onclick=\"tutorialNext()\">Next</button>",
+    text: "<p>Welcome to Pebblefellow Industries, where you step into the shoes of an oil manufacturer after the Industrial Revolution. This tutorial will show you the ropes of oil production. Music used from <a href='https://bensound.com'>bensound</a>. Sound effects obtained from <a href='https://www.zapsplat.com'>zapslat</a>. Your game data may be monitored by us in order to improve the game. By using this software, you agree to all the terms of the <a href='https://jackal-42.github.io/pebblefellow-eula/' target='_blank'>End User License Agreement</a>.</p> <br><br> <button onclick=\"tutorialNext()\">Next</button>",
     action: function(){
       //0
       retrosoul.play();
@@ -645,7 +645,7 @@ window.addEventListener("click", function (e) {
 });
 
 game.getLayer("effects").canvas.addEventListener("click", function (e) {
-  if(!(document.getElementById('centerDisplay').style.display == 'none' && (document.getElementById('objectiveDisplay').style.display == 'none' || document.getElementById('objectiveMax').style.display == 'none'))){
+  if(!(document.getElementById('centerDisplay').style.display == 'none' && (document.getElementById('objectiveDisplay').style.display == 'none' || document.getElementById('objectiveMax').style.display == 'none')) && !doingTutorial){
     return;
   }
   if(tutorialIndex == 16 || tutorialIndex == 26 || tutorialIndex == 27 || tutorialIndex == 28){
@@ -1492,7 +1492,7 @@ game.loop = function(){
   }
 
   //Determines if the mouse has moved more than one tile in a frame, and adds or removes pipes in a line from the mouse's previous position to the current one, making sure to fill in any corners
-  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && (document.getElementById('objectiveDisplay').style.display == 'none' || document.getElementById('objectiveMax').style.display == 'none') && conduitSelected != "facility" && conduitSelected != "pointer" && !(mouseX == previousPipeX && mouseY == previousPipeY)){
+  if(mouseDown && document.getElementById('centerDisplay').style.display == 'none' && ((document.getElementById('objectiveDisplay').style.display == 'none' || document.getElementById('objectiveMax').style.display == 'none') || doingTutorial) && conduitSelected != "facility" && conduitSelected != "pointer" && !(mouseX == previousPipeX && mouseY == previousPipeY)){
 
     var distanceX = previousMouseX - mouseX
     var distanceY = previousMouseY - mouseY
@@ -1542,11 +1542,13 @@ game.loop = function(){
     if(objectivesScored < objectives.length && eval(objectives[objectivesScored].condition)){
       expandObjectiveDisplay()
       document.getElementById("claimObjective").style.opacity = "1"
+      document.getElementById("claimObjective").disabled = false
       // eval(objectives[objectivesScored].reward)
       // objectivesScored++
       // updateObjectives()
     }else{
       document.getElementById("claimObjective").style.opacity = "0.3"
+      document.getElementById("claimObjective").disabled = true
     }
   }
 
