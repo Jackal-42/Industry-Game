@@ -1,6 +1,7 @@
 var audio = [
   "retrosoul",
-  "clank"
+  "clank",
+  "funkybeat",
 ]
 
 for(var i = 0; i < audio.length; i++){
@@ -8,3 +9,4 @@ for(var i = 0; i < audio.length; i++){
   eval(audio[i] + ".volume = 0.5");
 }
 retrosoul.loop = true;
+funkybeat.loop = true;

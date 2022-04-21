@@ -1123,8 +1123,14 @@ document.getElementById('centerDisplay').style.display = 'none'
 var latencyTest = [];
 var oldTime = new Date().getTime();
 const average = (array) => array.reduce((a, b) => a + b) / array.length;
+
+
+
 //The code that is executed each frame
 game.loop = function(){
+  if(funkymode){
+    game.window.style.transform = "rotate("+Math.sin(framesElapsed/20)*20+"deg) scale("+(1 + Math.sin(framesElapsed/40)/8)+")"
+  }
 
   if(tutorialIndex == 16){
     if(getMapData(23, 11) == "~" && getMapData(24, 11) == "~" && getMapData(25, 11) == "~"){

@@ -36,8 +36,14 @@ function Game(id){
   this.mouseDown = false;
   document.body.appendChild(this.window)
   this.window.addEventListener('mousemove', function(e){
-    eval(this.id).mouseX = ((e.clientX - this.offsetLeft)*(window.devicePixelRatio/1.5))/zoom
-    eval(this.id).mouseY = ((e.clientY - this.offsetTop)*(window.devicePixelRatio/1.5))/zoom
+    if(funkymode){
+      var mouseArray = rotate(offsetWidth/2, offsetHeight/2, ((e.clientX - this.offsetLeft)*(window.devicePixelRatio/1.5))/zoom, ((e.clientY - this.offsetTop)*(window.devicePixelRatio/1.5))/zoom, Math.sin(framesElapsed/20)*20);
+    }else{
+      var mouseArray = [((e.clientX - this.offsetLeft)*(window.devicePixelRatio/1.5))/zoom, ((e.clientY - this.offsetTop)*(window.devicePixelRatio/1.5))/zoom]
+    }
+
+    eval(this.id).mouseX = mouseArray[0];
+    eval(this.id).mouseY = mouseArray[1];
     // console.log(eval(this.id).mouseX + " , " + eval(this.id).mouseY)
   })
   this.window.addEventListener('mousedown', function(e){

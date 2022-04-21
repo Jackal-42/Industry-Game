@@ -6,6 +6,10 @@
 
 
 
+
+//ignore
+var funkymode = false;
+
 var framesElapsed = 0;
 var mouseDown = false;
 var count = 0;
@@ -413,6 +417,8 @@ var stopAreaInteraction = false
 function loadArea(id){
   scrollX = 0;
   scrollY = 0;
+  let zoomBackup = zoom;
+  zoom = 1;
   if(!firstView && id != "shore"){
     firstView = true;
     addPoliticsButton("<button class=\"politicsButton\" onclick=\"this.remove(); document.getElementById(\'slideMenuRight\').style.left = \'70%\'; document.getElementById(\'fundsWrapper\').style.marginLeft = \'-15%\'\"><b>How to get back</b><br><i>Click the \'Go to factory\' button under Pebblefellow Industries</i></button>")
@@ -454,6 +460,7 @@ function loadArea(id){
   }
   game.getObject('baseLayer').render = true;
   game.getObject('waterLayer').render = true;
+  zoom = zoomBackup;
   if(logPipes){updateNetworkLog()};
 }
 

@@ -1443,6 +1443,10 @@ game.addTemplate("terrain", [
       ctx = game.getLayer(self.layerId).context;
     }
 
+    var zoomBackup = zoom;
+    if(!self.refresh){
+      zoom = 1;
+    }
 
     ctx.imageSmoothingEnabled = false;
     if(self.refresh || self.render){
@@ -1548,6 +1552,8 @@ game.addTemplate("terrain", [
         }
       }
     }
+    zoom = zoomBackup
+
     self.render = false;
 
 
