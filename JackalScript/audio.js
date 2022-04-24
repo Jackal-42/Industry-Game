@@ -2,6 +2,7 @@ var audio = [
   "retrosoul",
   "clank",
   "funkybeat",
+  "hipjazz",
 ]
 
 for(var i = 0; i < audio.length; i++){
@@ -10,3 +11,4 @@ for(var i = 0; i < audio.length; i++){
 }
 retrosoul.loop = true;
 funkybeat.loop = true;
+hipjazz.loop = true;

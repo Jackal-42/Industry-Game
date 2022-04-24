@@ -1388,7 +1388,7 @@ var objectivesScored = 0;
 var objectives = [
   {
     name: "Produce Naphtha",
-    description: "just do it",
+    description: "This oil is produced at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_distiller\')\">distiller</span> and is one of the most important ingredients in <span class=\"tooltipLink\" onclick=\"createTooltip(\'gasoline\')\">gasoline</span>, but it also can be sold for a decent price.",
     condition: "lifetimeProducts.naphtha > 0",
     reward: "getFacility(\"crude_source\").limit += 1; funds += 200",
     rewardText: "+1 Crude Oil Pump<br>$200",
@@ -1396,10 +1396,26 @@ var objectives = [
 
   {
     name: "Get an Upgrade",
-    description: "FUN TIMES IN CLEVELAND AGAIN; <b>STILL CLEVELAND</b>",
+    description: "Once you have acquired enough funds, upgrades can be purchased by opening the right-hand menu.",
     condition: "lifetimeUpgrades > 0",
     reward: "getFacility(\"crude_source\").limit += 1; funds += 200",
     rewardText: "+1 Crude Oil Pump<br>$200",
+  },
+
+  {
+    name: "Produce Gasoline",
+    description: "Gasoline is a desirable and versatile fuel created at a <span class=\"tooltipLink\" onclick=\"createTooltip(\'hotbar_gasoline_mixer\')\">gasoline mixer</span>",
+    condition: "lifetimeProducts.gasoline > 0",
+    reward: "getFacility(\"crude_source\").limit += 1; funds += 300",
+    rewardText: "+1 Crude Oil Pump<br>$300",
+  },
+
+  {
+    name: "Acquire every corporation",
+    description: "Once you have acquired enough funds, corporations can be purchased by opening the right-hand menu.",
+    condition: "corporations[0].owns.length >= 3",
+    reward: "rollCredits()",
+    rewardText: "???",
   },
 ]
 

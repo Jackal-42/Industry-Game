@@ -3078,4 +3078,20 @@ function tint(texture, color, amount){
   return tintCanvas
 }
 
+function rollCredits(){
+  document.getElementById("credits").style.display = "block";
+  retrosoul.pause();
+  requestAnimationFrame(credits);
+}
+
+let creditsTime = 0;
+function credits(){
+  creditsTime += 1;
+  if(creditsTime == 30){
+    hipjazz.play();
+  }else{
+    requestAnimationFrame(credits);
+  }
+}
+
 //If you still can't find what you are looking for, try the templates.js or main.js files
